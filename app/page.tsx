@@ -27,6 +27,7 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [planned, setPlanned] = useState(false);
   const [thinking, setThinking] = useState(false);
+  const [activeAction, setActiveAction] = useState("plan-trip");
   const [loadingPlan, setLoadingPlan] = useState(false);
   const [plannerError, setPlannerError] = useState("");
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
@@ -38,6 +39,7 @@ export default function Home() {
     setPlannerOpen(true);
     setPlanned(false);
     setThinking(false);
+    setActiveAction("plan-trip");
     setPlannerError("");
     setItinerary(null);
   };
@@ -49,6 +51,7 @@ export default function Home() {
       setPlannerError("Add a destination or an idea to get started.");
       return;
     }
+    setActiveAction("plan-trip");
     setThinking(true);
     setLoadingPlan(true);
     try {
@@ -75,6 +78,26 @@ export default function Home() {
     }
   };
 
+  const runFeatureAction = async (action: "decide-for-us" | "surprise-me") => {
+    setPlannerOpen(true);
+    setPlanned(false);
+    setItinerary(null);
+    setPlannerError("");
+    setActiveAction(action);
+    setThinking(true);
+    try {
+      const response = await postAction(action, { destination: destination.trim(), notes: prompt.trim() });
+      if (response.status === "coming_soon") {
+        setPlanned(true);
+      } else {
+        throw new Error(response.message || "This feature isn't available right now. Please try again.");
+      }
+    } catch (error) {
+      setPlannerError(error instanceof Error ? error.message : "We couldn't connect just now. Please try again.");
+      setThinking(false);
+    }
+  };
+
   return (
     <main>
       <nav className="nav wrap">
@@ -92,14 +115,14 @@ export default function Home() {
       <section className="hero wrap">
         <div className="hero-copy">
           <div className="eyebrow"><span className="eyebrow-dot"/> YOUR NEXT TRIP, MADE PERSONAL</div>
-          <h1>Travel more.<br/><em>Wonder more.</em></h1>
+          <h1>Where to <em>next?</em></h1>
           <p className="hero-text">Your AI travel planner. Tell us what you love, and get a thoughtful trip made around you.</p>
           <form className="hero-composer" onSubmit={e=>{e.preventDefault();startPlan();}}>
             <label htmlFor="hero-destination">LET’S START WITH A PLACE OR AN IDEA</label>
             <div className="hero-composer-field"><MapPin size={18}/><input id="hero-destination" value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Italy for 5 days, a quiet beach…" /><button type="submit" aria-label="Start planning" ><ArrowUpRight size={19}/></button></div>
             <div className="hero-suggestions"><span>Try:</span><button type="button" onClick={()=>{setDestination("A long weekend in Italy");setPrompt("A long weekend in Italy");}}>Long weekend in Italy</button><button type="button" onClick={()=>{setDestination("A peaceful beach escape");setPrompt("A peaceful beach escape");}}>Beach escape</button><button type="button" onClick={()=>{setDestination("Surprise me");setPrompt("Surprise me with somewhere unexpected");}}>Surprise me</button></div>
           </form>
-          <div className="hero-secondary"><button className="text-link" onClick={startPlan}>Open full trip planner <ArrowRight size={16}/></button><a className="text-link" href="#how">How it works <ArrowDownRight size={16}/></a></div>
+          <div className="hero-secondary"><button className="text-link" onClick={startPlan}>Plan a trip <ArrowRight size={16}/></button><button className="text-link" onClick={()=>runFeatureAction("decide-for-us")}>Decide for us <ArrowRight size={16}/></button><button className="text-link" onClick={()=>runFeatureAction("surprise-me")}>Surprise me <ArrowRight size={16}/></button></div>
           <div className="hero-foot"><div className="avatar-stack"><span>✦</span><span>✺</span><span>◒</span></div><span>Made for the way <strong>you</strong> travel.</span><span className="hero-foot-line"/></div>
         </div>
         <div className="hero-art">
@@ -145,7 +168,7 @@ export default function Home() {
 
       <footer className="footer wrap"><div className="footer-main"><a href="#" className="wordmark footer-logo"><img src="/vyaj-logo.svg" alt="VYAJ — Plan less. Travel more." /></a><p>Plan less. Travel more.<br/>Make room for the good stuff.</p><a href="mailto:hello@vyaj.eu" className="footer-email">hello@vyaj.eu <ArrowUpRight size={15}/></a></div><div className="footer-bottom"><span>© 2026 VYAJ. MADE FOR THE WAY YOU WANDER.</span><div><a href="#why">Our approach</a><a href="#discover">Find inspiration</a><a href="#waitlist">Join the waitlist</a></div><a href="#" className="back-top">BACK TO TOP ↑</a></div></footer>
 
-      {plannerOpen && <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setPlannerOpen(false);}}><div className="planner-modal" role="dialog" aria-modal="true" aria-labelledby="planner-title"><button className="modal-close" aria-label="Close planner" onClick={()=>setPlannerOpen(false)}><X size={20}/></button><div className="planner-kicker"><Sparkles size={15}/> YOUR TRAVEL SIDEKICK</div>{thinking ? <div className="planner-thinking" role="status"><div className="thinking-orbit"><span></span><span></span><Sparkles size={25}/></div><p className="thinking-kicker">PUTTING THE PIECES TOGETHER</p><h2 id="planner-title">Finding your <em>somewhere.</em></h2><p className="thinking-copy">Thinking through the kind of trip you want. A little inspiration, a little planning…</p><div className="thinking-progress"><span/></div></div> : !planned ? <><h2 id="planner-title">Let’s find your <em>somewhere.</em></h2><p className="planner-intro">A few details are all we need to get your imagination moving.</p><form onSubmit={submitPlan} className="planner-form"><label>Where are you dreaming of?<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="e.g. Portugal, or surprise me"/></label><div className="planner-fields"><label>How long?<select value={days} onChange={e=>setDays(e.target.value)}><option>Weekend</option><option>3–4 days</option><option>5–7 days</option><option>1–2 weeks</option><option>Two weeks or more</option></select></label><label>Who’s coming?<select value={travellers} onChange={e=>setTravellers(e.target.value)}><option>Just me</option><option>Two of us</option><option>Friends</option><option>Family</option></select></label></div><label>What’s your kind of trip?<select value={style} onChange={e=>setStyle(e.target.value)}><option>A bit of everything</option><option>Food & local culture</option><option>Nature & outdoors</option><option>Rest & recharge</option><option>Art, design & cities</option><option>Adventure & surprises</option></select></label><label>Anything else on your mind? <span className="optional">(optional)</span><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="A place you’ve always wanted to see, a feeling you’re chasing…" rows={3}/></label><button className="button button-dark planner-submit" type="submit" disabled={loadingPlan}>{loadingPlan ? "Dreaming up your trip…" : "Build my itinerary"} {!loadingPlan && <ArrowUpRight size={17}/>}</button>{plannerError && <p className="planner-error" role="alert">{plannerError}</p>}<small className="planner-disclaimer">AI-generated suggestions. Check local details before you travel.</small></form></> : <div className="planner-result">
+      {plannerOpen && <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setPlannerOpen(false);}}><div className="planner-modal" role="dialog" aria-modal="true" aria-labelledby="planner-title"><button className="modal-close" aria-label="Close planner" onClick={()=>setPlannerOpen(false)}><X size={20}/></button><div className="planner-kicker"><Sparkles size={15}/> YOUR TRAVEL SIDEKICK</div>{thinking ? <div className="planner-thinking" role="status"><div className="thinking-orbit"><span></span><span></span><Sparkles size={25}/></div><p className="thinking-kicker">VYAJ / YOUR TRAVEL SIDEKICK</p><h2 id="planner-title">THINKING<span className="thinking-ellipsis">...</span></h2><p className="thinking-copy">{activeAction === "decide-for-us" ? "We’re finding a journey that feels right for you…" : activeAction === "surprise-me" ? "Looking for somewhere you might never have considered…" : "Finding the right journey for you…"}</p><div className="thinking-progress"><span/></div></div> : !planned ? <><h2 id="planner-title">Let’s find your <em>somewhere.</em></h2><p className="planner-intro">A few details are all we need to get your imagination moving.</p><form onSubmit={submitPlan} className="planner-form"><label>Where are you dreaming of?<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="e.g. Portugal, or surprise me"/></label><div className="planner-fields"><label>How long?<select value={days} onChange={e=>setDays(e.target.value)}><option>Weekend</option><option>3–4 days</option><option>5–7 days</option><option>1–2 weeks</option><option>Two weeks or more</option></select></label><label>Who’s coming?<select value={travellers} onChange={e=>setTravellers(e.target.value)}><option>Just me</option><option>Two of us</option><option>Friends</option><option>Family</option></select></label></div><label>What’s your kind of trip?<select value={style} onChange={e=>setStyle(e.target.value)}><option>A bit of everything</option><option>Food & local culture</option><option>Nature & outdoors</option><option>Rest & recharge</option><option>Art, design & cities</option><option>Adventure & surprises</option></select></label><label>Anything else on your mind? <span className="optional">(optional)</span><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="A place you’ve always wanted to see, a feeling you’re chasing…" rows={3}/></label><button className="button button-dark planner-submit" type="submit" disabled={loadingPlan}>{loadingPlan ? "Dreaming up your trip…" : "Build my itinerary"} {!loadingPlan && <ArrowUpRight size={17}/>}</button>{plannerError && <p className="planner-error" role="alert">{plannerError}</p>}<small className="planner-disclaimer">AI-generated suggestions. Check local details before you travel.</small></form></> : <div className="planner-result">
         <div className="result-sparkle"><Sparkles size={24}/></div>
         {itinerary ? <>
           <p className="result-ready-kicker">✦ YOUR JOURNEY</p>
@@ -158,9 +181,9 @@ export default function Home() {
           <p className="result-footnote">AI-generated suggestions. Opening hours, prices and availability are not live-verified.</p>
         </> : <>
           <p className="result-ready-kicker">✦ YOUR NEXT ADVENTURE</p>
-          <h2 id="planner-title">Your journey is getting ready.</h2>
+          <h2 id="planner-title">{activeAction === "decide-for-us" ? "Let VYAJ choose your next adventure." : activeAction === "surprise-me" ? "A little surprise is on its way." : "Your journey is getting ready."}</h2>
           <p className="result-summary">{destination || "Your destination"} · {days.toLowerCase()} · {travellers.toLowerCase()}</p>
-          <div className="coming-soon-panel"><span>COMING SOON</span><p>We’re putting the finishing touches on your VYAJ travel experience. Your next great journey starts here.</p></div>
+          <div className="coming-soon-panel"><span>COMING SOON</span><p>{activeAction === "decide-for-us" ? "Our smart decision experience is coming soon. We’ll help you choose a trip without the endless comparing." : activeAction === "surprise-me" ? "Personalised travel surprises are coming soon. Get ready to discover somewhere unexpected." : "We’re putting the finishing touches on your VYAJ travel experience. Your next great journey starts here."}</p></div>
         </>}
         <button className="button button-dark planner-submit" onClick={()=>{setPlanned(false);setThinking(false);setPlannerError("");}}>Back to planning <ArrowRight size={17}/></button>
         <button className="result-close" onClick={()=>{setPlannerOpen(false);setPlanned(false);setThinking(false);}}>Back to VYAJ</button>
