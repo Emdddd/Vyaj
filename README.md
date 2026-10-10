@@ -90,6 +90,7 @@ These endpoints validate that a JSON object was sent and return an explicit feat
 | `/api/v1/actions/invite-travelers` | `{ status: "coming_soon", feature: "invite-travelers" }` |
 | `/api/v1/actions/submit-vote` | `{ status: "coming_soon", feature: "submit-vote" }` |
 | `/api/v1/actions/view-notifications` | `{ status: "coming_soon", feature: "view-notifications" }` |
+| `/api/v1/actions/join-waitlist` | Validates email format, then returns `coming_soon`; it does not persist the address. |
 
 ### Error response
 
@@ -124,7 +125,7 @@ GitHub Actions builds the static export and deploys it to GitHub Pages on pushes
 ## Known limitations — be explicit
 
 - Group collaboration, voting, notifications, destination search, itinerary adjustment, and invitations are API stubs returning `coming_soon`; they are not implemented product operations yet.
-- The current email waitlist form is a local UI demo only; it does not persist addresses or send confirmation email.
+- The email waitlist form calls the API stub and truthfully reports Coming Soon; it does not persist addresses or send confirmation email.
 - Authentication, user accounts, persistent trips, database storage, invitation delivery, and production-grade rate limiting are not implemented.
 - No live booking, real-time prices, opening hours, or transport availability are connected.
 - The Worker currently has CORS/origin checks, request size/field limits, and an upstream timeout, but CORS is not authentication and is not a substitute for rate limiting. Add an edge rate-limit rule before promoting the AI endpoint to broad public use.
