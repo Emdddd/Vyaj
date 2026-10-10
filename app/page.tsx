@@ -6,24 +6,29 @@ import { ArrowDown, ArrowRight, ArrowUpRight, Check, Clock3, Compass, MapPin, Me
 type TripStyle = "Food & culture" | "Nature & outdoors" | "Slow escape" | "A bit of everything";
 
 const styles: TripStyle[] = ["Food & culture", "Nature & outdoors", "Slow escape", "A bit of everything"];
-function PlacePhoto({ activity }: { activity: string }) {
+function PlacePhoto({ activity, destination }: { activity: string; destination: string }) {
   const [photo, setPhoto] = useState<{ url: string; title: string; page: string } | null>(null);
-  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
-    const query = activity
-      .replace(/\\b(visit|explore|walk|take|enjoy|have|try|choose|browse|travel|return|start|spend|see|discover|admire|leave|pause|find|and|then|before|after|if|open|check|current|time|times|ticket|tickets|advance|area|surrounding|historic|local|nearby|relaxed|relax|allows|subject|to|weather|transport|costs|suit|plan|or|a|the|in|on|at|for|with|from|towards|through|around|by|up|one|your|its|their|classic|major|small|final|flexible|optional|morning|afternoon|evening|day|lunch|dinner|coffee|cafe|café|restaurant|streets|street|city|neighbourhood|neighborhood|view|views|walkable|outdoors)\\b/gi, " ")
-      .replace(/[^\\p{L}\\p{N}\\s'-]/gu, " ")
-      .replace(/\\s+/g, " ")
-      .trim() || activity;
+    const stopWords = new Set(["visit","explore","walk","take","enjoy","have","try","choose","browse","travel","return","start","spend","see","discover","admire","leave","pause","find","and","then","before","after","open","check","current","time","tickets","advance","area","surrounding","historic","local","nearby","relaxed","relax","allows","subject","weather","transport","costs","suit","plan","optional","morning","afternoon","evening","day","lunch","dinner","coffee","cafe","café","restaurant","streets","street","city","neighbourhood","neighborhood","views","view","walkable","outdoors","if","the","for","with","from","towards","through","around","by","your","its"]);
+    const clean = (value: string) => value
+      .normalize("NFKD")
+      .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
+      .split(/\s+/)
+      .filter(word => word.length > 2 && !stopWords.has(word.toLowerCase()))
+      .join(" ");
+    const destinationTerms = clean(destination);
+    const activityTerms = clean(activity);
+    const query = [destinationTerms, activityTerms].filter(Boolean).join(" ").slice(0, 160);
+    if (!query) return;
     const params = new URLSearchParams({
       action: "query",
       generator: "search",
       gsrsearch: query,
       gsrnamespace: "6",
-      gsrlimit: "10",
+      gsrlimit: "12",
       prop: "imageinfo",
       iiprop: "url|mime",
       iiurlwidth: "320",
@@ -37,51 +42,36 @@ function PlacePhoto({ activity }: { activity: string }) {
       })
       .then(data => {
         const pages = Object.values(data?.query?.pages ?? []) as Array<any>;
-        const usable = pages
-          .map(page => {
-            const info = page?.imageinfo?.[0];
-            const url = info?.thumburl || info?.url;
-            return {
-              url: typeof url === "string" ? url : "",
-              title: String(page.title || "").replace(/^File:/, ""),
-              page: String(info?.descriptionurl || "https://commons.wikimedia.org/"),
-              mime: String(info?.mime || ""),
-            };
-          })
-          .filter(item => item.url && item.mime.startsWith("image/") && !/\\.(svg|gif)$/i.test(item.url) && !/logo|map|flag|icon|poster|diagram|coat of arms|collage|drawing/i.test(item.title));
-        if (!cancelled && usable.length) {
-          const words = query.toLowerCase().split(/\\s+/).filter(word => word.length > 2);
-          usable.sort((a, b) => {
-            const score = (title: string) => words.reduce((sum, word) => sum + (title.toLowerCase().includes(word) ? 1 : 0), 0);
-            return score(b.title) - score(a.title);
-          });
-          setPhoto(usable[0]);
-        }
+        const terms = [...destinationTerms, ...activityTerms].toLowerCase().split(/\s+/).filter(word => word.length > 3);
+        const usable = pages.map(page => {
+          const info = page?.imageinfo?.[0];
+          return {
+            url: typeof (info?.thumburl || info?.url) === "string" ? (info.thumburl || info.url) : "",
+            title: String(page.title || "").replace(/^File:/, ""),
+            page: String(info?.descriptionurl || "https://commons.wikimedia.org/"),
+            mime: String(info?.mime || ""),
+          };
+        }).filter(item => item.url && item.mime.startsWith("image/") && !/\.(svg|gif)$/i.test(item.url) && !/logo|map|flag|icon|poster|diagram|coat of arms|collage|drawing/i.test(item.title));
+        const scored = usable.map(item => {
+          const title = item.title.toLowerCase();
+          const score = terms.reduce((sum, word) => sum + (title.includes(word) ? 1 : 0), 0);
+          return { ...item, score };
+        }).filter(item => item.score >= 1).sort((a, b) => b.score - a.score);
+        if (!cancelled && scored.length) setPhoto(scored[0]);
       })
       .catch(() => {});
     return () => {
       cancelled = true;
       controller.abort();
     };
-  }, [activity]);
+  }, [activity, destination]);
 
-  const fallbackImages = [
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=320&q=75",
-    "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=320&q=75",
-    "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=320&q=75",
-  ];
-  const fallback = fallbackImages[activity.length % fallbackImages.length];
-  const imageUrl = failed ? fallback : photo?.url || fallback;
+  if (!photo) {
+    return <div className="v2-activity-photo v2-activity-photo-placeholder" aria-label="No matching place photo found"><MapPin size={17}/></div>;
+  }
   return (
-    <a className="v2-activity-photo-link" href={photo?.page || "https://commons.wikimedia.org/"} target="_blank" rel="noreferrer" title={photo ? `Photo source: Wikimedia Commons — ${photo.title}` : "Travel photo"}>
-      <img
-        className="v2-activity-photo"
-        src={imageUrl}
-        alt={photo ? photo.title : "Travel inspiration"}
-        loading="lazy"
-        decoding="async"
-        onError={() => { if (!failed) setFailed(true); }}
-      />
+    <a className="v2-activity-photo-link" href={photo.page} target="_blank" rel="noreferrer" title={`Photo source: Wikimedia Commons — ${photo.title}`}>
+      <img className="v2-activity-photo" src={photo.url} alt={photo.title} loading="lazy" decoding="async"/>
     </a>
   );
 }
@@ -401,7 +391,7 @@ export default function Home() {
                 <div className="v2-summary-icon"><MapPin size={19}/></div><div className="v2-summary-main"><span className="v2-small-label">YOUR SAMPLE TRIP</span><h3>{destination.trim()}</h3><p>{days} days <span>·</span> {travellers} {travellers === "1" ? "traveller" : "travellers"} <span>·</span> {style}</p></div><span className="v2-demo-tag v2-demo-tag-dark">SAMPLE</span>
               </div>
               <div className="v2-result-grid">
-                <div className="v2-days-list">{resultDays.map(day => <article className="v2-day-card" key={day.day}><div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div><p className="v2-day-focus">{day.focus}</p>{day.activities.map(([time, activity]) => <div className="v2-activity" key={time + activity}><PlacePhoto activity={activity}/><span>{time}</span><p>{activity}</p></div>)}</article>)}</div>
+                <div className="v2-days-list">{resultDays.map(day => <article className="v2-day-card" key={day.day}><div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div><p className="v2-day-focus">{day.focus}</p>{day.activities.map(([time, activity]) => <div className="v2-activity" key={time + activity}><PlacePhoto activity={activity} destination={destination}/><span>{time}</span><p>{activity}</p></div>)}</article>)}</div>
                 <aside className="v2-result-aside"><span className="v2-small-label">YOUR STATED BUDGET</span><h3>{money(budget)}</h3><p>This is the budget you entered, not a calculated or verified trip cost.</p><div className="v2-budget-metrics"><div><small>Per person · total</small><strong>{budget === "Flexible" ? "Flexible" : travellers === "5+" ? "Varies" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Number(travellers)).toLocaleString("en-IE", { maximumFractionDigits: 0 })}</strong></div><div><small>Per day · group</small><strong>{budget === "Flexible" ? "Flexible" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Math.max(dayCount, 1)).toLocaleString("en-IE", { maximumFractionDigits: 2 })}</strong></div></div><p className="v2-budget-caption">Figures above are arithmetic based on your inputs only. Flights, accommodation, food, transport and tickets have not been priced or assumed included.</p><div className="v2-aside-divider"/><span className="v2-small-label">WHY THIS SHAPE?</span><p>{isSicily && style === "Food & culture" ? "Palermo is a practical cultural starting point for this sample, with one optional coastal day in Cefalù. The order is illustrative; confirm transport schedules before committing." : tripIdea.note}</p><div className="v2-assumption"><Sparkles size={15}/><span>Illustrative sample only. No live AI, verified prices, opening hours, transport schedules or availability.</span></div><button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>Edit your details <ArrowRight size={16}/></button></aside>
               </div>
               <p className="v2-result-disclaimer">This is an illustrative VYAJ prototype, not a live AI-generated itinerary. For Malta and Sicily, this demo includes illustrative destination-specific ideas; other destinations use general travel-planning ideas. None are live AI results or verified travel recommendations. Prices, opening hours, transport schedules and availability have not been verified. Check current details before booking or travelling.</p>
