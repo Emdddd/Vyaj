@@ -1,0 +1,7 @@
+name = "vyaj-ai-api"
+main = "worker/index.ts"
+compatibility_date = "2026-10-10"
+workers_dev = true
+
+[observability]
+enabled = true
