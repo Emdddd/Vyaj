@@ -35,9 +35,26 @@ const demoIdeas: Record<TripStyle, { morning: string; afternoon: string; evening
 };
 
 const destinationHints = [
-  { name: "Sicily, Italy", text: "Food, coastlines & historic towns", image: "photo-1533105079780-92b9be482077" },
-  { name: "Lisbon, Portugal", text: "Colourful streets & easygoing days", image: "photo-1555881400-74d7acaacd8b" },
-  { name: "Copenhagen, Denmark", text: "Design, coffee & city wandering", image: "photo-1513622470522-26c3c8a854bc" }
+  { name: "Sicily, Italy", country: "Italy", text: "Food, coastlines & historic towns" },
+  { name: "Rome, Italy", country: "Italy", text: "Ancient history, piazzas & pasta" },
+  { name: "Florence, Italy", country: "Italy", text: "Renaissance art & Tuscan food" },
+  { name: "Paris, France", country: "France", text: "Museums, cafés & iconic streets" },
+  { name: "London, United Kingdom", country: "United Kingdom", text: "Culture, markets & neighbourhoods" },
+  { name: "Barcelona, Spain", country: "Spain", text: "Architecture, tapas & the coast" },
+  { name: "Lisbon, Portugal", country: "Portugal", text: "Hills, viewpoints & local food" },
+  { name: "Amsterdam, Netherlands", country: "Netherlands", text: "Canals, galleries & cycling" },
+  { name: "Copenhagen, Denmark", country: "Denmark", text: "Design, coffee & city wandering" },
+  { name: "Athens, Greece", country: "Greece", text: "Ancient landmarks & tavernas" },
+  { name: "Istanbul, Türkiye", country: "Türkiye", text: "Markets, architecture & food" },
+  { name: "Marrakech, Morocco", country: "Morocco", text: "Souks, gardens & Moroccan cuisine" },
+  { name: "Dubai, United Arab Emirates", country: "United Arab Emirates", text: "Architecture, dining & desert experiences" },
+  { name: "Bangkok, Thailand", country: "Thailand", text: "Street food, temples & markets" },
+  { name: "Tokyo, Japan", country: "Japan", text: "Food, design & contrasting districts" },
+  { name: "Kyoto, Japan", country: "Japan", text: "Temples, gardens & traditional streets" },
+  { name: "New York, United States", country: "United States", text: "Neighbourhoods, museums & food" },
+  { name: "Bali, Indonesia", country: "Indonesia", text: "Nature, wellness & island culture" },
+  { name: "Malta", country: "Malta", text: "Harbours, history & Mediterranean coast" },
+  { name: "Prague, Czechia", country: "Czechia", text: "Old-town streets & Central European culture" }
 ];
 
 function money(value: string) {
@@ -54,8 +71,14 @@ export default function Home() {
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [noticeOpen, setNoticeOpen] = useState(false);
+  const [destinationFocused, setDestinationFocused] = useState(false);
 
   const tripIdea = useMemo(() => demoIdeas[style], [style]);
+  const filteredDestinations = useMemo(() => {
+    const query = destination.trim().toLocaleLowerCase();
+    const matches = destinationHints.filter(item => !query || item.name.toLocaleLowerCase().includes(query) || item.country.toLocaleLowerCase().includes(query) || item.text.toLocaleLowerCase().includes(query));
+    return matches.slice(0, 6);
+  }, [destination]);
   const dayCount = Number(days);
   const isSicily = /sicily|sicilia|palermo/i.test(destination);
   const sicilyDays = [
@@ -137,7 +160,7 @@ export default function Home() {
         </div>
         <form className="v2-builder-card" onSubmit={buildTrip}>
           <div className="v2-builder-top"><div><span className="v2-small-label">VYAJ TRIP BUILDER</span><h3>Where to next?</h3></div><span className="v2-demo-tag">DEMO</span></div>
-          <label className="v2-field"><span>Destination</span><input value={destination} onChange={event => { setDestination(event.target.value); setResultReady(false); }} placeholder="e.g. Sicily, Italy" required/><small>Have a place in mind? Start there.</small></label>
+          <div className="v2-field v2-destination-field"><label htmlFor="destination-input"><span>Destination</span></label><div className="v2-destination-input-wrap"><MapPin size={17} aria-hidden="true"/><input id="destination-input" value={destination} onFocus={() => setDestinationFocused(true)} onBlur={() => window.setTimeout(() => setDestinationFocused(false), 140)} onChange={event => { setDestination(event.target.value); setResultReady(false); setError(""); setDestinationFocused(true); }} placeholder="Search any city or destination" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={destinationFocused && filteredDestinations.length > 0} aria-controls="destination-suggestions" required/><button type="button" className="v2-destination-clear" aria-label="Clear destination" onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(""); setResultReady(false); setDestinationFocused(true); document.getElementById("destination-input")?.focus(); }}>×</button></div>{destinationFocused && filteredDestinations.length > 0 && <div className="v2-destination-suggestions" id="destination-suggestions" role="listbox" aria-label="Popular destinations">{filteredDestinations.map(item => <button type="button" role="option" aria-selected={destination === item.name} className="v2-destination-suggestion" key={item.name} onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(item.name); setResultReady(false); setError(""); setDestinationFocused(false); }}><span className="v2-destination-pin"><MapPin size={15}/></span><span className="v2-destination-copy"><strong>{item.name}</strong><small>{item.text}</small></span><ArrowUpRight size={14} className="v2-destination-arrow"/></button>)}</div>}<small>Choose a suggestion or type any destination. Suggestions are curated examples, not live search results.</small></div>
           <div className="v2-form-grid">
             <label className="v2-field"><span>How many days?</span><select value={days} onChange={event => { setDays(event.target.value); setResultReady(false); }}>{["2","3","4","5","6","7"].map(value => <option key={value} value={value}>{value} days</option>)}</select></label>
             <label className="v2-field"><span>Travellers</span><select value={travellers} onChange={event => { setTravellers(event.target.value); setResultReady(false); }}>{["1","2","3","4","5+"].map(value => <option key={value} value={value}>{value === "1" ? "1 person" : value === "5+" ? "5+ people" : value + " people"}</option>)}</select></label>
@@ -165,7 +188,7 @@ export default function Home() {
                 <div className="v2-days-list">{resultDays.map(day => <article className="v2-day-card" key={day.day}><div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div><p className="v2-day-focus">{day.focus}</p>{day.activities.map(([time, activity]) => <div className="v2-activity" key={time}><span>{time}</span><p>{activity}</p></div>)}</article>)}</div>
                 <aside className="v2-result-aside"><span className="v2-small-label">YOUR STATED BUDGET</span><h3>{money(budget)}</h3><p>This is the budget you entered, not a calculated or verified trip cost.</p><div className="v2-budget-metrics"><div><small>Per person · total</small><strong>{budget === "Flexible" ? "Flexible" : travellers === "5+" ? "Varies" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Number(travellers)).toLocaleString("en-IE", { maximumFractionDigits: 0 })}</strong></div><div><small>Per day · group</small><strong>{budget === "Flexible" ? "Flexible" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Math.max(dayCount, 1)).toLocaleString("en-IE", { maximumFractionDigits: 2 })}</strong></div></div><p className="v2-budget-caption">Figures above are arithmetic based on your inputs only. Flights, accommodation, food, transport and tickets have not been priced or assumed included.</p><div className="v2-aside-divider"/><span className="v2-small-label">WHY THIS SHAPE?</span><p>{isSicily && style === "Food & culture" ? "Palermo is a practical cultural starting point for this sample, with one optional coastal day in Cefalù. The order is illustrative; confirm transport schedules before committing." : tripIdea.note}</p><div className="v2-assumption"><Sparkles size={15}/><span>Illustrative sample only. No live AI, verified prices, opening hours, transport schedules or availability.</span></div><button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>Edit your details <ArrowRight size={16}/></button></aside>
               </div>
-              <p className="v2-result-disclaimer">This is an illustrative VYAJ prototype, not a live AI-generated itinerary. Activities are examples; prices, opening hours, transport schedules and availability have not been verified. Check current details before booking or travelling.</p>
+              <p className="v2-result-disclaimer">This is an illustrative VYAJ prototype, not a live AI-generated itinerary. For destinations other than Sicily, the current demo uses general travel-planning ideas rather than verified city-specific recommendations. Prices, opening hours, transport schedules and availability have not been verified. Check current details before booking or travelling.</p>
             </div>
           ) : (
             <div className="v2-result-preview">
