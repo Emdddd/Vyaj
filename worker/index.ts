@@ -69,6 +69,7 @@ export default {
       "/api/v1/actions/invite-travelers": "invite-travelers",
       "/api/v1/actions/submit-vote": "submit-vote",
       "/api/v1/actions/view-notifications": "view-notifications",
+      "/api/v1/actions/join-waitlist": "join-waitlist",
     };
     const action = actionPaths[url.pathname];
     if (!action) return json({ error: "Not found." }, 404, origin);
@@ -89,6 +90,12 @@ export default {
       if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
         return json({ error: "Please send valid action details." }, 400, origin);
       }
+      if (action === "join-waitlist") {
+        const email = (payload as { email?: unknown }).email;
+        if (typeof email !== "string" || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+          return json({ error: "Enter a valid email address and try again." }, 400, origin);
+        }
+      }
       return json({
         status: "coming_soon",
         feature: action,
@@ -96,7 +103,7 @@ export default {
       }, 200, origin);
     }
     if (origin && !allowedOrigins.has(origin)) return json({ error: "Origin not allowed." }, 403, origin);
-    if (!env.GEMINI_API_KEY) return json({ error: "The AI service is not configured yet. Add the GEMINI_API_KEY secret to the backend." }, 503, origin);
+    if (!env.GEMINI_API_KEY) return json({ error: "The travel planner is being prepared. Please try again later." }, 503, origin);
 
     const contentLength = Number(request.headers.get("Content-Length") || 0);
     if (contentLength > 12_000) return json({ error: "Your trip request is too long. Please shorten it and try again." }, 413, origin);
