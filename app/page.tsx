@@ -83,10 +83,12 @@ export default function Home() {
           <div className="eyebrow"><span className="eyebrow-dot"/> YOUR NEXT TRIP, MADE PERSONAL</div>
           <h1>Travel more.<br/><em>Wonder more.</em></h1>
           <p className="hero-text">Your AI travel planner. Tell us what you love, and get a thoughtful trip made around you.</p>
-          <div className="hero-actions">
-            <button className="button button-dark" onClick={startPlan}>Plan my trip <ArrowUpRight size={17}/></button>
-            <a className="text-link" href="#how">How it works <ArrowDownRight size={16}/></a>
-          </div>
+          <form className="hero-composer" onSubmit={e=>{e.preventDefault();startPlan();}}>
+            <label htmlFor="hero-destination">LET’S START WITH A PLACE OR AN IDEA</label>
+            <div className="hero-composer-field"><MapPin size={18}/><input id="hero-destination" value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Italy for 5 days, a quiet beach…" /><button type="submit" aria-label="Start planning" ><ArrowUpRight size={19}/></button></div>
+            <div className="hero-suggestions"><span>Try:</span><button type="button" onClick={()=>{setDestination("A long weekend in Italy");setPrompt("A long weekend in Italy");}}>Long weekend in Italy</button><button type="button" onClick={()=>{setDestination("A peaceful beach escape");setPrompt("A peaceful beach escape");}}>Beach escape</button><button type="button" onClick={()=>{setDestination("Surprise me");setPrompt("Surprise me with somewhere unexpected");}}>Surprise me</button></div>
+          </form>
+          <div className="hero-secondary"><button className="text-link" onClick={startPlan}>Open full trip planner <ArrowRight size={16}/></button><a className="text-link" href="#how">How it works <ArrowDownRight size={16}/></a></div>
           <div className="hero-foot"><div className="avatar-stack"><span>✦</span><span>✺</span><span>◒</span></div><span>Made for the way <strong>you</strong> travel.</span><span className="hero-foot-line"/></div>
         </div>
         <div className="hero-art">
