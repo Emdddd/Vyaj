@@ -437,10 +437,10 @@ export default function Home() {
 
       <section className="v2-how v2-section" id="how">
         <div className="v2-how-heading"><div className="v2-eyebrow"><span>03</span><i/> HOW IT WORKS</div><h2>From “somewhere”<br/>to <em>let’s go.</em></h2><p>Keep the decisions simple. Make the trip feel like yours.</p></div>
-        <div className="v2-steps">
-          <article><span className="v2-step-number">01</span><div className="v2-step-icon"><MapPin size={21}/></div><h3>Set the essentials</h3><p>Choose a destination, the time you have and a budget you’re comfortable with.</p></article>
-          <article><span className="v2-step-number">02</span><div className="v2-step-icon"><Sparkles size={21}/></div><h3>Shape your days</h3><p>See a sample rhythm for your trip, with ideas matched to the kind of experience you want.</p></article>
-          <article><span className="v2-step-number">03</span><div className="v2-step-icon"><Compass size={21}/></div><h3>Make it your own</h3><p>Adjust your inputs and preview a different direction. Real AI planning is a future step.</p></article>
+        <div className="v2-steps v2-steps-timeline">
+          <article><div className="v2-step-rail"><div className="v2-step-icon"><MapPin size={21}/></div><span className="v2-step-number">01</span></div><div className="v2-step-copy"><span className="v2-step-kicker">STEP 01</span><h3>Set the essentials</h3><p>Choose your destination, dates and a budget you’re comfortable with.</p></div></article>
+          <article><div className="v2-step-rail"><div className="v2-step-icon"><Sparkles size={21}/></div><span className="v2-step-number">02</span></div><div className="v2-step-copy"><span className="v2-step-kicker">STEP 02</span><h3>Shape your days</h3><p>Explore a sample itinerary shaped around your travel style.</p></div></article>
+          <article><div className="v2-step-rail"><div className="v2-step-icon"><Compass size={21}/></div><span className="v2-step-number">03</span></div><div className="v2-step-copy"><span className="v2-step-kicker">STEP 03</span><h3>Make it your own</h3><p>Adjust your choices and discover a direction that feels right.</p></div></article>
         </div>
       </section>
 
