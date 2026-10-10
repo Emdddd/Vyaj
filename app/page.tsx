@@ -12,38 +12,45 @@ function PlacePhoto({ activity, destination }: { activity: string; destination: 
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
-    const stopWords = new Set(["visit","explore","walk","take","enjoy","have","try","choose","browse","travel","return","start","spend","see","discover","admire","leave","pause","find","and","then","before","after","open","check","current","time","tickets","advance","area","surrounding","historic","local","nearby","relaxed","relax","allows","subject","weather","transport","costs","suit","plan","optional","morning","afternoon","evening","day","lunch","dinner","coffee","cafe","café","restaurant","streets","street","city","neighbourhood","neighborhood","views","view","walkable","outdoors","if","the","for","with","from","towards","through","around","by","your","its"]);
-    const clean = (value: string) => value
+    const stopWords = new Set([
+      "visit","explore","walk","take","enjoy","have","try","choose","browse","travel","return","start","spend","see","discover","admire","leave","pause","find","and","then","before","after","open","check","current","time","times","ticket","tickets","advance","area","surrounding","historic","local","nearby","relaxed","relax","allows","subject","weather","transport","costs","suit","plan","optional","morning","afternoon","evening","day","lunch","dinner","coffee","cafe","café","restaurant","streets","street","city","neighbourhood","neighborhood","views","view","walkable","outdoors","if","the","for","with","from","towards","through","around","by","your","its","one","another","beautiful","classic","major","small","final","flexible","place","places","time","local"
+    ]);
+    const words = (value: string) => value
       .normalize("NFKD")
       .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
       .split(/\s+/)
-      .filter(word => word.length > 2 && !stopWords.has(word.toLowerCase()))
-      .join(" ");
-    const destinationTerms = clean(destination);
-    const activityTerms = clean(activity);
-    const query = [destinationTerms, activityTerms].filter(Boolean).join(" ").slice(0, 160);
-    if (!query) return;
+      .map(word => word.toLowerCase())
+      .filter(word => word.length > 2 && !stopWords.has(word));
+    const destinationWords = words(destination);
+    const activityWords = words(activity);
+    const meaningfulActivityWords = activityWords.filter(word => !destinationWords.includes(word));
+    const searchWords = [...new Set([...meaningfulActivityWords, ...destinationWords])].slice(0, 8);
+    if (!searchWords.length) return;
+
     const params = new URLSearchParams({
       action: "query",
       generator: "search",
-      gsrsearch: query,
+      gsrsearch: `filetype:bitmap ${searchWords.join(" ")}`,
       gsrnamespace: "6",
-      gsrlimit: "12",
+      gsrlimit: "20",
       prop: "imageinfo",
       iiprop: "url|mime",
-      iiurlwidth: "320",
+      iiurlwidth: "360",
       format: "json",
       origin: "*",
     });
-    fetch(`https://commons.wikimedia.org/w/api.php?${params.toString()}`, { signal: controller.signal })
+
+    fetch(`https://commons.wikimedia.org/w/api.php?${params.toString()}`, {
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    })
       .then(response => {
         if (!response.ok) throw new Error("Image search unavailable");
         return response.json();
       })
       .then(data => {
         const pages = Object.values(data?.query?.pages ?? []) as Array<any>;
-        const terms = (destinationTerms + " " + activityTerms).toLowerCase().split(/\s+/).filter(word => word.length > 3);
-        const usable = pages.map(page => {
+        const candidates = pages.map(page => {
           const info = page?.imageinfo?.[0];
           return {
             url: typeof (info?.thumburl || info?.url) === "string" ? (info.thumburl || info.url) : "",
@@ -51,15 +58,30 @@ function PlacePhoto({ activity, destination }: { activity: string; destination: 
             page: String(info?.descriptionurl || "https://commons.wikimedia.org/"),
             mime: String(info?.mime || ""),
           };
-        }).filter(item => item.url && item.mime.startsWith("image/") && !/\.(svg|gif)$/i.test(item.url) && !/logo|map|flag|icon|poster|diagram|coat of arms|collage|drawing/i.test(item.title));
-        const scored = usable.map(item => {
-          const title = item.title.toLowerCase();
-          const score = terms.reduce((sum, word) => sum + (title.includes(word) ? 1 : 0), 0);
-          return { ...item, score };
-        }).filter(item => item.score >= 1).sort((a, b) => b.score - a.score);
-        if (!cancelled && scored.length) setPhoto(scored[0]);
+        }).filter(item =>
+          item.url &&
+          item.mime.startsWith("image/") &&
+          !/\.(svg|gif)$/i.test(item.url) &&
+          !/logo|map|flag|icon|poster|diagram|coat of arms|collage|drawing|screenshot/i.test(item.title)
+        );
+
+        const scored = candidates.map(item => {
+          const title = item.title.toLowerCase().normalize("NFKD").replace(/[^\p{L}\p{N}\s]/gu, " ");
+          const titleWords = new Set(title.split(/\s+/));
+          const destinationHits = destinationWords.filter(word => titleWords.has(word)).length;
+          const activityHits = meaningfulActivityWords.filter(word => titleWords.has(word)).length;
+          return { ...item, score: activityHits * 3 + destinationHits * 2, destinationHits, activityHits };
+        })
+          .filter(item => item.activityHits >= 1 && item.score >= 3)
+          .sort((a, b) => b.score - a.score);
+
+        // Never fill a missing result with an unrelated stock photo.
+        if (!cancelled) setPhoto(scored.length ? scored[0] : null);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setPhoto(null);
+      });
+
     return () => {
       cancelled = true;
       controller.abort();
@@ -67,11 +89,19 @@ function PlacePhoto({ activity, destination }: { activity: string; destination: 
   }, [activity, destination]);
 
   if (!photo) {
-    return <div className="v2-activity-photo v2-activity-photo-placeholder" aria-label="No matching place photo found"><MapPin size={17}/></div>;
+    return <div className="v2-activity-photo v2-activity-photo-placeholder" aria-label="No closely matched place photo found"><MapPin size={17}/></div>;
   }
+
   return (
     <a className="v2-activity-photo-link" href={photo.page} target="_blank" rel="noreferrer" title={`Photo source: Wikimedia Commons — ${photo.title}`}>
-      <img className="v2-activity-photo" src={photo.url} alt={photo.title} loading="lazy" decoding="async"/>
+      <img
+        className="v2-activity-photo"
+        src={photo.url}
+        alt={photo.title}
+        loading="lazy"
+        decoding="async"
+        onError={() => setPhoto(null)}
+      />
     </a>
   );
 }
