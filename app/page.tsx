@@ -458,7 +458,7 @@ export default function Home() {
       </section>
 
       <section className="v2-early-access v2-section" id="early-access">
-        <div className="v2-early-art"><div className="v2-early-image"/><div className="v2-early-stamp" aria-label="VYAJ logo"><img src="/vyaj-wordmark.svg" alt="VYAJ logo"/></div></div>
+        <div className="v2-early-art"><div className="v2-early-image"/><div className="v2-early-stamp" aria-label="VYAJ logo"><img src="/A95ADB58-28CE-4DB2-B9AE-EB9B0E9AF376.png" alt="VYAJ logo"/></div></div>
         <div className="v2-early-copy"><div className="v2-eyebrow"><span>05</span><i/> THE NEXT CHAPTER</div><h2>Your next trip<br/>starts with <em>an idea.</em></h2><p>VYAJ is being built to make trip planning feel lighter, clearer and more personal. Try the demo today; the full planning experience is still on its way.</p><button className="v2-button v2-button-dark" onClick={() => setNoticeOpen(true)}>Get early access updates <ArrowUpRight size={17}/></button><small>Early-access sign-up is not connected yet.</small></div>
       </section>
 
