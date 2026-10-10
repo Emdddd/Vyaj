@@ -1,7 +1,7 @@
  "use client";
 
 import { useState, type FormEvent } from "react";
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, ChevronDown, Compass, Globe2, Heart, MapPin, Menu, MessageCircle, Sparkles, Users, X } from "lucide-react";
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, ChevronDown, Compass, Globe2, Heart, MapPin, Menu, MessageCircle, Sparkles, Users, X } from "lucide-react";\nimport { postAction, type Itinerary } from "../lib/api";
 
 const places = [
   { name: "Amalfi Coast", country: "Italy", note: "Sea air, slow lunches, hidden coves", image: "photo-1533105079780-92b9be482077", tag: "For the slow days" },
@@ -29,7 +29,7 @@ export default function Home() {
   const [thinking, setThinking] = useState(false);
   const [loadingPlan, setLoadingPlan] = useState(false);
   const [plannerError, setPlannerError] = useState("");
-  const [itinerary, setItinerary] = useState<any>(null);
+  const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [email, setEmail] = useState("");
   const [joined, setJoined] = useState(false);
@@ -42,18 +42,37 @@ export default function Home() {
     setItinerary(null);
   };
 
-  const submitPlan = (e: FormEvent) => {
+  const submitPlan = async (e: FormEvent) => {
     e.preventDefault();
     setPlannerError("");
+    if (!destination.trim()) {
+      setPlannerError("Add a destination or an idea to get started.");
+      return;
+    }
     setThinking(true);
     setLoadingPlan(true);
-    // Show the upcoming planning flow while the live AI service is being built.
-    window.setTimeout(() => {
-      setThinking(false);
-      setLoadingPlan(false);
+    try {
+      const response = await postAction<Itinerary>("plan-trip", {
+        destination: destination.trim(),
+        duration: days,
+        travellers,
+        style,
+        notes: prompt.trim(),
+      });
+      if (response.status === "coming_soon") {
+        setItinerary(null);
+      } else if (response.status === "available" && response.itinerary) {
+        setItinerary(response.itinerary);
+      } else {
+        throw new Error(response.message || "This feature isn't available right now. Please try again.");
+      }
       setPlanned(true);
-      setItinerary(null);
-    }, 2200);
+    } catch (error) {
+      setPlannerError(error instanceof Error ? error.message : "We couldn't connect just now. Please try again.");
+      setThinking(false);
+    } finally {
+      setLoadingPlan(false);
+    }
   };
 
   return (
@@ -128,12 +147,23 @@ export default function Home() {
 
       {plannerOpen && <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setPlannerOpen(false);}}><div className="planner-modal" role="dialog" aria-modal="true" aria-labelledby="planner-title"><button className="modal-close" aria-label="Close planner" onClick={()=>setPlannerOpen(false)}><X size={20}/></button><div className="planner-kicker"><Sparkles size={15}/> YOUR TRAVEL SIDEKICK</div>{thinking ? <div className="planner-thinking" role="status"><div className="thinking-orbit"><span></span><span></span><Sparkles size={25}/></div><p className="thinking-kicker">PUTTING THE PIECES TOGETHER</p><h2 id="planner-title">Finding your <em>somewhere.</em></h2><p className="thinking-copy">Thinking through the kind of trip you want. A little inspiration, a little planning…</p><div className="thinking-progress"><span/></div></div> : !planned ? <><h2 id="planner-title">Let’s find your <em>somewhere.</em></h2><p className="planner-intro">A few details are all we need to get your imagination moving.</p><form onSubmit={submitPlan} className="planner-form"><label>Where are you dreaming of?<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="e.g. Portugal, or surprise me"/></label><div className="planner-fields"><label>How long?<select value={days} onChange={e=>setDays(e.target.value)}><option>Weekend</option><option>3–4 days</option><option>5–7 days</option><option>1–2 weeks</option><option>Two weeks or more</option></select></label><label>Who’s coming?<select value={travellers} onChange={e=>setTravellers(e.target.value)}><option>Just me</option><option>Two of us</option><option>Friends</option><option>Family</option></select></label></div><label>What’s your kind of trip?<select value={style} onChange={e=>setStyle(e.target.value)}><option>A bit of everything</option><option>Food & local culture</option><option>Nature & outdoors</option><option>Rest & recharge</option><option>Art, design & cities</option><option>Adventure & surprises</option></select></label><label>Anything else on your mind? <span className="optional">(optional)</span><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="A place you’ve always wanted to see, a feeling you’re chasing…" rows={3}/></label><button className="button button-dark planner-submit" type="submit" disabled={loadingPlan}>{loadingPlan ? "Dreaming up your trip…" : "Build my itinerary"} {!loadingPlan && <ArrowUpRight size={17}/>}</button>{plannerError && <p className="planner-error" role="alert">{plannerError}</p>}<small className="planner-disclaimer">AI-generated suggestions. Check local details before you travel.</small></form></> : <div className="planner-result">
         <div className="result-sparkle"><Sparkles size={24}/></div>
-        <p className="result-ready-kicker">✦ YOUR NEXT ADVENTURE</p>
-        <h2 id="planner-title">Your trip is ready.</h2>
-        <p className="result-summary">{destination || "Your destination"} · {days.toLowerCase()} · {travellers.toLowerCase()}</p>
-        <div className="coming-soon-panel"><span>COMING SOON</span><p>Your personalised itinerary is on its way. We’re putting the finishing touches on the VYAJ travel experience.</p></div>
-        <button className="button button-dark planner-submit" onClick={()=>{setPlanned(false);setThinking(false);setPlannerError("");}}>Adjust my idea <ArrowRight size={17}/></button>
-        <button className="result-close" onClick={()=>setPlannerOpen(false)}>Close planner</button>
+        {itinerary ? <>
+          <p className="result-ready-kicker">✦ YOUR JOURNEY</p>
+          <h2 id="planner-title">{itinerary.tripTitle}</h2>
+          <p className="result-summary">{itinerary.destination} · {days.toLowerCase()} · {travellers.toLowerCase()}</p>
+          <p className="result-overview">{itinerary.overview}</p>
+          {itinerary.estimatedBudget && <div className="budget-strip"><span>ESTIMATED BUDGET / PERSON</span><strong>{itinerary.estimatedBudget.perPerson}</strong><small>{itinerary.estimatedBudget.notes}</small></div>}
+          <div className="itinerary-days">{itinerary.days.map((day, index) => <article className="itinerary-day" key={day.day || index}><div className="itinerary-day-heading"><span>DAY {day.day || index + 1}</span><h3>{day.title}</h3></div><p>{day.summary}</p><div className="itinerary-activities">{(day.activities || []).map((activity, activityIndex) => <div className="itinerary-activity" key={activity.title + activityIndex}><span className="activity-time">{activity.time || "Explore"}</span><div><strong>{activity.title}</strong><p>{activity.description}</p><small>{activity.location}{activity.estimatedCost ? " · " + activity.estimatedCost : ""}</small></div></div>)}</div></article>)}</div>
+          {itinerary.tips?.length ? <div className="planner-extra"><strong>Good to know</strong><ul>{itinerary.tips.map((tip, index) => <li key={index}>{tip}</li>)}</ul></div> : null}
+          <p className="result-footnote">AI-generated suggestions. Opening hours, prices and availability are not live-verified.</p>
+        </> : <>
+          <p className="result-ready-kicker">✦ YOUR NEXT ADVENTURE</p>
+          <h2 id="planner-title">Your journey is getting ready.</h2>
+          <p className="result-summary">{destination || "Your destination"} · {days.toLowerCase()} · {travellers.toLowerCase()}</p>
+          <div className="coming-soon-panel"><span>COMING SOON</span><p>We’re putting the finishing touches on your VYAJ travel experience. Your next great journey starts here.</p></div>
+        </>}
+        <button className="button button-dark planner-submit" onClick={()=>{setPlanned(false);setThinking(false);setPlannerError("");}}>Back to planning <ArrowRight size={17}/></button>
+        <button className="result-close" onClick={()=>{setPlannerOpen(false);setPlanned(false);setThinking(false);}}>Back to VYAJ</button>
       </div>}</div></div>}
     </main>
   );
