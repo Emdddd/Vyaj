@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useState,type FormEvent} from "react";
-import {ArrowDown,ArrowRight,ArrowUpRight,Compass,Globe2,MapPin,Menu,MessageCircle,Sparkles,Users,X,Zap} from "lucide-react";
+import {ArrowDown,ArrowRight,ArrowUpRight,Check,Compass,Globe2,MapPin,Menu,MessageCircle,Sparkles,Users,X,Zap} from "lucide-react";
 import {postAction,type Itinerary} from "../lib/api";
 const img=(id:string,w=1200)=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w="+w+"&q=85";
 const places=[{name:"Amalfi Coast",country:"Italy",mood:"Salt air, slow lunches",id:"photo-1533105079780-92b9be482077"},{name:"Copenhagen",country:"Denmark",mood:"Design, coffee, discovery",id:"photo-1513622470522-26c3c8a854bc"},{name:"Madeira",country:"Portugal",mood:"Wild trails, wide horizons",id:"photo-1510414842594-a61c69b5ae57"},{name:"Kyoto",country:"Japan",mood:"Quiet rituals, hidden lanes",id:"photo-1493976040374-85c8e12f0c0e"}];
