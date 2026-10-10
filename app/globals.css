@@ -287,3 +287,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(prefers-reduced-motion:reduce){
   .hero-copy,.hero h1,.hero-art,.hero-photo,.floating-note{animation:none!important}
 }
+
+
+/* Upcoming planner flow: thinking screen and coming-soon result */
+.planner-thinking{min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:42px 8px 28px}
+.thinking-orbit{position:relative;width:86px;height:86px;display:grid;place-items:center;color:#00aeca;margin-bottom:25px}
+.thinking-orbit:before,.thinking-orbit:after{content:"";position:absolute;inset:0;border:1px solid #b9edf4;border-radius:50%;animation:vyaj-orbit 2.4s ease-in-out infinite}
+.thinking-orbit:after{inset:10px;border-color:#00c9df;animation-delay:.3s}
+.thinking-orbit span{position:absolute;width:7px;height:7px;background:#00c9df;border-radius:50%;top:1px;left:39px}
+.thinking-orbit span:nth-child(2){top:auto;left:auto;bottom:9px;right:8px;background:#07172e}
+.thinking-kicker,.result-ready-kicker{font-size:9px;font-weight:800;letter-spacing:1.5px;color:#008da5;margin:0 0 14px}
+.planner-thinking h2{margin:0 0 14px}
+.thinking-copy{max-width:300px;margin:0 auto;color:#657184;font-size:13px;line-height:1.8}
+.thinking-progress{height:3px;width:min(220px,75%);overflow:hidden;border-radius:8px;background:#e8f4f6;margin-top:30px}
+.thinking-progress span{display:block;width:40%;height:100%;border-radius:8px;background:#00c9df;animation:vyaj-progress 1.5s ease-in-out infinite}
+@keyframes vyaj-orbit{50%{transform:rotate(180deg) scale(.92);opacity:.55}}
+@keyframes vyaj-progress{0%{transform:translateX(-110%)}100%{transform:translateX(360%)}}
+.planner-result .result-ready-kicker{margin:0 0 10px}
+.coming-soon-panel{margin:22px 0 18px;padding:24px 20px;border:1px solid #d9edf1;border-radius:12px;background:linear-gradient(145deg,#f4fcfd,#fff);text-align:center}
+.coming-soon-panel>span{display:inline-block;font-size:10px;font-weight:800;letter-spacing:2px;color:#008da5;border:1px solid #b8eaf0;border-radius:999px;padding:8px 12px}
+.coming-soon-panel p{max-width:330px;margin:15px auto 0;color:#657184;font-size:12px;line-height:1.8}
+@media(prefers-reduced-motion:reduce){.thinking-orbit:before,.thinking-orbit:after,.thinking-progress span{animation:none}}
