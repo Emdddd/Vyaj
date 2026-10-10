@@ -81,6 +81,13 @@ export default function Home() {
   }, [destination]);
   const dayCount = Number(days);
   const isSicily = /sicily|sicilia|palermo/i.test(destination);
+  const isMalta = /\\bmalta\\b|valletta|mdina|gozo|birgu/i.test(destination);
+  const maltaDays = [
+    { title: "Valletta: history & first flavours", focus: "Explore Malta’s capital on foot, from grand architecture to local food.", activities: [["09:30", "Walk Republic Street and explore Valletta’s historic centre"], ["12:30", "Visit St John’s Co-Cathedral if open; check ticket details before visiting"], ["18:00", "Enjoy harbour views from the Upper Barrakka Gardens, then try a Maltese dinner"]] },
+    { title: "Mdina & Rabat: the old island", focus: "Medieval lanes, historic sights and traditional Maltese tastes.", activities: [["09:00", "Explore Mdina’s quiet streets and bastions"], ["12:00", "Walk into Rabat and choose a local café for lunch"], ["15:00", "Visit St Paul’s Catacombs or another local heritage site if open"], ["18:00", "Return at a relaxed pace and leave the evening flexible"]] },
+    { title: "Gozo: a change of pace", focus: "A countryside and coastal day, subject to ferry schedules and weather.", activities: [["08:30", "Travel to Ċirkewwa and check current ferry times and fares for Gozo"], ["10:30", "Explore Victoria and the Citadel"], ["13:00", "Have lunch in Victoria or a nearby village"], ["15:00", "Choose a coastal viewpoint such as Dwejra if transport and time allow; check the return ferry"]] },
+    { title: "The Three Cities & the waterfront", focus: "Maritime history, colourful streets and a final taste of island life.", activities: [["09:30", "Explore Birgu (Vittoriosa) and its historic lanes"], ["12:30", "Enjoy a waterfront lunch around Birgu Marina"], ["14:00", "Take a harbour ferry if operating, checking the timetable first"], ["16:00", "Leave time for a final pastizz or coffee before departure"]] }
+  ];
   const sicilyDays = [
     { title: "Palermo: first tastes", focus: "Historic streets, market flavours and an easy first evening.", activities: [["09:30", "Walk Palermo’s historic centre and take in its layered architecture"], ["13:00", "Explore Ballarò market if open; choose a casual Sicilian street-food lunch"], ["18:30", "Take an unhurried evening walk and choose a neighbourhood trattoria"]] },
     { title: "Palermo: culture & cuisine", focus: "A deeper look at the city’s landmarks and food traditions.", activities: [["09:30", "Visit Palermo Cathedral and explore the surrounding old streets"], ["13:00", "Pause at a local café, then choose one cultural landmark to explore"], ["18:30", "Try a classic Sicilian dish; check restaurant menus and prices first"]] },
@@ -89,12 +96,13 @@ export default function Home() {
   ];
   const generalTitles = ["Arrive & get your bearings", "Explore beyond the obvious", "Make time for local life", "Leave room for a favourite", "A slower day, your way", "One last discovery", "Take the scenic route"];
   const resultDays = Array.from({ length: Math.min(dayCount, 7) }, (_, index) => {
-    const sicilyDay = isSicily && style === "Food & culture" && index < sicilyDays.length ? sicilyDays[index] : null;
+    const locationDays = style === "Food & culture" ? (isMalta ? maltaDays : isSicily ? sicilyDays : null) : null;
+    const locationDay = locationDays && index < locationDays.length ? locationDays[index] : null;
     return {
       day: index + 1,
-      title: sicilyDay?.title ?? generalTitles[index],
-      focus: sicilyDay?.focus ?? tripIdea.note,
-      activities: sicilyDay?.activities ?? [
+      title: locationDay?.title ?? generalTitles[index],
+      focus: locationDay?.focus ?? tripIdea.note,
+      activities: locationDay?.activities ?? [
         ["09:30", tripIdea.morning],
         ["13:00", tripIdea.afternoon],
         ["18:30", tripIdea.evening]
@@ -188,7 +196,7 @@ export default function Home() {
                 <div className="v2-days-list">{resultDays.map(day => <article className="v2-day-card" key={day.day}><div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div><p className="v2-day-focus">{day.focus}</p>{day.activities.map(([time, activity]) => <div className="v2-activity" key={time}><span>{time}</span><p>{activity}</p></div>)}</article>)}</div>
                 <aside className="v2-result-aside"><span className="v2-small-label">YOUR STATED BUDGET</span><h3>{money(budget)}</h3><p>This is the budget you entered, not a calculated or verified trip cost.</p><div className="v2-budget-metrics"><div><small>Per person · total</small><strong>{budget === "Flexible" ? "Flexible" : travellers === "5+" ? "Varies" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Number(travellers)).toLocaleString("en-IE", { maximumFractionDigits: 0 })}</strong></div><div><small>Per day · group</small><strong>{budget === "Flexible" ? "Flexible" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Math.max(dayCount, 1)).toLocaleString("en-IE", { maximumFractionDigits: 2 })}</strong></div></div><p className="v2-budget-caption">Figures above are arithmetic based on your inputs only. Flights, accommodation, food, transport and tickets have not been priced or assumed included.</p><div className="v2-aside-divider"/><span className="v2-small-label">WHY THIS SHAPE?</span><p>{isSicily && style === "Food & culture" ? "Palermo is a practical cultural starting point for this sample, with one optional coastal day in Cefalù. The order is illustrative; confirm transport schedules before committing." : tripIdea.note}</p><div className="v2-assumption"><Sparkles size={15}/><span>Illustrative sample only. No live AI, verified prices, opening hours, transport schedules or availability.</span></div><button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>Edit your details <ArrowRight size={16}/></button></aside>
               </div>
-              <p className="v2-result-disclaimer">This is an illustrative VYAJ prototype, not a live AI-generated itinerary. For destinations other than Sicily, the current demo uses general travel-planning ideas rather than verified city-specific recommendations. Prices, opening hours, transport schedules and availability have not been verified. Check current details before booking or travelling.</p>
+              <p className="v2-result-disclaimer">This is an illustrative VYAJ prototype, not a live AI-generated itinerary. For Malta and Sicily, this demo includes illustrative destination-specific ideas; other destinations use general travel-planning ideas. None are live AI results or verified travel recommendations. Prices, opening hours, transport schedules and availability have not been verified. Check current details before booking or travelling.</p>
             </div>
           ) : (
             <div className="v2-result-preview">
