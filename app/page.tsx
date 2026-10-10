@@ -80,12 +80,12 @@ export default function Home() {
 
       <section className="hero wrap">
         <div className="hero-copy">
-          <div className="eyebrow"><span className="eyebrow-dot"/> YOUR NEXT CHAPTER STARTS HERE</div>
-          <h1>Less planning.<br/><em>More feeling.</em></h1>
-          <p className="hero-text">The world is too big for another spreadsheet. Tell VYAJ what you love, and let’s find the kind of trip you’ll talk about for years.</p>
+          <div className="eyebrow"><span className="eyebrow-dot"/> YOUR NEXT TRIP, MADE PERSONAL</div>
+          <h1>Travel more.<br/><em>Wonder more.</em></h1>
+          <p className="hero-text">Your AI travel planner. Tell us what you love, and get a thoughtful trip made around you.</p>
           <div className="hero-actions">
             <button className="button button-dark" onClick={startPlan}>Plan my trip <ArrowUpRight size={17}/></button>
-            <a className="text-link" href="#how">Get to know us <ArrowDownRight size={16}/></a>
+            <a className="text-link" href="#how">How it works <ArrowDownRight size={16}/></a>
           </div>
           <div className="hero-foot"><div className="avatar-stack"><span>✦</span><span>✺</span><span>◒</span></div><span>Made for the way <strong>you</strong> travel.</span><span className="hero-foot-line"/></div>
         </div>
@@ -101,8 +101,8 @@ export default function Home() {
       <section className="ticker" aria-label="VYAJ values"><div className="ticker-track"><span>GO SOMEWHERE</span><i>✳</i><span>FEEL SOMETHING</span><i>✳</i><span>MAKE IT YOURS</span><i>✳</i><span>GO SOMEWHERE</span><i>✳</i><span>FEEL SOMETHING</span><i>✳</i></div></section>
 
       <section className="intro section wrap" id="why">
-        <div className="section-kicker"><span>01</span> A DIFFERENT WAY TO GET AWAY</div>
-        <div className="intro-grid"><h2>Your trip should feel like <em>you.</em><br/>Not another to-do list.</h2><div className="intro-copy"><p>Too many tabs. Too many opinions. Too much time planning the trip instead of looking forward to it.</p><p>VYAJ brings the inspiration, decisions, and little details into one thoughtful place—so the good part starts before you leave.</p><a href="#how" className="under-link">Here’s how we make it happen <ArrowRight size={16}/></a></div></div>
+        <div className="section-kicker"><span>01</span> TRAVEL, WITHOUT THE OVERTHINKING</div>
+        <div className="intro-grid"><h2>Less planning.<br/><em>More time away.</em></h2><div className="intro-copy"><p>Skip the endless tabs and group-chat debates.</p><p>VYAJ brings ideas and practical plans together, so you can focus on the experience.</p><a href="#how" className="under-link">Here’s how we make it happen <ArrowRight size={16}/></a></div></div>
         <div className="value-strip"><div><span className="value-number">01</span><Compass/><h3>Made around you</h3><p>Your pace, your people, your kind of adventure.</p></div><div><span className="value-number">02</span><Sparkles/><h3>Smart, not complicated</h3><p>Useful AI that makes decisions feel lighter.</p></div><div><span className="value-number">03</span><Heart/><h3>Room for real life</h3><p>Flexible plans that leave space for the unexpected.</p></div></div>
       </section>
 
