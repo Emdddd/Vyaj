@@ -1,6 +1,6 @@
  "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Compass, Globe2, Heart, MapPin, Menu, MessageCircle, Sparkles, Users, X } from "lucide-react";
 import { postAction, type Itinerary } from "../lib/api";
 
@@ -40,6 +40,12 @@ export default function Home() {
   const [waitlistMessage, setWaitlistMessage] = useState("");
 
   const promptExamples = ["Italy for 5 days, a quiet beach…", "A beautiful trip under €500…", "A weekend my friends will love…"];
+
+  useEffect(() => {
+    if (promptFocused || destination.trim()) return;
+    const timer = window.setInterval(() => setPromptExample(current => (current + 1) % promptExamples.length), 3800);
+    return () => window.clearInterval(timer);
+  }, [promptFocused, destination, promptExamples.length]);
 
   const startPlan = () => {
     setPlannerOpen(true);
