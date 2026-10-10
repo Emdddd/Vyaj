@@ -1,228 +1,35 @@
- "use client";
-
-import { useEffect, useState, type FormEvent } from "react";
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Compass, Globe2, Heart, MapPin, Menu, MessageCircle, Sparkles, Users, X } from "lucide-react";
-import { postAction, type Itinerary } from "../lib/api";
-
-const places = [
-  { name: "Amalfi Coast", country: "Italy", note: "Sea air, slow lunches, hidden coves", image: "photo-1533105079780-92b9be482077", tag: "For the slow days" },
-  { name: "Copenhagen", country: "Denmark", note: "Design, bakeries, and bike lanes", image: "photo-1513622470522-26c3c8a854bc", tag: "For curious minds" },
-  { name: "Madeira", country: "Portugal", note: "Wild trails and Atlantic horizons", image: "photo-1510414842594-a61c69b5ae57", tag: "For the outdoorsy" },
-  { name: "Kyoto", country: "Japan", note: "Quiet temples and little discoveries", image: "photo-1493976040374-85c8e12f0c0e", tag: "For the culture seekers" },
-];
-const faqs = [
-  ["What exactly is VYAJ?", "VYAJ is an AI-powered travel planner that helps you turn a few ideas into a thoughtful, realistic trip—built around your interests, time, and travel style."],
-  ["Can I plan a trip with friends?", "That is part of the vision. VYAJ is being designed to help groups share ideas, compare options, vote on plans, and find a trip everyone feels good about."],
-  ["Does VYAJ book flights and hotels?", "The current experience is focused on trip planning and inspiration. Booking integrations are planned for a later release."],
-  ["Is VYAJ free?", "We are building the first experience now. Join the waitlist to hear when it is ready and how early access will work."],
-];
-const photo = (id: string, width = 1000) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${width}&q=85`;
-
-export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [promptFocused, setPromptFocused] = useState(false);
-  const [promptExample, setPromptExample] = useState(0);
-  const [plannerOpen, setPlannerOpen] = useState(false);
-  const [destination, setDestination] = useState("");
-  const [days, setDays] = useState("5–7 days");
-  const [travellers, setTravellers] = useState("Two of us");
-  const [style, setStyle] = useState("A bit of everything");
-  const [prompt, setPrompt] = useState("");
-  const [planned, setPlanned] = useState(false);
-  const [thinking, setThinking] = useState(false);
-  const [activeAction, setActiveAction] = useState("plan-trip");
-  const [activePayload, setActivePayload] = useState<Record<string, unknown>>({});
-  const [loadingPlan, setLoadingPlan] = useState(false);
-  const [plannerError, setPlannerError] = useState("");
-  const [itinerary, setItinerary] = useState<Itinerary | null>(null);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [email, setEmail] = useState("");
-  const [waitlistMessage, setWaitlistMessage] = useState("");
-
-  const promptExamples = ["Italy for 5 days, a quiet beach…", "A beautiful trip under €500…", "A weekend my friends will love…"];
-
-  useEffect(() => {
-    if (promptFocused || destination.trim()) return;
-    const timer = window.setInterval(() => setPromptExample(current => (current + 1) % promptExamples.length), 3800);
-    return () => window.clearInterval(timer);
-  }, [promptFocused, destination, promptExamples.length]);
-
-  const startPlan = () => {
-    setPlannerOpen(true);
-    setPlanned(false);
-    setThinking(false);
-    setActiveAction("plan-trip");
-    setPlannerError("");
-    setItinerary(null);
-  };
-
-  const submitPlan = async (e: FormEvent) => {
-    e.preventDefault();
-    setPlannerError("");
-    if (!destination.trim()) {
-      setPlannerError("Add a destination or an idea to get started.");
-      return;
-    }
-    setActiveAction("plan-trip");
-    setThinking(true);
-    setLoadingPlan(true);
-    try {
-      const response = await postAction<Itinerary>("plan-trip", {
-        destination: destination.trim(),
-        duration: days,
-        travellers,
-        style,
-        notes: prompt.trim(),
-      });
-      if (response.status === "coming_soon") {
-        setItinerary(null);
-      } else if (response.status === "available" && response.itinerary) {
-        setItinerary(response.itinerary);
-      } else {
-        throw new Error(response.message || "This feature isn't available right now. Please try again.");
-      }
-      setPlanned(true);
-    } catch (error) {
-      setPlannerError(error instanceof Error ? error.message : "We couldn't connect just now. Please try again.");
-      setThinking(false);
-    } finally {
-      setLoadingPlan(false);
-    }
-  };
-
-  const actionCopy: Record<string, { title: string; subtitle: string; resultTitle: string; message: string }> = {
-    "decide-for-us": { title: "Decide for us", subtitle: "We’re finding a journey that feels right for you…", resultTitle: "Let VYAJ choose your next adventure.", message: "Our smart decision experience is coming soon. We’ll help you choose without the endless comparing." },
-    "surprise-me": { title: "Surprise me", subtitle: "Looking for somewhere you might never have considered…", resultTitle: "A little surprise is on its way.", message: "Personalised travel surprises are coming soon. Get ready to discover somewhere unexpected." },
-    "join-waitlist": { title: "Join the waitlist", subtitle: "Getting your early-access request ready…", resultTitle: "Be first to hear from VYAJ.", message: "Waitlist registration is coming soon. Your email has not been saved yet." },
-    "view-profile": { title: "Your profile", subtitle: "Preparing your personal travel space…", resultTitle: "Your travel profile is on its way.", message: "Your VYAJ profile and account tools are coming soon." },
-    "view-notifications": { title: "Notifications", subtitle: "Checking what’s new for your journeys…", resultTitle: "Your updates are coming soon.", message: "Trip updates and notifications will be available in a future release." },
-    "save-trip": { title: "Save this trip", subtitle: "Getting your journey ready to save…", resultTitle: "Your travel collection is coming soon.", message: "Saving and syncing trips requires your VYAJ account, coming soon." },
-    "share-trip": { title: "Share this trip", subtitle: "Preparing a way to share your journey…", resultTitle: "Travel together, soon.", message: "Share links and traveller invitations are coming soon." },
-    "open-settings": { title: "Settings", subtitle: "Preparing your preferences…", resultTitle: "Your preferences are coming soon.", message: "Account, privacy and travel preferences will be available soon." },
-    "login": { title: "Sign in", subtitle: "Preparing your secure sign-in…", resultTitle: "Your VYAJ account is coming soon.", message: "Sign-in and account creation are not available yet." },
-    "signup": { title: "Create an account", subtitle: "Preparing your VYAJ account…", resultTitle: "Your VYAJ account is coming soon.", message: "Account creation and secure sign-in are coming soon." },
-    "book-trip": { title: "Booking", subtitle: "Checking the next step for your journey…", resultTitle: "Booking tools are coming soon.", message: "VYAJ does not book flights, stays or activities yet." },
-    "add-activity": { title: "Add an activity", subtitle: "Preparing your itinerary editor…", resultTitle: "Itinerary editing is coming soon.", message: "Adding and rearranging activities will be available in a future release." },
-    "edit-itinerary": { title: "Edit itinerary", subtitle: "Preparing your itinerary editor…", resultTitle: "Your itinerary editor is coming soon.", message: "Custom itinerary editing and adjustments are coming soon." },
-    "invite-travelers": { title: "Invite travellers", subtitle: "Preparing your group trip…", resultTitle: "Group travel is coming soon.", message: "Invitations, shared plans and group voting are not available yet." },
-    "submit-vote": { title: "Vote on a trip", subtitle: "Preparing your group decision…", resultTitle: "Group voting is coming soon.", message: "Voting on destinations and activities will arrive in a future release." },
-    "search-destinations": { title: "Search destinations", subtitle: "Finding a place that fits your idea…", resultTitle: "Destination search is coming soon.", message: "Live destination search and recommendations are being prepared." },
-  };
-
-  const runFeatureAction = async (action: string, payload: Record<string, unknown> = {}) => {
-    setPlannerOpen(true);
-    setPlanned(false);
-    setItinerary(null);
-    setPlannerError("");
-    setActiveAction(action);
-    setActivePayload(payload);
-    setThinking(true);
-    try {
-      const response = await postAction(action, payload);
-      if (response.status === "coming_soon") {
-        setPlanned(true);
-      } else if (response.status === "available" && response.itinerary) {
-        setItinerary(response.itinerary);
-        setPlanned(true);
-      } else {
-        throw new Error(response.message || "This feature isn't available right now. Please try again.");
-      }
-    } catch (error) {
-      setPlannerError(error instanceof Error ? error.message : "We couldn't connect just now. Please try again.");
-      setThinking(false);
-    }
-  };
-
-  return (
-    <main>
-      <nav className="nav wrap">
-        <a href="#" className="wordmark" aria-label="VYAJ home"><img src="/vyaj-logo.svg" alt="VYAJ — Plan less. Travel more." /></a>
-        <div className={`nav-links ${menuOpen ? "nav-open" : ""}`}>
-          <a href="#how" onClick={() => setMenuOpen(false)}>How it works</a>
-          <a href="#discover" onClick={() => setMenuOpen(false)}>Discover</a>
-          <a href="#why" onClick={() => setMenuOpen(false)}>Why VYAJ</a>
-          <button className="nav-mobile-cta" onClick={startPlan}>Plan a trip <ArrowUpRight size={16}/></button>
-        </div>
-        <div className="nav-product-actions"><button className="nav-icon-action" aria-label="Open profile" onClick={()=>runFeatureAction("view-profile")}><Users size={17}/></button><button className="nav-icon-action" aria-label="View notifications" onClick={()=>runFeatureAction("view-notifications")}><MessageCircle size={17}/></button><button className="nav-cta" onClick={startPlan}>Plan a trip <ArrowUpRight size={16}/></button></div>
-        <button className="menu-button" aria-label="Toggle menu" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X/> : <Menu/>}</button>
-      </nav>
-
-      <section className="hero wrap">
-        <div className="hero-copy">
-          <div className="eyebrow"><span className="eyebrow-dot"/> YOUR NEXT TRIP, MADE PERSONAL</div>
-          <h1>Where to <em>next?</em></h1>
-          <p className="hero-text">Your AI travel planner. Tell us what you love, and get a thoughtful trip made around you.</p>
-          <form className="hero-composer" onSubmit={e=>{e.preventDefault();setPlannerOpen(true);void submitPlan(e);}}>
-            <label htmlFor="hero-destination">LET’S START WITH A PLACE OR AN IDEA</label>
-            <div className="hero-composer-field"><MapPin size={18}/><input id="hero-destination" value={destination} onChange={e=>setDestination(e.target.value)} placeholder={promptExamples[promptExample]} onFocus={()=>setPromptFocused(true)} onBlur={()=>setPromptFocused(false)} /><button type="submit" aria-label="Start planning" ><ArrowUpRight size={19}/></button></div>
-            <div className="hero-suggestions"><span>Try:</span><button type="button" onClick={()=>{setDestination("A long weekend in Italy");setPrompt("A long weekend in Italy");}}>Long weekend in Italy</button><button type="button" onClick={()=>{setDestination("A peaceful beach escape");setPrompt("A peaceful beach escape");}}>Beach escape</button><button type="button" onClick={()=>{setDestination("Surprise me");setPrompt("Surprise me with somewhere unexpected");}}>Surprise me</button></div>
-          </form>
-          <div className="hero-secondary"><button className="text-link" onClick={startPlan}>Plan a trip <ArrowRight size={16}/></button><button className="text-link" onClick={()=>runFeatureAction("decide-for-us")}>Decide for us <ArrowRight size={16}/></button><button className="text-link" onClick={()=>runFeatureAction("surprise-me")}>Surprise me <ArrowRight size={16}/></button></div>
-          <div className="hero-foot"><div className="avatar-stack"><span>✦</span><span>✺</span><span>◒</span></div><span>Made for the way <strong>you</strong> travel.</span><span className="hero-foot-line"/></div>
-        </div>
-        <div className="hero-art">
-          <div className="hero-photo" role="img" aria-label="A sunlit Mediterranean coastline" />
-          <div className="photo-label"><span className="label-mark">✳</span><div><strong>Somewhere unforgettable</strong><small>Find your kind of away.</small></div></div>
-          <div className="floating-note"><span className="note-icon"><Sparkles size={16}/></span><div><small>A little less overwhelm</small><strong>A lot more wonder.</strong></div></div>
-          <div className="hero-index">01 <span/> THE ART OF GETTING AWAY</div>
-        </div>
-        <div className="hero-scroll"><span>SCROLL TO EXPLORE</span><div/></div>
-      </section>
-
-      <section className="ticker" aria-label="VYAJ values"><div className="ticker-track"><span>GO SOMEWHERE</span><i>✳</i><span>FEEL SOMETHING</span><i>✳</i><span>MAKE IT YOURS</span><i>✳</i><span>GO SOMEWHERE</span><i>✳</i><span>FEEL SOMETHING</span><i>✳</i></div></section>
-
-      <section className="intro section wrap" id="why">
-        <div className="section-kicker"><span>01</span> TRAVEL, WITHOUT THE OVERTHINKING</div>
-        <div className="intro-grid"><h2>Less planning.<br/><em>More time away.</em></h2><div className="intro-copy"><p>Skip the endless tabs and group-chat debates.</p><p>VYAJ brings ideas and practical plans together, so you can focus on the experience.</p><a href="#how" className="under-link">Here’s how we make it happen <ArrowRight size={16}/></a></div></div>
-        <div className="value-strip"><div><span className="value-number">01</span><Compass/><h3>Made around you</h3><p>Your pace, your people, your kind of adventure.</p></div><div><span className="value-number">02</span><Sparkles/><h3>Smart, not complicated</h3><p>Useful AI that makes decisions feel lighter.</p></div><div><span className="value-number">03</span><Heart/><h3>Room for real life</h3><p>Flexible plans that leave space for the unexpected.</p></div></div>
-      </section>
-
-      <section className="how-section" id="how"><div className="wrap section">
-        <div className="section-kicker"><span>02</span> YOUR TRAVEL SIDEKICK</div>
-        <div className="how-heading"><h2>From “we should go”<br/>to <em>“remember when?”</em></h2><p>A better trip begins with a better starting point. VYAJ helps you get there, one good decision at a time.</p></div>
-        <div className="steps">
-          <article className="step-card step-one"><div className="step-top"><span>01 / TELL US</span><MessageCircle size={19}/></div><div className="chat-preview"><div className="chat-bubble">I want somewhere by the sea, amazing food, and no rushing around.</div><div className="chat-response"><Sparkles size={14}/> Got a few places in mind for you…</div></div><h3>Start with a feeling.</h3><p>Tell VYAJ what matters to you. No perfect prompt needed—just your kind of trip.</p></article>
-          <article className="step-card step-two"><div className="step-top"><span>02 / SHAPE IT</span><Globe2 size={19}/></div><div className="mini-itinerary"><div className="mini-day">DAY 02 <span>COAST & CULTURE</span></div><div className="mini-row"><span className="mini-dot lime"/>Slow morning by the water <small>09:30</small></div><div className="mini-row"><span className="mini-dot"/>Lunch in a local trattoria <small>12:45</small></div><div className="mini-row"><span className="mini-dot sand"/>Golden-hour viewpoint <small>18:10</small></div></div><h3>A plan with breathing room.</h3><p>Get a thoughtful itinerary that balances the must-sees with the joy of wandering.</p></article>
-          <article className="step-card step-three"><div className="step-top"><span>03 / MAKE IT YOURS</span><Users size={19}/></div><div className="vote-preview"><span className="vote-label">THE GROUP CHAT, SORTED</span><strong>Where should we go for dinner?</strong><div className="vote-options"><div><span className="vote-thumb" style={{backgroundImage:`url(${photo("photo-1414235077428-338989a2e8c0",180)})`}}/><span>Little local spot</span><b>4 votes</b></div><div><span className="vote-thumb" style={{backgroundImage:`url(${photo("photo-1517248135467-4c7edcad34c4",180)})`}}/><span>Rooftop terrace</span><b>2 votes</b></div></div></div><h3>Better, together.</h3><p>Bring everyone into the plan. Compare ideas and make choices without the 86-message thread.</p></article>
-        </div>
-        <div className="center-cta"><button className="button button-lime" onClick={startPlan}>Plan a trip <ArrowUpRight size={17}/></button><span>No perfect plan required.</span></div>
-      </div></section>
-
-      <section className="discover section wrap" id="discover">
-        <div className="section-kicker"><span>03</span> A LITTLE INSPIRATION</div>
-        <div className="discover-heading"><div><h2>The world is calling.<br/><em>What feels like you?</em></h2></div><p>Not just places to pin. Places to experience. Start with a feeling and see where it takes you.</p></div>
-        <div className="destination-grid">{places.map((p, i) => <button className={`destination-card destination-${i+1}`} key={p.name} onClick={() => {setDestination(p.name); startPlan();}}><div className="destination-image" style={{backgroundImage:`url(${photo(p.image,900)})`}}/><span className="destination-tag">{p.tag}</span><div className="destination-info"><div><small>{p.country.toUpperCase()}</small><h3>{p.name}</h3><p>{p.note}</p></div><span className="destination-arrow"><ArrowUpRight size={18}/></span></div></button>)}</div>
-        <div className="discover-bottom"><span>YOUR WORLD, YOUR WAY.</span><span>THE BEST PLACE TO START IS ANYWHERE <ArrowRight size={14}/></span></div>
-      </section>
-
-      <section className="manifesto"><div className="manifesto-bg"/><div className="manifesto-content"><span className="manifesto-star">✳</span><p>Travel isn’t about ticking places off a list.</p><h2>It’s about how<br/>the world makes<br/><em>you feel.</em></h2><span className="manifesto-sign">LET’S MAKE ROOM FOR THAT.</span></div><div className="manifesto-side">A NOTE FROM VYAJ <span>↗</span></div></section>
-
-      <section className="faq-section section wrap"><div className="section-kicker"><span>04</span> GOOD QUESTIONS</div><div className="faq-layout"><div><h2>Wondering<br/>about <em>something?</em></h2><p>We’re making travel feel more human, one thoughtful detail at a time.</p><a href="mailto:hello@vyaj.eu" className="under-link">Ask us anything <ArrowUpRight size={16}/></a></div><div className="faq-list">{faqs.map(([q,a],i)=><div className={`faq-item ${openFaq===i?"faq-active":""}`} key={q}><button onClick={()=>setOpenFaq(openFaq===i?null:i)} aria-expanded={openFaq===i}><span>{q}</span><span className="faq-plus">{openFaq===i?"−":"+"}</span></button>{openFaq===i&&<p>{a}</p>}</div>)}</div></div></section>
-
-      <section className="waitlist wrap" id="waitlist"><div className="waitlist-copy"><span className="section-kicker"><span>05</span> THE JOURNEY STARTS SOON</span><h2>Your next great story<br/>starts <em>here.</em></h2><p>We’re getting VYAJ ready for take-off. Get on the list and be among the first to travel a little differently.</p><form className="waitlist-form" onSubmit={e=>{e.preventDefault();if(!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){setWaitlistMessage("Enter a valid email address.");return;}setWaitlistMessage("");runFeatureAction("join-waitlist",{email:email.trim()});}}><label className="sr-only" htmlFor="email">Your email address</label><input id="email" type="email" required placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)}/><button type="submit" aria-label="Join the waitlist"><ArrowRight size={19}/></button></form><small className="form-note" aria-live="polite">{waitlistMessage || "No noise. Just a note when it’s time."}</small></div><div className="waitlist-art"><div className="waitlist-image" role="img" aria-label="A peaceful coastal landscape"/><div className="stamp"><span>GO</span><span>FIND</span><span>YOUR</span><span>AWAY</span><i>✳</i></div><span className="waitlist-caption">SOMEWHERE OUT THERE, YOUR NEXT STORY IS WAITING.</span></div></section>
-
-      <footer className="footer wrap"><div className="footer-main"><a href="#" className="wordmark footer-logo"><img src="/vyaj-logo.svg" alt="VYAJ — Plan less. Travel more." /></a><p>Plan less. Travel more.<br/>Make room for the good stuff.</p><a href="mailto:hello@vyaj.eu" className="footer-email">hello@vyaj.eu <ArrowUpRight size={15}/></a></div><div className="footer-bottom"><span>© 2026 VYAJ. MADE FOR THE WAY YOU WANDER.</span><div><a href="#why">Our approach</a><a href="#discover">Find inspiration</a><a href="#waitlist">Join the waitlist</a></div><a href="#" className="back-top">BACK TO TOP ↑</a></div></footer>
-
-      {plannerOpen && <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setPlannerOpen(false);}}><div className="planner-modal" role="dialog" aria-modal="true" aria-labelledby="planner-title"><button className="modal-close" aria-label="Close planner" onClick={()=>setPlannerOpen(false)}><X size={20}/></button><div className="planner-kicker"><Sparkles size={15}/> YOUR TRAVEL SIDEKICK</div>{thinking ? <div className="planner-thinking" role="status"><div className="thinking-orbit"><span></span><span></span><Sparkles size={25}/></div><p className="thinking-kicker">VYAJ / YOUR TRAVEL SIDEKICK</p><h2 id="planner-title">THINKING<span className="thinking-ellipsis">...</span></h2><p className="thinking-copy">{actionCopy[activeAction]?.subtitle || "Finding the right journey for you…"}</p><div className="thinking-progress"><span/></div></div> : plannerError && activeAction !== "plan-trip" ? <div className="planner-action-error" role="alert"><div className="result-sparkle"><X size={22}/></div><p className="thinking-kicker">CONNECTION ISSUE</p><h2 id="planner-title">We couldn’t complete that just now.</h2><p className="thinking-copy">{plannerError}</p><button className="button button-dark planner-submit" onClick={()=>runFeatureAction(activeAction,activePayload)}>Try again <ArrowRight size={17}/></button><button className="result-close" onClick={()=>{setPlannerOpen(false);setPlannerError("");}}>Back to VYAJ</button></div> : !planned ? <><h2 id="planner-title">Let’s find your <em>somewhere.</em></h2><p className="planner-intro">A few details are all we need to get your imagination moving.</p><form onSubmit={submitPlan} className="planner-form"><label>Where are you dreaming of?<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="e.g. Portugal, or surprise me"/></label><div className="planner-fields"><label>How long?<select value={days} onChange={e=>setDays(e.target.value)}><option>Weekend</option><option>3–4 days</option><option>5–7 days</option><option>1–2 weeks</option><option>Two weeks or more</option></select></label><label>Who’s coming?<select value={travellers} onChange={e=>setTravellers(e.target.value)}><option>Just me</option><option>Two of us</option><option>Friends</option><option>Family</option></select></label></div><label>What’s your kind of trip?<select value={style} onChange={e=>setStyle(e.target.value)}><option>A bit of everything</option><option>Food & local culture</option><option>Nature & outdoors</option><option>Rest & recharge</option><option>Art, design & cities</option><option>Adventure & surprises</option></select></label><label>Anything else on your mind? <span className="optional">(optional)</span><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="A place you’ve always wanted to see, a feeling you’re chasing…" rows={3}/></label><button className="button button-dark planner-submit" type="submit" disabled={loadingPlan}>{loadingPlan ? "Dreaming up your trip…" : "Build my itinerary"} {!loadingPlan && <ArrowUpRight size={17}/>}</button>{plannerError && <p className="planner-error" role="alert">{plannerError}</p>}<small className="planner-disclaimer">AI-generated suggestions. Check local details before you travel.</small></form></> : <div className="planner-result">
-        <div className="result-sparkle"><Sparkles size={24}/></div>
-        {itinerary ? <>
-          <p className="result-ready-kicker">✦ YOUR JOURNEY</p>
-          <h2 id="planner-title">{itinerary.tripTitle}</h2>
-          <p className="result-summary">{itinerary.destination} · {days.toLowerCase()} · {travellers.toLowerCase()}</p>
-          <p className="result-overview">{itinerary.overview}</p>
-          {itinerary.estimatedBudget && <div className="budget-strip"><span>ESTIMATED BUDGET / PERSON</span><strong>{itinerary.estimatedBudget.perPerson}</strong><small>{itinerary.estimatedBudget.notes}</small></div>}
-          <div className="itinerary-days">{itinerary.days.map((day, index) => <article className="itinerary-day" key={day.day || index}><div className="itinerary-day-heading"><span>DAY {day.day || index + 1}</span><h3>{day.title}</h3></div><p>{day.summary}</p><div className="itinerary-activities">{(day.activities || []).map((activity, activityIndex) => <div className="itinerary-activity" key={activity.title + activityIndex}><span className="activity-time">{activity.time || "Explore"}</span><div><strong>{activity.title}</strong><p>{activity.description}</p><small>{activity.location}{activity.estimatedCost ? " · " + activity.estimatedCost : ""}</small></div></div>)}</div></article>)}</div>
-          {itinerary.tips?.length ? <div className="planner-extra"><strong>Good to know</strong><ul>{itinerary.tips.map((tip, index) => <li key={index}>{tip}</li>)}</ul></div> : null}
-          <p className="result-footnote">AI-generated suggestions. Opening hours, prices and availability are not live-verified.</p><div className="itinerary-actions"><button className="button button-dark" onClick={()=>runFeatureAction("save-trip",{destination:itinerary.destination,itinerary})}>Save trip <Heart size={16}/></button><button className="button button-light" onClick={()=>runFeatureAction("share-trip",{destination:itinerary.destination})}>Share trip <ArrowUpRight size={16}/></button><button className="text-link" onClick={()=>runFeatureAction("edit-itinerary",{destination:itinerary.destination,itinerary})}>Edit itinerary <ArrowRight size={16}/></button><button className="text-link" onClick={()=>runFeatureAction("add-activity",{destination:itinerary.destination,itinerary})}>Add activity <ArrowRight size={16}/></button></div>
-        </> : <>
-          <p className="result-ready-kicker">✦ YOUR NEXT ADVENTURE</p>
-          <h2 id="planner-title">{actionCopy[activeAction]?.resultTitle || "Your journey is getting ready."}</h2>
-          <p className="result-summary">{destination || "Your destination"} · {days.toLowerCase()} · {travellers.toLowerCase()}</p>
-          <div className="coming-soon-panel"><span>COMING SOON</span><p>{actionCopy[activeAction]?.message || "We’re putting the finishing touches on your VYAJ travel experience. Your next great journey starts here."}</p></div>
-        </>}
-        <button className="button button-dark planner-submit" onClick={()=>{setPlanned(false);setThinking(false);setPlannerError("");}}>Back to planning <ArrowRight size={17}/></button>
-        <button className="result-close" onClick={()=>{setPlannerOpen(false);setPlanned(false);setThinking(false);}}>Back to VYAJ</button>
-      </div>}</div></div>}
-    </main>
-  );
-}
+"use client";
+import {useEffect,useState,type FormEvent} from "react";
+import {ArrowDown,ArrowRight,ArrowUpRight,Compass,Globe2,MapPin,Menu,MessageCircle,Sparkles,Users,X,Zap} from "lucide-react";
+import {postAction,type Itinerary} from "../lib/api";
+const img=(id:string,w=1200)=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w="+w+"&q=85";
+const places=[{name:"Amalfi Coast",country:"Italy",mood:"Salt air, slow lunches",id:"photo-1533105079780-92b9be482077"},{name:"Copenhagen",country:"Denmark",mood:"Design, coffee, discovery",id:"photo-1513622470522-26c3c8a854bc"},{name:"Madeira",country:"Portugal",mood:"Wild trails, wide horizons",id:"photo-1510414842594-a61c69b5ae57"},{name:"Kyoto",country:"Japan",mood:"Quiet rituals, hidden lanes",id:"photo-1493976040374-85c8e12f0c0e"}];
+const questions=[["What is VYAJ?","An AI-powered travel companion that turns a few ideas into a thoughtful trip built around your interests, time and travel style."],["Can I plan with friends?","Group planning is part of the vision: shared ideas, comparing options, voting and finding a plan everyone feels good about."],["Can VYAJ book flights or hotels?","Not yet. The first experience focuses on inspiration and planning. Booking integrations are planned for a later release."],["When can I try it?","We're building the first VYAJ experience now. Join the early-access list to hear when it's ready."]];
+export default function Home(){
+const [menu,setMenu]=useState(false),[destination,setDestination]=useState(""),[notes,setNotes]=useState(""),[duration,setDuration]=useState("5–7 days"),[travellers,setTravellers]=useState("Two of us"),[style,setStyle]=useState("A bit of everything"),[modal,setModal]=useState(false),[busy,setBusy]=useState(false),[planned,setPlanned]=useState(false),[action,setAction]=useState("plan-trip"),[itinerary,setItinerary]=useState<Itinerary|null>(null),[error,setError]=useState(""),[email,setEmail]=useState(""),[emailMsg,setEmailMsg]=useState(""),[faq,setFaq]=useState(0),[promptIndex,setPromptIndex]=useState(0),[scrolled,setScrolled]=useState(false);
+const prompts=["A week in Italy, by the sea…","Somewhere beautiful under €500…","A long weekend for the whole group…"];
+useEffect(()=>{const timer=window.setInterval(()=>setPromptIndex(i=>(i+1)%prompts.length),3200);const onScroll=()=>setScrolled(window.scrollY>24);window.addEventListener("scroll",onScroll,{passive:true});const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("is-visible");observer.unobserve(e.target)}}),{threshold:.12});document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));return()=>{clearInterval(timer);window.removeEventListener("scroll",onScroll);observer.disconnect()}},[]);
+const openPlanner=()=>{setAction("plan-trip");setModal(true);setBusy(false);setPlanned(false);setItinerary(null);setError("")};
+const feature=(a:string)=>{setAction(a);setModal(true);setBusy(true);setPlanned(true);setItinerary(null);setError("");window.setTimeout(()=>setBusy(false),1100)};
+const submit=async(e:FormEvent)=>{e.preventDefault();if(!destination.trim()){setError("Start with a destination or describe the feeling you're after.");return}setAction("plan-trip");setBusy(true);setError("");try{const r=await postAction<Itinerary>("plan-trip",{destination:destination.trim(),duration,travellers,style,notes});setBusy(false);if(r.status==="available"&&r.itinerary)setItinerary(r.itinerary);else if(r.status!=="coming_soon")throw new Error(r.message||"The planner isn't available right now.");setPlanned(true)}catch(err){setBusy(false);setError(err instanceof Error?err.message:"We couldn't connect. Please try again.")}};
+const join=(e:FormEvent)=>{e.preventDefault();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())){setEmailMsg("Enter a valid email address.");return}setEmailMsg("");feature("waitlist")};
+return <main><div className="ambient ambient-one"/><div className="ambient ambient-two"/>
+<header className={"site-header "+(scrolled?"header-scrolled":"")}><a href="#top" className="brand"><img src="/vyaj-logo.svg" alt="VYAJ — Plan less. Travel more."/></a><nav className={menu?"nav-open":""}><a href="#how" onClick={()=>setMenu(false)}>How it works</a><a href="#agent" onClick={()=>setMenu(false)}>The AI</a><a href="#discover" onClick={()=>setMenu(false)}>Discover</a><a href="#faq" onClick={()=>setMenu(false)}>FAQ</a><button className="mobile-cta" onClick={openPlanner}>Start planning <ArrowUpRight size={16}/></button></nav><div className="header-actions"><button className="icon-button" aria-label="Profile" onClick={()=>feature("profile")}><Users size={17}/></button><button className="header-cta" onClick={openPlanner}>Start planning <ArrowUpRight size={16}/></button></div><button className="menu-toggle" aria-label="Toggle navigation" onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></header>
+<section className="hero page-wrap" id="top"><div className="hero-copy"><div className="status-pill"><i/><Sparkles size={13}/> YOUR PERSONAL AI TRAVEL COMPANION</div><h1>Travel plans<br/>that feel like <span>you.</span></h1><p className="hero-description">Less searching. Less second-guessing. More of the places, people and moments you’ll remember.</p>
+<form className="ai-composer" onSubmit={submit}><div className="composer-top"><span><i/> VYAJ AI <b>/</b> YOUR NEXT CHAPTER</span><span className="composer-spark"><Sparkles size={16}/></span></div><label htmlFor="hero-prompt">Where do you want to go?</label><textarea id="hero-prompt" value={destination} onChange={e=>setDestination(e.target.value)} placeholder={prompts[promptIndex]} rows={2}/><div className="composer-bottom"><span><Zap size={13}/> A thought is enough to start.</span><button aria-label="Build a trip plan" type="submit"><ArrowUpRight size={20}/></button></div></form>
+<div className="quick-prompts"><small>TRY</small><button type="button" onClick={()=>setDestination("A slow Mediterranean escape")}>Mediterranean escape</button><button type="button" onClick={()=>setDestination("A weekend with friends")}>A trip with friends</button><button type="button" onClick={()=>feature("surprise-me")}>Surprise me <ArrowUpRight size={12}/></button></div><div className="hero-proof"><span><Compass size={16}/></span> AI-powered planning for <b>real-life travel.</b><i/></div></div>
+<div className="hero-visual"><div className="hero-image-wrap"><div className="hero-image"/><div className="image-shade"/><div className="image-topline"><span>VYAJ / FIELD NOTES</span><span>36° 23' N · 25° 28' E</span></div><div className="hero-image-caption"><span><Sparkles size={15}/></span><div><small>A PLACE THAT FEELS LIKE A DEEP BREATH</small><strong>Somewhere between here and wow.</strong></div><ArrowUpRight size={18}/></div></div><div className="floating-card float-card-one"><span><Sparkles size={16}/></span><div><small>YOUR AI TRAVEL BRAIN</small><strong>Getting to know your kind of trip</strong><i><b/></i></div></div><div className="floating-card float-card-two"><span className="avatar">E</span><div><small>MADE FOR YOUR PEOPLE</small><strong>Better trips, together.</strong></div><ArrowUpRight size={15}/></div><div className="orbit orbit-a"/><div className="orbit orbit-b"/><div className="visual-index">01 <i/> THE ART OF GETTING AWAY</div></div><a className="scroll-cue" href="#manifesto">SCROLL TO FEEL IT <ArrowDown size={15}/></a></section>
+<div className="signal-bar"><div className="signal-inner"><span>PLAN LESS</span><i>✳</i><span>TRAVEL DEEPER</span><i>✳</i><span>MAKE IT YOURS</span><i>✳</i><span>STAY CURIOUS</span><i>✳</i><span>PLAN LESS</span><i>✳</i><span>TRAVEL DEEPER</span></div></div>
+<section className="manifesto page-wrap reveal" id="manifesto"><div className="section-label"><b>01</b><i/> A DIFFERENT KIND OF TRAVEL TOOL</div><div className="manifesto-layout"><h2>The world is too big<br/>for <span>one-size-fits-all.</span></h2><div className="manifesto-copy"><span className="sparkle-mark"><Sparkles size={19}/></span><p>Your trip should start with what matters to you—not another list of the same ten places.</p><p>VYAJ combines AI with a human sense of discovery, helping you move from endless options to a journey that feels right.</p><a href="#how" className="text-link">Meet your travel sidekick <ArrowRight size={16}/></a></div></div><div className="signal-stats"><div><b>01</b><span>Start with a feeling</span></div><div><b>02</b><span>Shape it with AI</span></div><div><b>03</b><span>Make it your own</span></div><div className="stats-note"><Globe2 size={17}/> BUILT FOR CURIOUS PEOPLE, NOT CHECKLISTS.</div></div></section>
+<section className="how-section" id="how"><div className="page-wrap section-pad"><div className="section-label reveal"><b>02</b><i/> HOW VYAJ THINKS</div><div className="section-heading reveal"><div><p className="overline">FROM A LITTLE IDEA TO A REAL ADVENTURE</p><h2>Three steps.<br/><span>More possibility.</span></h2></div><p>It doesn’t take a perfect prompt to find a great trip. Just a starting point and a little curiosity.</p></div><div className="steps-grid">
+<article className="step-card reveal"><div className="step-meta">01 / TELL VYAJ <MessageCircle size={17}/></div><div className="step-visual chat-visual"><div className="chat-line">Somewhere by the sea. Great food. No rush.</div><div className="ai-reply"><span><Sparkles size={12}/></span><div><small>VYAJ AI</small><strong>Got your vibe. Let's find your coast.</strong></div></div><div className="typing-dots"><i/><i/><i/></div></div><h3>Start with a feeling.</h3><p>Tell VYAJ what you're in the mood for. No perfect prompt, no complicated filters.</p></article>
+<article className="step-card reveal"><div className="step-meta">02 / LET IT CONNECT <Compass size={17}/></div><div className="step-visual itinerary-visual"><div className="itinerary-head">YOUR JOURNEY, AT A GLANCE <span>✦ AI CURATED</span></div>{[["09:30","A slow start by the water","Keep the morning open"],["12:45","A table worth finding","Local food, away from crowds"],["18:10","Golden-hour wander","Leave room for a detour"]].map(r=><div className="itinerary-row" key={r[0]}><b>{r[0]}</b><i/><div><strong>{r[1]}</strong><small>{r[2]}</small></div></div>)}</div><h3>A plan with breathing room.</h3><p>A clear, flexible outline that balances practical details with the joy of getting lost.</p></article>
+<article className="step-card reveal"><div className="step-meta">03 / BRING YOUR PEOPLE <Users size={17}/></div><div className="step-visual group-visual"><div className="group-title"><span><Users size={14}/></span><div><small>YOUR TRIP CREW</small><strong>Find the overlap.</strong></div><em>4 PEOPLE</em></div>{[["Food & local culture","88%","4/4"],["Beach time","72%","3/4"],["Early starts","25%","1/4"]].map(r=><div className="preference" key={r[0]}><span>{r[0]}</span><i><b style={{width:r[1]}}/></i><strong>{r[2]}</strong></div>)}<div className="group-foot"><Check size={13}/> A trip with something for everyone</div></div><h3>Better, together.</h3><p>Group planning is being designed to turn competing preferences into a trip everyone can enjoy.</p></article></div><div className="center-action reveal"><button className="primary-button" onClick={openPlanner}>Try the travel planner <ArrowUpRight size={17}/></button><span>Start with a thought. See where it goes.</span></div></div></section>
+<section className="agent-section page-wrap" id="agent"><div className="agent-panel"><div className="agent-copy reveal"><div className="section-label"><b>03</b><i/> YOUR TRAVEL AGENT, REIMAGINED</div><p className="overline">NOT ANOTHER SEARCH BOX.</p><h2>An AI that gets<br/>the <span>whole picture.</span></h2><p className="agent-description">Your budget. Your energy. Your people. Your “I just need to get away” feeling. VYAJ is being built to connect the dots—not just throw options at you.</p><div className="agent-features"><div><span><Sparkles size={16}/></span><div><strong>Understand your intent</strong><small>Talk naturally, not in filters.</small></div></div><div><span><Compass size={16}/></span><div><strong>Make choices feel easier</strong><small>Move from too many options to a direction.</small></div></div><div><span><Users size={16}/></span><div><strong>Bring the group together</strong><small>Find the overlap between different travel styles.</small></div></div></div><button className="primary-button" onClick={()=>feature("decide-for-us")}>Let VYAJ help decide <ArrowUpRight size={17}/></button></div><div className="agent-demo reveal"><div className="demo-window"><div className="demo-chrome"><span>● ● ●</span> VYAJ INTELLIGENCE / 001 <small>✳ CONCEPT</small></div><div className="demo-prompt"><span><Sparkles size={17}/></span><div><small>YOUR THOUGHT</small><p>“I want to feel like I’ve really been somewhere. Not just seen it.”</p></div></div><div className="demo-divider">VYAJ CONNECTS THE DOTS <i/></div><div className="insight-card"><div>TRAVEL PERSONALITY <span>01 / 03</span></div><h3>The thoughtful wanderer.</h3><p>Local rhythm over packed schedules. Places with character. Space to explore.</p><aside><span>Slow travel</span><span>Local food</span><span>Small discoveries</span></aside></div><div className="demo-destination"><div/><section><small>A POSSIBLE MATCH</small><strong>Cinque Terre, Italy</strong><span>Coastal villages · unhurried days</span></section><ArrowUpRight size={17}/></div><div className="demo-foot"><Sparkles size={13}/> A direction, not a prescription.</div></div><div className="demo-orbit"/></div></div></section>
+<section className="live-section"><div className="page-wrap live-layout"><div className="live-art reveal"><div className="live-image"/><div className="live-location"><MapPin size={14}/> THE JOURNEY, AS IT UNFOLDS</div><div className="live-card"><span><Zap size={16}/></span><div><small>THE VYAJ TRIP BRAIN</small><strong>Plans should flex with real life.</strong><p>One more stop? A slower afternoon? Your journey should leave room.</p></div></div></div><div className="live-copy reveal"><div className="section-label"><b>04</b><i/> BEYOND THE ITINERARY</div><p className="overline">THE PLAN IS JUST THE BEGINNING</p><h2>Good trips have<br/><span>room to change.</span></h2><p>We're imagining a companion that helps while you're away, keeping context close and making it easier to adapt as the day unfolds.</p><div className="coming-note"><i/><div><strong>THE LIVE TRIP BRAIN</strong><small>Planned for a future release</small></div><ArrowUpRight size={16}/></div><button className="text-link" onClick={()=>feature("live-brain")}>Explore the vision <ArrowRight size={16}/></button></div></div></section>
+<section className="discover page-wrap" id="discover"><div className="section-label reveal"><b>05</b><i/> OPEN A NEW TAB IN YOUR MIND</div><div className="discover-heading reveal"><div><p className="overline">A LITTLE INSPIRATION TO GET YOU GOING</p><h2>Where could<br/><span>you feel at home?</span></h2></div><p>Four different moods. A million ways to make them yours. Pick a place and start imagining.</p></div><div className="destination-grid">{places.map((p,i)=><button key={p.name} className={"destination-card destination-"+(i+1)+" reveal"} onClick={()=>{setDestination(p.name);openPlanner()}}><div className="destination-photo" style={{backgroundImage:"url("+img(p.id,850)+")"}}/><div className="destination-overlay"/><div className="destination-top">0{i+1} / {p.country.toUpperCase()}<span><ArrowUpRight size={17}/></span></div><div className="destination-bottom"><small>{p.country.toUpperCase()}</small><h3>{p.name}</h3><p>{p.mood}</p></div></button>)}</div><div className="discover-footer"><span><Globe2 size={15}/> THE WORLD IS BIGGER THAN YOUR FEED.</span><button onClick={()=>feature("surprise-me")}>Find somewhere unexpected <ArrowRight size={15}/></button></div></section>
+<section className="group-banner page-wrap reveal"><div className="group-banner-bg"/><div className="group-banner-content"><div className="section-label"><b>06</b><i/> BETTER TRIPS ARE SHARED</div><p className="overline">THE ART OF FINDING COMMON GROUND</p><h2>One trip.<br/>Different people.<br/><span>Common ground.</span></h2><p>Everyone has a different idea of the perfect getaway. VYAJ is being built to find the part you all agree on.</p><button className="light-button" onClick={()=>feature("group-trip")}>Explore group travel <ArrowUpRight size={16}/></button></div><div className="banner-index">VYAJ / TOGETHER, BETTER</div></section>
+<section className="faq-section page-wrap" id="faq"><div className="section-label reveal"><b>07</b><i/> A FEW THINGS WORTH KNOWING</div><div className="faq-layout"><div className="faq-intro reveal"><p className="overline">GOOD QUESTIONS</p><h2>Curious?<br/><span>Good.</span></h2><p>We’re making a new kind of travel companion. Here are a few things to know while we build.</p><a href="mailto:hello@vyaj.eu" className="text-link">Talk to us <ArrowUpRight size={15}/></a></div><div className="faq-list reveal">{questions.map(([q,a],i)=><div className={faq===i?"faq-item faq-active":"faq-item"} key={q}><button onClick={()=>setFaq(faq===i?-1:i)} aria-expanded={faq===i}><span>{q}</span><i>{faq===i?"−":"+"}</i></button>{faq===i&&<p>{a}</p>}</div>)}</div></div></section>
+<section className="waitlist-section page-wrap" id="waitlist"><div className="waitlist-panel reveal"><div className="waitlist-copy"><div className="section-label"><b>08</b><i/> FIRST IN, FIRST AWAY</div><p className="overline">YOUR NEXT STORY STARTS HERE</p><h2>Make room for<br/><span>somewhere new.</span></h2><p>VYAJ is taking shape. Join the early-access list and be among the first to see travel planning in a different light.</p><form className="waitlist-form" onSubmit={join}><label className="sr-only" htmlFor="waitlist-email">Email address</label><input id="waitlist-email" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Your email address" required/><button>Join the waitlist <ArrowUpRight size={16}/></button></form><small className="waitlist-note" aria-live="polite">{emailMsg||"No spam. Just the occasional good thing."}</small></div><div className="waitlist-side"><div className="waitlist-graphic"><div className="graphic-ring ring-one"/><div className="graphic-ring ring-two"/><div className="graphic-core"><img src="/vyaj-mark.svg" alt="VYAJ mark"/></div><span>CURIOUS BY NATURE</span><small>READY WHEN YOU ARE</small><i>✳</i></div></div></div></section>
+<footer className="site-footer page-wrap"><div className="footer-main"><div><a href="#top" className="brand footer-brand"><img src="/vyaj-logo.svg" alt="VYAJ — Plan less. Travel more."/></a><p>AI-powered travel planning for Europe.<br/>Plan less. Travel more.</p></div><div className="footer-links"><div><small>EXPLORE</small><a href="#how">How it works</a><a href="#agent">The AI</a><a href="#discover">Destinations</a></div><div><small>VYAJ</small><a href="#faq">FAQ</a><a href="#waitlist">Early access</a><a href="mailto:hello@vyaj.eu">Contact</a></div></div><div className="footer-signoff">GO WITH CURIOSITY. <ArrowUpRight size={23}/></div></div><div className="footer-bottom"><span>© 2026 VYAJ. PLAN LESS. TRAVEL MORE.</span><span>MADE FOR THE WAY YOU WANDER <b>✳</b></span><a href="#top">BACK TO TOP ↑</a></div></footer>
+{modal&&<div className="modal-scrim" onMouseDown={e=>{if(e.target===e.currentTarget)setModal(false)}}><section className="planner-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button className="modal-x" aria-label="Close" onClick={()=>setModal(false)}><X size={20}/></button>{busy?<div className="modal-thinking"><div className="thinking-emblem"><Sparkles size={24}/></div><p className="overline">VYAJ / PROCESSING YOUR IDEA</p><h2 id="modal-title">Thinking<span>...</span></h2><p>Connecting the dots between what you want and where you could go.</p><div className="thinking-bar"><i/></div></div>:planned&&!itinerary?<div className="modal-result"><div className="result-emblem"><Sparkles size={22}/></div><p className="overline">YOUR NEXT CHAPTER</p><h2 id="modal-title">{action==="plan-trip"?"Your travel planner is coming soon.":action==="waitlist"?"You're early. We like that.":action==="surprise-me"?"Expect the unexpected.":action==="decide-for-us"?"Let VYAJ decide.":action==="group-trip"?"Make it a group thing.":action==="live-brain"?"Your trip, in the moment.":"Your travel space is coming."}</h2><p>{action==="plan-trip"?"The AI planning service isn't connected yet. Your idea is ready, but no itinerary has been generated.":action==="waitlist"?"Waitlist registration is coming soon. Your email has not been saved.":"This feature is planned for a future release."}</p><span className="coming-soon-badge">COMING SOON</span><button className="primary-button modal-full" onClick={()=>setModal(false)}>Back to VYAJ <ArrowRight size={16}/></button></div>:itinerary?<div className="modal-result itinerary-result"><div className="result-emblem"><Sparkles size={22}/></div><p className="overline">YOUR AI-GENERATED JOURNEY</p><h2 id="modal-title">{itinerary.tripTitle}</h2><p>{itinerary.overview}</p>{itinerary.estimatedBudget&&<div className="budget-chip">ESTIMATED BUDGET / PERSON <strong>{itinerary.estimatedBudget.perPerson}</strong></div>}<div className="result-days">{itinerary.days.map((d,i)=><article key={d.day||i}><span>DAY {d.day||i+1}</span><h3>{d.title}</h3><p>{d.summary}</p>{d.activities?.map((a,j)=><div className="result-activity" key={a.title+j}><b>{a.time||"Explore"}</b><div><strong>{a.title}</strong><small>{a.description}</small></div></div>)}</article>)}</div><small className="result-disclaimer">AI-generated suggestions. Confirm opening hours, prices and availability before travelling.</small><button className="primary-button modal-full" onClick={()=>{setItinerary(null);setPlanned(false)}}>Refine your idea <ArrowRight size={16}/></button></div>:<><div className="modal-heading"><span className="modal-icon"><Sparkles size={17}/></span><p className="overline">YOUR PERSONAL TRAVEL BRAIN</p><h2 id="modal-title">Let’s find your <span>somewhere.</span></h2><p>A few details help VYAJ imagine a trip that fits.</p></div><form className="planner-form" onSubmit={submit}><label>Destination or idea<textarea value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Portugal, a quiet beach, somewhere surprising…" rows={2}/></label><div className="form-two"><label>How long?<select value={duration} onChange={e=>setDuration(e.target.value)}><option>Weekend</option><option>3–4 days</option><option>5–7 days</option><option>1–2 weeks</option><option>Two weeks or more</option></select></label><label>Who's coming?<select value={travellers} onChange={e=>setTravellers(e.target.value)}><option>Just me</option><option>Two of us</option><option>Friends</option><option>Family</option></select></label></div><label>What feels like your kind of trip?<select value={style} onChange={e=>setStyle(e.target.value)}><option>A bit of everything</option><option>Food & local culture</option><option>Nature & outdoors</option><option>Rest & recharge</option><option>Art, design & cities</option><option>Adventure & surprises</option></select></label><label>Anything else? <span className="optional">(optional)</span><textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Budget, pace, must-sees, things to avoid…" rows={3}/></label>{error&&<p className="form-error" role="alert">{error}</p>}<button className="primary-button modal-full" type="submit">Imagine my trip <Sparkles size={16}/></button><small className="form-disclaimer">Suggestions are AI-generated. Details are not live-verified.</small></form></>}</section></div>}</main>}
