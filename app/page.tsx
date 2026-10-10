@@ -1,45 +1,84 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Clock3, Compass, MapPin, Menu, Sparkles, Users, X } from "lucide-react";
 
 type TripStyle = "Food & culture" | "Nature & outdoors" | "Slow escape" | "A bit of everything";
 
 const styles: TripStyle[] = ["Food & culture", "Nature & outdoors", "Slow escape", "A bit of everything"];
-const placePhotoRules: Array<[RegExp, string]> = [
-  [/upper barrakka|grand harbour|valletta|republic street|st john.?s co-cathedral/i, "photo-1519671482749-fd09be7ccebf"],
-  [/mdina|rabat|st paul.?s catacombs/i, "photo-1515859005217-8a1f08870f59"],
-  [/gozo|citadel|dwejra|victoria/i, "photo-1519046904884-53103b34b206"],
-  [/birgu|vittoriosa|three cities|birgu marina/i, "photo-1533105079780-92b9be482077"],
-  [/palermo|ballar[oò]|sicilian|cefalu|cefalu|cannoli/i, "photo-1533105079780-92b9be482077"],
-  [/colosseum|roman forum|piazza venezia|trastevere|trevi fountain|pantheon|villa borghese/i, "photo-1552832230-c0197dd311b5"],
-  [/florence|duomo|uffizi|ponte vecchio|piazzale michelangelo|san lorenzo market/i, "photo-1543429257-7eb0e7f9d4a5"],
-  [/eiffel tower|trocad[eé]ro|louvre|tuileries|montmartre|sacr[eé]-c[oœ]ur|le marais|notre-dame/i, "photo-1502602898657-3e91760cbb34"],
-  [/big ben|westminster|south bank|borough market|tower bridge|hyde park|notting hill|british museum|covent garden/i, "photo-1513635269975-59663e0ac1ad"],
-  [/sagrada fam[ií]lia|barcelona|park g[uü]ell|gothic quarter|el born|montju[iï]c|barceloneta/i, "photo-1583422409516-2895a77efded"],
-  [/alfama|bel[eé]m|sintra|chiado|bairro alto|pra[cç]a do com[eé]rcio|lisbon/i, "photo-1555881400-74d7acaacd8b"],
-  [/amsterdam|jordaan|rijksmuseum|van gogh|vondelpark|dam square|canal belt/i, "photo-1512470876302-972fcc6b8a06"],
-  [/nyhavn|copenhagen|torvehallerne|n[oø]rrebro|christianshavn|designmuseum/i, "photo-1513622470522-26c3c8a854bc"],
-  [/acropolis|plaka|ancient agora|varvakios|monastiraki|filopappou|athens riviera/i, "photo-1603565816030-6b389eeb23cb"],
-  [/sultanahmet|blue mosque|hagia sophia|grand bazaar|spice bazaar|kad[iı]k[oö]y|galata|bosphorus/i, "photo-1524231757912-21f4fe3a7200"],
-  [/marrakech|jemaa|bahia palace|majorelle|medina|souk/i, "photo-1539020140153-e479b8c22e70"],
-  [/burj khalifa|downtown dubai|al fahidi|dubai creek|gold.*souk|jbr|alserkal|desert tour/i, "photo-1512453979798-5ea266f8880c"],
-  [/wat pho|wat arun|grand palace|bangkok|lumphini|chinato?wn|street food/i, "photo-1508009603885-50cf7c579365"],
-  [/sens[oō]-ji|asakusa|meiji|shibuya|harajuku|tsukiji|ueno|tokyo/i, "photo-1540959733332-eab4de003a56"],
-  [/fushimi inari|kiyomizu|ninenzaka|sannenzaka|arashiyama|nishiki|kyoto|gion/i, "photo-1493976040374-85c8e12f0c0e"],
-  [/central park|brooklyn bridge|dumbo|manhattan|times square|lower manhattan|new york|bryant park/i, "photo-1496442226666-8d4d0e62e6e9"],
-  [/ubud|bali|rice terrace|waterfall|indonesia|temple|beach/i, "photo-1537996194471-e657df975ab4"],
-  [/prague|charles bridge|old town square|astronomical clock|prague castle|mal[aá] strana|let[ná]/i, "photo-1541849546-216549ae216d"],
-  [/market|food|lunch|dinner|café|cafe|pastry|coffee|restaurant|breakfast/i, "photo-1555939594-58d7cb561ad1"],
-  [/beach|coast|waterfront|river|harbour|harbor|canal|ferry|sea|island/i, "photo-1519046904884-53103b34b206"],
-  [/museum|gallery|cathedral|church|palace|historic|history|architecture|landmark|temple/i, "photo-1566139884669-5b9a9f9c2f1d"]
-];
-function getPlacePhoto(activity: string, destination: string) {
-  const match = placePhotoRules.find(([pattern]) => pattern.test(activity));
-  const fallback = /malta|valletta|mdina|gozo/i.test(destination) ? "photo-1533105079780-92b9be482077" : /sicily|palermo|italy|rome|florence/i.test(destination) ? "photo-1533105079780-92b9be482077" : /japan|tokyo|kyoto/i.test(destination) ? "photo-1493976040374-85c8e12f0c0e" : "photo-1500530855697-b586d89ba3ee";
-  return "https://images.unsplash.com/" + (match?.[1] ?? fallback) + "?auto=format&fit=crop&w=240&h=240&q=75";
-}
+function PlacePhoto({ activity }: { activity: string }) {
+  const [photo, setPhoto] = useState<{ url: string; title: string; page: string } | null>(null);
 
+  useEffect(() => {
+    let cancelled = false;
+    const controller = new AbortController();
+    const searchTerms = activity
+      .replace(/\\b(visit|explore|walk|take|enjoy|have|try|choose|browse|travel|return|start|spend|see|discover|admire|leave|pause|find|and|then|before|after|if|open|check|current|time|times|ticket|tickets|advance|area|surrounding|historic|local|nearby|relaxed|relax|time|allows|subject|to|weather|transport|costs|suit|plan|or|a|the|in|on|at|for|with|from|towards|through|around|by|up|one|your|its|their|classic|major|small|final|flexible|optional|morning|afternoon|evening|day|lunch|dinner|coffee|cafe|café|restaurant|streets|street|city|neighbourhood|neighborhood|view|views|walkable|and|outdoors)\\b/gi, " ")
+      .replace(/[^\\p{L}\\p{N}\\s'-]/gu, " ")
+      .replace(/\\s+/g, " ")
+      .trim();
+    const query = (searchTerms || activity).slice(0, 140);
+    const params = new URLSearchParams({
+      action: "query",
+      generator: "search",
+      gsrsearch: `filetype:bitmap ${query}`,
+      gsrnamespace: "6",
+      gsrlimit: "8",
+      prop: "imageinfo",
+      iiprop: "url|extmetadata",
+      iiurlwidth: "240",
+      format: "json",
+      origin: "*",
+    });
+    fetch(`https://commons.wikimedia.org/w/api.php?${params.toString()}`, {
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    })
+      .then(response => {
+        if (!response.ok) throw new Error("Image search unavailable");
+        return response.json();
+      })
+      .then(data => {
+        const pages = Object.values(data?.query?.pages ?? []) as Array<any>;
+        const usable = pages
+          .filter(page => {
+            const info = page?.imageinfo?.[0];
+            const url = info?.thumburl || info?.url;
+            const mime = info?.mime || "";
+            return typeof url === "string" && mime.startsWith("image/") && !/\\.(svg|gif)$/i.test(url);
+          })
+          .map(page => ({
+            url: page.imageinfo[0].thumburl || page.imageinfo[0].url,
+            title: String(page.title || "").replace(/^File:/, ""),
+            page: String(page.imageinfo[0].descriptionurl || ""),
+          }))
+          .filter(item => !/logo|map|flag|icon|poster|diagram|coat of arms|collage|drawing/i.test(item.title));
+        if (!cancelled && usable.length) {
+          const normalized = query.toLowerCase().split(/\\s+/).filter(word => word.length > 3);
+          usable.sort((a, b) => {
+            const score = (title: string) => normalized.reduce((sum, word) => sum + (title.toLowerCase().includes(word) ? 2 : 0), 0);
+            return score(b.title) - score(a.title);
+          });
+          setPhoto(usable[0]);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [activity]);
+
+  if (!photo) {
+    return <div className="v2-activity-photo v2-activity-photo-placeholder" aria-label="No verified place photo available"><MapPin size={17}/></div>;
+  }
+
+  return (
+    <a className="v2-activity-photo-link" href={photo.page} target="_blank" rel="noreferrer" title={`Photo source: Wikimedia Commons — ${photo.title}`}>
+      <img className="v2-activity-photo" src={photo.url} alt={`Wikimedia Commons photo: ${photo.title}`} loading="lazy" decoding="async"/>
+    </a>
+  );
+}
 
 const demoIdeas: Record<TripStyle, { morning: string; afternoon: string; evening: string; note: string }> = {
   "Food & culture": {
@@ -356,7 +395,7 @@ export default function Home() {
                 <div className="v2-summary-icon"><MapPin size={19}/></div><div className="v2-summary-main"><span className="v2-small-label">YOUR SAMPLE TRIP</span><h3>{destination.trim()}</h3><p>{days} days <span>·</span> {travellers} {travellers === "1" ? "traveller" : "travellers"} <span>·</span> {style}</p></div><span className="v2-demo-tag v2-demo-tag-dark">SAMPLE</span>
               </div>
               <div className="v2-result-grid">
-                <div className="v2-days-list">{resultDays.map(day => <article className="v2-day-card" key={day.day}><div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div><p className="v2-day-focus">{day.focus}</p>{day.activities.map(([time, activity]) => <div className="v2-activity" key={time + activity}><img className="v2-activity-photo" src={getPlacePhoto(activity, destination)} alt="" loading="lazy" decoding="async"/><span>{time}</span><p>{activity}</p></div>)}</article>)}</div>
+                <div className="v2-days-list">{resultDays.map(day => <article className="v2-day-card" key={day.day}><div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div><p className="v2-day-focus">{day.focus}</p>{day.activities.map(([time, activity]) => <div className="v2-activity" key={time + activity}><PlacePhoto activity={activity}/><span>{time}</span><p>{activity}</p></div>)}</article>)}</div>
                 <aside className="v2-result-aside"><span className="v2-small-label">YOUR STATED BUDGET</span><h3>{money(budget)}</h3><p>This is the budget you entered, not a calculated or verified trip cost.</p><div className="v2-budget-metrics"><div><small>Per person · total</small><strong>{budget === "Flexible" ? "Flexible" : travellers === "5+" ? "Varies" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Number(travellers)).toLocaleString("en-IE", { maximumFractionDigits: 0 })}</strong></div><div><small>Per day · group</small><strong>{budget === "Flexible" ? "Flexible" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Math.max(dayCount, 1)).toLocaleString("en-IE", { maximumFractionDigits: 2 })}</strong></div></div><p className="v2-budget-caption">Figures above are arithmetic based on your inputs only. Flights, accommodation, food, transport and tickets have not been priced or assumed included.</p><div className="v2-aside-divider"/><span className="v2-small-label">WHY THIS SHAPE?</span><p>{isSicily && style === "Food & culture" ? "Palermo is a practical cultural starting point for this sample, with one optional coastal day in Cefalù. The order is illustrative; confirm transport schedules before committing." : tripIdea.note}</p><div className="v2-assumption"><Sparkles size={15}/><span>Illustrative sample only. No live AI, verified prices, opening hours, transport schedules or availability.</span></div><button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>Edit your details <ArrowRight size={16}/></button></aside>
               </div>
               <p className="v2-result-disclaimer">This is an illustrative VYAJ prototype, not a live AI-generated itinerary. For Malta and Sicily, this demo includes illustrative destination-specific ideas; other destinations use general travel-planning ideas. None are live AI results or verified travel recommendations. Prices, opening hours, transport schedules and availability have not been verified. Check current details before booking or travelling.</p>
