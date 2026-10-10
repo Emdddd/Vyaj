@@ -359,7 +359,7 @@ export default function Home() {
   return (
     <main className="v2-site">
       <header className="v2-header">
-        <a href="#top" className="v2-brand" aria-label="VYAJ home"><img src="/vyaj-wordmark.svg" alt="VYAJ" /></a>
+        <a href="#top" className="v2-brand" aria-label="VYAJ home"><img src="/A95ADB58-28CE-4DB2-B9AE-EB9B0E9AF376.png" alt="VYAJ" /></a>
         <button className="v2-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
         <nav className={menuOpen ? "v2-nav v2-nav-open" : "v2-nav"} aria-label="Main navigation">
           <a href="#how" onClick={() => setMenuOpen(false)}>How it works</a>
