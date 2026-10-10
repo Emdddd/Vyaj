@@ -20,6 +20,8 @@ const photo = (id: string, width = 1000) => `https://images.unsplash.com/${id}?a
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [promptFocused, setPromptFocused] = useState(false);
+  const [promptExample, setPromptExample] = useState(0);
   const [plannerOpen, setPlannerOpen] = useState(false);
   const [destination, setDestination] = useState("");
   const [days, setDays] = useState("5–7 days");
@@ -36,6 +38,8 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [email, setEmail] = useState("");
   const [waitlistMessage, setWaitlistMessage] = useState("");
+
+  const promptExamples = ["Italy for 5 days, a quiet beach…", "A beautiful trip under €500…", "A weekend my friends will love…"];
 
   const startPlan = () => {
     setPlannerOpen(true);
@@ -144,7 +148,7 @@ export default function Home() {
           <p className="hero-text">Your AI travel planner. Tell us what you love, and get a thoughtful trip made around you.</p>
           <form className="hero-composer" onSubmit={e=>{e.preventDefault();setPlannerOpen(true);void submitPlan(e);}}>
             <label htmlFor="hero-destination">LET’S START WITH A PLACE OR AN IDEA</label>
-            <div className="hero-composer-field"><MapPin size={18}/><input id="hero-destination" value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Italy for 5 days, a quiet beach…" /><button type="submit" aria-label="Start planning" ><ArrowUpRight size={19}/></button></div>
+            <div className="hero-composer-field"><MapPin size={18}/><input id="hero-destination" value={destination} onChange={e=>setDestination(e.target.value)} placeholder={promptExamples[promptExample]} onFocus={()=>setPromptFocused(true)} onBlur={()=>setPromptFocused(false)} /><button type="submit" aria-label="Start planning" ><ArrowUpRight size={19}/></button></div>
             <div className="hero-suggestions"><span>Try:</span><button type="button" onClick={()=>{setDestination("A long weekend in Italy");setPrompt("A long weekend in Italy");}}>Long weekend in Italy</button><button type="button" onClick={()=>{setDestination("A peaceful beach escape");setPrompt("A peaceful beach escape");}}>Beach escape</button><button type="button" onClick={()=>{setDestination("Surprise me");setPrompt("Surprise me with somewhere unexpected");}}>Surprise me</button></div>
           </form>
           <div className="hero-secondary"><button className="text-link" onClick={startPlan}>Plan a trip <ArrowRight size={16}/></button><button className="text-link" onClick={()=>runFeatureAction("decide-for-us")}>Decide for us <ArrowRight size={16}/></button><button className="text-link" onClick={()=>runFeatureAction("surprise-me")}>Surprise me <ArrowRight size={16}/></button></div>
