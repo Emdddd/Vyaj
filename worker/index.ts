@@ -70,6 +70,15 @@ export default {
       "/api/v1/actions/submit-vote": "submit-vote",
       "/api/v1/actions/view-notifications": "view-notifications",
       "/api/v1/actions/join-waitlist": "join-waitlist",
+      "/api/v1/actions/view-profile": "view-profile",
+      "/api/v1/actions/save-trip": "save-trip",
+      "/api/v1/actions/share-trip": "share-trip",
+      "/api/v1/actions/open-settings": "open-settings",
+      "/api/v1/actions/login": "login",
+      "/api/v1/actions/signup": "signup",
+      "/api/v1/actions/book-trip": "book-trip",
+      "/api/v1/actions/add-activity": "add-activity",
+      "/api/v1/actions/edit-itinerary": "edit-itinerary",
     };
     const action = actionPaths[url.pathname];
     if (!action) return json({ error: "Not found." }, 404, origin);
