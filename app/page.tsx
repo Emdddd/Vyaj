@@ -57,23 +57,27 @@ export default function Home() {
 
   const tripIdea = useMemo(() => demoIdeas[style], [style]);
   const dayCount = Number(days);
-  const resultDays = Array.from({ length: Math.min(dayCount, 7) }, (_, index) => ({
-    day: index + 1,
-    title: [
-      "Arrive & get your bearings",
-      "Explore beyond the obvious",
-      "Make time for local life",
-      "Leave room for a favourite",
-      "A slower day, your way",
-      "One last discovery",
-      "Take the scenic route"
-    ][index],
-    activities: [
-      ["09:30", tripIdea.morning],
-      ["13:00", tripIdea.afternoon],
-      ["18:30", tripIdea.evening]
-    ]
-  }));
+  const isSicily = /sicily|sicilia|palermo/i.test(destination);
+  const sicilyDays = [
+    { title: "Palermo: first tastes", focus: "Historic streets, market flavours and an easy first evening.", activities: [["09:30", "Walk Palermo’s historic centre and take in its layered architecture"], ["13:00", "Explore Ballarò market if open; choose a casual Sicilian street-food lunch"], ["18:30", "Take an unhurried evening walk and choose a neighbourhood trattoria"]] },
+    { title: "Palermo: culture & cuisine", focus: "A deeper look at the city’s landmarks and food traditions.", activities: [["09:30", "Visit Palermo Cathedral and explore the surrounding old streets"], ["13:00", "Pause at a local café, then choose one cultural landmark to explore"], ["18:30", "Try a classic Sicilian dish; check restaurant menus and prices first"]] },
+    { title: "Cefalù: a coastal day", focus: "A change of pace with a historic seaside town.", activities: [["09:00", "Travel to Cefalù if current transport times and costs suit your plan"], ["12:30", "Explore the old town and cathedral square, then find a relaxed lunch"], ["16:00", "Walk by the waterfront before returning to Palermo, subject to the timetable"]] },
+    { title: "A slower Sicilian finish", focus: "Local flavours, small discoveries and room for departure plans.", activities: [["09:30", "Start with coffee and a pastry at a local café"], ["11:00", "Browse a market or independent food shops for regional specialities"], ["13:00", "Try cannoli or another Sicilian treat, then leave a flexible buffer for departure"]] }
+  ];
+  const generalTitles = ["Arrive & get your bearings", "Explore beyond the obvious", "Make time for local life", "Leave room for a favourite", "A slower day, your way", "One last discovery", "Take the scenic route"];
+  const resultDays = Array.from({ length: Math.min(dayCount, 7) }, (_, index) => {
+    const sicilyDay = isSicily && style === "Food & culture" && index < sicilyDays.length ? sicilyDays[index] : null;
+    return {
+      day: index + 1,
+      title: sicilyDay?.title ?? generalTitles[index],
+      focus: sicilyDay?.focus ?? tripIdea.note,
+      activities: sicilyDay?.activities ?? [
+        ["09:30", tripIdea.morning],
+        ["13:00", tripIdea.afternoon],
+        ["18:30", tripIdea.evening]
+      ]
+    };
+  });
 
   function buildTrip(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -138,7 +142,7 @@ export default function Home() {
             <label className="v2-field"><span>How many days?</span><select value={days} onChange={event => { setDays(event.target.value); setResultReady(false); }}>{["2","3","4","5","6","7"].map(value => <option key={value} value={value}>{value} days</option>)}</select></label>
             <label className="v2-field"><span>Travellers</span><select value={travellers} onChange={event => { setTravellers(event.target.value); setResultReady(false); }}>{["1","2","3","4","5+"].map(value => <option key={value} value={value}>{value === "1" ? "1 person" : value === "5+" ? "5+ people" : value + " people"}</option>)}</select></label>
           </div>
-          <fieldset className="v2-choice-field"><legend>Total budget</legend><div className="v2-budget-options">{["€300","€600","€1,000","Flexible"].map(value => <button type="button" key={value} className={budget === value ? "v2-budget-option v2-selected" : "v2-budget-option"} onClick={() => { setBudget(value); setResultReady(false); }} aria-pressed={budget === value}>{value}</button>)}</div><small>Choose your overall budget. Costs aren’t live-checked.</small></fieldset>
+          <fieldset className="v2-choice-field"><legend>Total budget</legend><div className="v2-budget-options">{["€300","€600","€1,000","Flexible"].map(value => <button type="button" key={value} className={budget === value ? "v2-budget-option v2-selected" : "v2-budget-option"} onClick={() => { setBudget(value); setResultReady(false); }} aria-pressed={budget === value}>{value}</button>)}</div><small>Choose your overall budget. It is a target, not a price quote; costs aren’t live-checked.</small></fieldset>
           <fieldset className="v2-choice-field"><legend>Your kind of trip</legend><div className="v2-style-options">{styles.map(value => <button type="button" key={value} className={style === value ? "v2-style-option v2-selected" : "v2-style-option"} onClick={() => { setStyle(value); setResultReady(false); }} aria-pressed={style === value}>{value}</button>)}</div></fieldset>
           {error && <p className="v2-form-error" role="alert">{error}</p>}
           <button className="v2-button v2-button-dark v2-submit" type="submit">Preview my trip <ArrowUpRight size={17}/></button>
@@ -150,7 +154,7 @@ export default function Home() {
         <div className="v2-result-wrap">
           <div className="v2-result-heading">
             <div><div className="v2-eyebrow v2-eyebrow-light"><span>02</span><i/> A FIRST LOOK</div><h2>A trip you<br/><em>can picture.</em></h2></div>
-            <p>{resultReady ? "Here’s a sample structure shaped around your selections. It’s a concept preview, not a verified travel plan." : "A useful plan is more than a list of places. It gives each day a rhythm, without filling every minute."}</p>
+            <p>{resultReady ? "Here’s an illustrative sample shaped around your selections — not a live AI result or a verified travel plan." : "A useful plan is more than a list of places. This sample gives each day a rhythm without pretending prices or availability have been checked."}</p>
           </div>
           {resultReady ? (
             <div className="v2-result-content">
@@ -158,10 +162,10 @@ export default function Home() {
                 <div className="v2-summary-icon"><MapPin size={19}/></div><div className="v2-summary-main"><span className="v2-small-label">YOUR SAMPLE TRIP</span><h3>{destination.trim()}</h3><p>{days} days <span>·</span> {travellers} {travellers === "1" ? "traveller" : "travellers"} <span>·</span> {style}</p></div><span className="v2-demo-tag v2-demo-tag-dark">SAMPLE</span>
               </div>
               <div className="v2-result-grid">
-                <div className="v2-days-list">{resultDays.map(day => <article className="v2-day-card" key={day.day}><div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div>{day.activities.map(([time, activity]) => <div className="v2-activity" key={time}><span>{time}</span><p>{activity}</p></div>)}</article>)}</div>
-                <aside className="v2-result-aside"><span className="v2-small-label">YOUR STARTING POINT</span><h3>{money(budget)}</h3><p>Budget entered by you. This demo does not calculate or verify real travel costs.</p><div className="v2-aside-divider"/><span className="v2-small-label">WHY THIS SHAPE?</span><p>{tripIdea.note}</p><div className="v2-assumption"><Sparkles size={15}/><span>Sample suggestions only. Check opening times, transport, availability and prices before travelling.</span></div><button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>Edit your details <ArrowRight size={16}/></button></aside>
+                <div className="v2-days-list">{resultDays.map(day => <article className="v2-day-card" key={day.day}><div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div><p className="v2-day-focus">{day.focus}</p>{day.activities.map(([time, activity]) => <div className="v2-activity" key={time}><span>{time}</span><p>{activity}</p></div>)}</article>)}</div>
+                <aside className="v2-result-aside"><span className="v2-small-label">YOUR STATED BUDGET</span><h3>{money(budget)}</h3><p>This is the budget you entered, not a calculated or verified trip cost.</p><div className="v2-budget-metrics"><div><small>Per person · total</small><strong>{budget === "Flexible" ? "Flexible" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / (Number(travellers) || 1)).toLocaleString("en-IE", { maximumFractionDigits: 0 })}</strong></div><div><small>Per day · group</small><strong>{budget === "Flexible" ? "Flexible" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Math.max(dayCount, 1)).toLocaleString("en-IE", { maximumFractionDigits: 2 })}</strong></div></div><p className="v2-budget-caption">Figures above are arithmetic based on your inputs only. Flights, accommodation, food, transport and tickets have not been priced or assumed included.</p><div className="v2-aside-divider"/><span className="v2-small-label">WHY THIS SHAPE?</span><p>{isSicily && style === "Food & culture" ? "Palermo is a practical cultural starting point for this sample, with one optional coastal day in Cefalù. The order is illustrative; confirm transport schedules before committing." : tripIdea.note}</p><div className="v2-assumption"><Sparkles size={15}/><span>Illustrative sample only. No live AI, verified prices, opening hours, transport schedules or availability.</span></div><button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>Edit your details <ArrowRight size={16}/></button></aside>
               </div>
-              <p className="v2-result-disclaimer">Illustrative content generated in your browser. No live AI, map routing, booking, or pricing data is connected.</p>
+              <p className="v2-result-disclaimer">This is an illustrative VYAJ prototype, not a live AI-generated itinerary. Activities are examples; prices, opening hours, transport schedules and availability have not been verified. Check current details before booking or travelling.</p>
             </div>
           ) : (
             <div className="v2-result-preview">
