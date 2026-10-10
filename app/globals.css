@@ -308,3 +308,5 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .coming-soon-panel>span{display:inline-block;font-size:10px;font-weight:800;letter-spacing:2px;color:#008da5;border:1px solid #b8eaf0;border-radius:999px;padding:8px 12px}
 .coming-soon-panel p{max-width:330px;margin:15px auto 0;color:#657184;font-size:12px;line-height:1.8}
 @media(prefers-reduced-motion:reduce){.thinking-orbit:before,.thinking-orbit:after,.thinking-progress span{animation:none}}
+
+.waitlist-spinner{display:inline-block;width:15px;height:15px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:waitlist-spin .7s linear infinite}@keyframes waitlist-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.waitlist-spinner{animation:none}}
