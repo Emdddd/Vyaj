@@ -26,12 +26,43 @@ export default function Home() {
   const [style, setStyle] = useState("A bit of everything");
   const [prompt, setPrompt] = useState("");
   const [planned, setPlanned] = useState(false);
+  const [loadingPlan, setLoadingPlan] = useState(false);
+  const [plannerError, setPlannerError] = useState("");
+  const [itinerary, setItinerary] = useState<any>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [email, setEmail] = useState("");
   const [joined, setJoined] = useState(false);
 
-  const startPlan = () => { setPlannerOpen(true); setPlanned(false); };
-  const submitPlan = (e: FormEvent) => { e.preventDefault(); setPlanned(true); };
+  const startPlan = () => {
+    setPlannerOpen(true);
+    setPlanned(false);
+    setPlannerError("");
+    setItinerary(null);
+  };
+
+  const submitPlan = async (e: FormEvent) => {
+    e.preventDefault();
+    setPlannerError("");
+    setLoadingPlan(true);
+    try {
+      const apiBase = process.env.NEXT_PUBLIC_VYAJ_API_URL;
+      if (!apiBase) throw new Error("The AI service is not connected yet. The backend needs to be deployed and its URL added to the GitHub Actions variable NEXT_PUBLIC_VYAJ_API_URL.");
+      const response = await fetch(apiBase.replace(/\\/$/, "") + "/api/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ destination: destination.trim() || "Surprise me", duration: days, travellers, style, notes: prompt }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload?.error || "The planner could not complete your request.");
+      if (!payload?.itinerary?.days?.length) throw new Error("The AI response was incomplete. Please try again.");
+      setItinerary(payload.itinerary);
+      setPlanned(true);
+    } catch (error) {
+      setPlannerError(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+    } finally {
+      setLoadingPlan(false);
+    }
+  };
 
   return (
     <main>
@@ -101,7 +132,7 @@ export default function Home() {
 
       <footer className="footer wrap"><div className="footer-main"><a href="#" className="wordmark footer-logo"><span className="brand-icon">v</span> vyaj<span className="brand-dot">.</span></a><p>Plan less. Travel more.<br/>Make room for the good stuff.</p><a href="mailto:hello@vyaj.eu" className="footer-email">hello@vyaj.eu <ArrowUpRight size={15}/></a></div><div className="footer-bottom"><span>© 2026 VYAJ. MADE FOR THE WAY YOU WANDER.</span><div><a href="#why">Our approach</a><a href="#discover">Find inspiration</a><a href="#waitlist">Join the waitlist</a></div><a href="#" className="back-top">BACK TO TOP ↑</a></div></footer>
 
-      {plannerOpen && <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setPlannerOpen(false);}}><div className="planner-modal" role="dialog" aria-modal="true" aria-labelledby="planner-title"><button className="modal-close" aria-label="Close planner" onClick={()=>setPlannerOpen(false)}><X size={20}/></button><div className="planner-kicker"><Sparkles size={15}/> YOUR TRAVEL SIDEKICK</div>{!planned ? <><h2 id="planner-title">Let’s find your <em>somewhere.</em></h2><p className="planner-intro">A few details are all we need to get your imagination moving.</p><form onSubmit={submitPlan} className="planner-form"><label>Where are you dreaming of?<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="e.g. Portugal, or surprise me"/></label><div className="planner-fields"><label>How long?<select value={days} onChange={e=>setDays(e.target.value)}><option>Weekend</option><option>3–4 days</option><option>5–7 days</option><option>1–2 weeks</option><option>Two weeks or more</option></select></label><label>Who’s coming?<select value={travellers} onChange={e=>setTravellers(e.target.value)}><option>Just me</option><option>Two of us</option><option>Friends</option><option>Family</option></select></label></div><label>What’s your kind of trip?<select value={style} onChange={e=>setStyle(e.target.value)}><option>A bit of everything</option><option>Food & local culture</option><option>Nature & outdoors</option><option>Rest & recharge</option><option>Art, design & cities</option><option>Adventure & surprises</option></select></label><label>Anything else on your mind? <span className="optional">(optional)</span><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="A place you’ve always wanted to see, a feeling you’re chasing…" rows={3}/></label><button className="button button-dark planner-submit" type="submit">Find my direction <ArrowUpRight size={17}/></button><small className="planner-disclaimer">A preview experience. The full AI planner is coming soon.</small></form></> : <div className="planner-result"><div className="result-sparkle"><Sparkles size={24}/></div><h2 id="planner-title">Your next chapter<br/><em>could look like this.</em></h2><p className="result-summary">{destination.trim()||"Somewhere new"} · {days.toLowerCase()} · {travellers.toLowerCase()}</p><div className="result-card"><div className="result-card-image" style={{backgroundImage:`url(${photo(destination.toLowerCase().includes("portugal")||destination.toLowerCase().includes("madeira")?"photo-1510414842594-a61c69b5ae57":"photo-1533105079780-92b9be482077",600)})`}}/><div className="result-card-copy"><span>YOUR TRIP STARTER</span><h3>{style==="A bit of everything"?"A little of everything":style}</h3><p>{prompt.trim()||"A relaxed mix of local discoveries, memorable food, and time to wander."}</p><ul><li><Check size={15}/> One anchor experience each day</li><li><Check size={15}/> Local food worth seeking out</li><li><Check size={15}/> Space for spontaneous detours</li></ul></div></div><p className="result-footnote">This is an illustrative concept, not an AI-generated itinerary or verified travel recommendation.</p><button className="button button-dark planner-submit" onClick={()=>{setPlanned(false);}}>Adjust my idea <ArrowRight size={17}/></button><button className="result-close" onClick={()=>setPlannerOpen(false)}>I’ll keep dreaming for now</button></div>}</div></div>}
+      {plannerOpen && <div className="modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setPlannerOpen(false);}}><div className="planner-modal" role="dialog" aria-modal="true" aria-labelledby="planner-title"><button className="modal-close" aria-label="Close planner" onClick={()=>setPlannerOpen(false)}><X size={20}/></button><div className="planner-kicker"><Sparkles size={15}/> YOUR TRAVEL SIDEKICK</div>{!planned ? <><h2 id="planner-title">Let’s find your <em>somewhere.</em></h2><p className="planner-intro">A few details are all we need to get your imagination moving.</p><form onSubmit={submitPlan} className="planner-form"><label>Where are you dreaming of?<input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="e.g. Portugal, or surprise me"/></label><div className="planner-fields"><label>How long?<select value={days} onChange={e=>setDays(e.target.value)}><option>Weekend</option><option>3–4 days</option><option>5–7 days</option><option>1–2 weeks</option><option>Two weeks or more</option></select></label><label>Who’s coming?<select value={travellers} onChange={e=>setTravellers(e.target.value)}><option>Just me</option><option>Two of us</option><option>Friends</option><option>Family</option></select></label></div><label>What’s your kind of trip?<select value={style} onChange={e=>setStyle(e.target.value)}><option>A bit of everything</option><option>Food & local culture</option><option>Nature & outdoors</option><option>Rest & recharge</option><option>Art, design & cities</option><option>Adventure & surprises</option></select></label><label>Anything else on your mind? <span className="optional">(optional)</span><textarea value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="A place you’ve always wanted to see, a feeling you’re chasing…" rows={3}/></label><button className="button button-dark planner-submit" type="submit" disabled={loadingPlan}>{loadingPlan ? "Dreaming up your trip…" : "Build my itinerary"} {!loadingPlan && <ArrowUpRight size={17}/>}</button>{plannerError && <p className="planner-error" role="alert">{plannerError}</p>}<small className="planner-disclaimer">AI-generated suggestions. Check local details before you travel.</small></form></> : <div className="planner-result"><div className="result-sparkle"><Sparkles size={24}/></div><h2 id="planner-title">{itinerary?.tripTitle || "Your trip, thoughtfully planned."}</h2><p className="result-summary">{itinerary?.destination || destination || "Your destination"} · {days.toLowerCase()} · {travellers.toLowerCase()}</p><p className="result-overview">{itinerary?.overview}</p>{itinerary?.estimatedBudget && <div className="budget-strip"><span>ESTIMATED BUDGET / PERSON</span><strong>{itinerary.estimatedBudget.perPerson}</strong><small>{itinerary.estimatedBudget.notes}</small></div>}<div className="itinerary-days">{(itinerary?.days || []).map((day: any, index: number) => <article className="itinerary-day" key={String(day.day || index)}><div className="itinerary-day-heading"><span>DAY {day.day || index + 1}</span><h3>{day.title}</h3></div><p>{day.summary}</p><div className="itinerary-activities">{(day.activities || []).map((activity: any, activityIndex: number) => <div className="itinerary-activity" key={activity.title + activityIndex}><span className="activity-time">{activity.time || "Explore"}</span><div><strong>{activity.title}</strong><p>{activity.description}</p><small>{activity.location}{activity.estimatedCost ? " · " + activity.estimatedCost : ""}</small></div></div>)}</div></article>)}</div>{Array.isArray(itinerary?.tips) && itinerary.tips.length > 0 && <div className="planner-extra"><strong>Good to know</strong><ul>{itinerary.tips.map((tip: string, index: number) => <li key={index}>{tip}</li>)}</ul></div>}{Array.isArray(itinerary?.assumptions) && itinerary.assumptions.length > 0 && <p className="result-footnote">Planning notes: {itinerary.assumptions.join(" ")}</p>}<p className="result-footnote">AI-generated planning suggestions, not live-verified opening hours, prices, transport schedules, or bookings. Check important details before you go.</p><button className="button button-dark planner-submit" onClick={()=>{setPlanned(false);setPlannerError("");}}>Adjust my idea <ArrowRight size={17}/></button><button className="result-close" onClick={()=>setPlannerOpen(false)}>Close planner</button></div>}</div></div>}
     </main>
   );
 }
