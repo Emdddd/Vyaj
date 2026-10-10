@@ -42,7 +42,7 @@ function PlacePhoto({ activity, destination }: { activity: string; destination: 
       })
       .then(data => {
         const pages = Object.values(data?.query?.pages ?? []) as Array<any>;
-        const terms = [...destinationTerms, ...activityTerms].toLowerCase().split(/\s+/).filter(word => word.length > 3);
+        const terms = (destinationTerms + " " + activityTerms).toLowerCase().split(/\s+/).filter(word => word.length > 3);
         const usable = pages.map(page => {
           const info = page?.imageinfo?.[0];
           return {
