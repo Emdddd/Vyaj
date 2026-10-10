@@ -55,9 +55,8 @@ export default function OpenGraphImage() {
           <div style={{ fontSize: 52, fontWeight: 800, letterSpacing: 7 }}>VYAJ</div>
         </div>
         <div style={{ fontSize: 64, fontWeight: 750, lineHeight: 1.12, maxWidth: 920 }}>
-          Your next trip,
-          <br />
-          made yours.
+<span>Your next trip,</span>
+          <span>made yours.</span>
         </div>
         <div style={{ marginTop: 28, fontSize: 25, color: "#26c6da", letterSpacing: 4, fontWeight: 700 }}>
           PLAN LESS. TRAVEL MORE.
