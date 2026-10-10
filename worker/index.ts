@@ -59,8 +59,42 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
     const url = new URL(request.url);
-    if (url.pathname !== "/api/plan") return json({ error: "Not found" }, 404, origin);
-    if (request.method !== "POST") return json({ error: "Use POST for trip planning." }, 405, origin);
+    const actionPaths: Record<string, string> = {
+      "/api/v1/actions/plan-trip": "plan-trip",
+      "/api/plan": "plan-trip",
+      "/api/v1/actions/decide-for-us": "decide-for-us",
+      "/api/v1/actions/surprise-me": "surprise-me",
+      "/api/v1/actions/search-destinations": "search-destinations",
+      "/api/v1/actions/adjust-itinerary": "adjust-itinerary",
+      "/api/v1/actions/invite-travelers": "invite-travelers",
+      "/api/v1/actions/submit-vote": "submit-vote",
+      "/api/v1/actions/view-notifications": "view-notifications",
+    };
+    const action = actionPaths[url.pathname];
+    if (!action) return json({ error: "Not found." }, 404, origin);
+    if (request.method !== "POST") return json({ error: "Use POST for this action." }, 405, origin);
+    if (origin && !allowedOrigins.has(origin)) return json({ error: "Origin not allowed." }, 403, origin);
+
+    // These features have explicit contracts but are not implemented yet.
+    // Return a truthful feature state instead of pretending the operation succeeded.
+    if (action !== "plan-trip") {
+      const contentLength = Number(request.headers.get("Content-Length") || 0);
+      if (contentLength > 12_000) return json({ error: "That request is too long. Please shorten it and try again." }, 413, origin);
+      let payload: unknown;
+      try {
+        payload = await request.json();
+      } catch {
+        return json({ error: "Please send valid action details." }, 400, origin);
+      }
+      if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+        return json({ error: "Please send valid action details." }, 400, origin);
+      }
+      return json({
+        status: "coming_soon",
+        feature: action,
+        message: "This VYAJ feature is not available yet.",
+      }, 200, origin);
+    }
     if (origin && !allowedOrigins.has(origin)) return json({ error: "Origin not allowed." }, 403, origin);
     if (!env.GEMINI_API_KEY) return json({ error: "The AI service is not configured yet. Add the GEMINI_API_KEY secret to the backend." }, 503, origin);
 
@@ -112,7 +146,7 @@ export default {
       const outputText = extractText(payload);
       const itinerary = parseJson(outputText);
       if (!itinerary?.tripTitle || !Array.isArray(itinerary?.days)) throw new Error("Unexpected itinerary shape");
-      return json({ itinerary }, 200, origin);
+      return json({ status: "available", feature: "plan-trip", itinerary }, 200, origin);
     } catch (error) {
       console.error("Trip planning failed", error instanceof Error ? error.message : String(error));
       if (error instanceof Error && error.name === "AbortError") return json({ error: "The planner took too long. Please try again." }, 504, origin);
