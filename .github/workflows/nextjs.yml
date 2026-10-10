@@ -27,6 +27,8 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Build static site
+        env:
+          NEXT_PUBLIC_VYAJ_API_URL: ${{ vars.NEXT_PUBLIC_VYAJ_API_URL }}
         run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
