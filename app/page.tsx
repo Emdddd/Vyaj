@@ -1,7 +1,7 @@
  "use client";
 
 import { useState, type FormEvent } from "react";
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, ChevronDown, Compass, Globe2, Heart, MapPin, Menu, MessageCircle, Sparkles, Users, X } from "lucide-react";
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Compass, Globe2, Heart, MapPin, Menu, MessageCircle, Sparkles, Users, X } from "lucide-react";
 import { postAction, type Itinerary } from "../lib/api";
 
 const places = [
@@ -35,8 +35,6 @@ export default function Home() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [email, setEmail] = useState("");
-  const [joined, setJoined] = useState(false);
-  const [waitlistLoading, setWaitlistLoading] = useState(false);
   const [waitlistMessage, setWaitlistMessage] = useState("");
 
   const startPlan = () => {
