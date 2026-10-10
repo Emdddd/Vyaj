@@ -3,3 +3,125 @@
 
 
 .planner-error{margin:0;padding:12px 14px;background:#f9e7df;color:#8d3828;font-size:10px;line-height:1.7;border-left:2px solid #c85d45}.planner-submit:disabled{opacity:.7;cursor:wait;transform:none}.result-overview{font-size:11px;line-height:1.8;color:#6d786b;margin:0 0 18px}.budget-strip{display:flex;flex-direction:column;gap:7px;background:#e8eddf;padding:16px;margin-bottom:17px}.budget-strip>span{font-size:8px;letter-spacing:1px;color:#6d8060}.budget-strip strong{font-family:var(--serif);font-size:22px;font-weight:500}.budget-strip small{font-size:9px;line-height:1.7;color:#747d70}.itinerary-days{display:grid;gap:12px}.itinerary-day{background:#fffef9;border:1px solid #e2e4d9;padding:16px}.itinerary-day-heading{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid #e4e6dc;padding-bottom:10px}.itinerary-day-heading>span{font-size:8px;letter-spacing:1px;color:#7c9568;font-weight:700;white-space:nowrap}.itinerary-day-heading h3{font-family:var(--serif);font-size:20px;line-height:1.2;font-weight:500;margin:0}.itinerary-day>p{font-size:10px;line-height:1.7;color:#7b8277;margin:10px 0 12px}.itinerary-activities{display:grid;gap:0}.itinerary-activity{display:grid;grid-template-columns:48px 1fr;gap:10px;padding:12px 0;border-top:1px solid #eff0e9}.activity-time{font-size:9px;font-weight:700;color:#708b5a;padding-top:2px}.itinerary-activity strong{font-size:10px;line-height:1.5}.itinerary-activity p{font-size:10px;line-height:1.65;color:#737b70;margin:4px 0}.itinerary-activity small{font-size:8px;line-height:1.6;color:#8a9085}.planner-extra{margin-top:14px;background:#e8eddf;padding:15px}.planner-extra>strong{font-size:10px}.planner-extra ul{margin:9px 0 0;padding-left:16px}.planner-extra li{font-size:10px;line-height:1.7;color:#64715f;margin:4px 0}.planner-result .result-summary{margin-bottom:10px}
+
+
+/* VYAJ minimal brand refinement */
+:root{--ink:#07172e;--paper:#fff;--white:#fff;--lime:#00c9df;--muted:#657184;--line:#e8edf2}
+body{background:#fff;color:#07172e}
+.wrap{width:min(1160px,calc(100% - 64px))}
+.nav{height:78px;border-bottom:1px solid #edf0f4}
+.wordmark{max-width:154px}
+.wordmark img{display:block;width:100%;height:auto;max-height:52px;object-fit:contain;object-position:left center}
+.nav-links{gap:30px;color:#526176}
+.nav-cta,.nav-mobile-cta{border-color:#07172e;border-radius:8px;padding:12px 16px}
+.nav-cta:hover{background:#07172e;color:#fff}
+.hero{min-height:570px;grid-template-columns:1fr .92fr;gap:8%;padding-top:54px;padding-bottom:66px}
+.hero-copy{padding-left:0}
+.eyebrow{color:#526176;letter-spacing:1.2px}
+.eyebrow-dot{background:#00c9df;box-shadow:0 0 0 4px #e1faff}
+.hero h1{font-size:clamp(54px,6.2vw,78px);letter-spacing:-4px;line-height:1.02;margin:26px 0 20px}
+.hero h1 em,.intro h2 em,.how-heading h2 em,.discover-heading h2 em,.manifesto h2 em,.faq-layout h2 em,.waitlist h2 em,.planner-modal h2 em{color:#00aeca}
+.hero-text{font-size:14px;max-width:380px;color:#657184;line-height:1.8}
+.button{border-radius:8px;padding:14px 18px;gap:18px}
+.button-dark{background:#07172e;color:white}
+.button-dark:hover{background:#12375a}
+.text-link,.under-link{border-bottom-color:#d7e0e8}
+.hero-foot{margin-top:38px}
+.hero-art{height:440px;margin-right:0}
+.hero-photo{border-radius:10px;inset:0 0 0 0;background-image:linear-gradient(180deg,transparent 65%,#07172e33),url('https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&q=90')}
+.photo-label{left:-18px;bottom:18px;border:1px solid #edf0f4;box-shadow:0 8px 24px #07172e0d}
+.floating-note{right:-16px;top:24px;border-radius:8px;box-shadow:0 8px 24px #07172e14}
+.note-icon{background:#07364a;color:#00c9df}
+.hero-scroll{display:none}
+.ticker{display:none}
+.section{padding-top:82px;padding-bottom:82px}
+.section-kicker{letter-spacing:1.2px;color:#64748b}
+.section-kicker>span{color:#00aeca}
+.intro-grid{gap:9%;margin-top:26px}
+.intro h2,.how-heading h2,.discover-heading h2,.faq-layout h2{font-size:clamp(34px,4vw,49px);letter-spacing:-2px}
+.intro-copy p{font-size:12px;color:#657184}
+.value-strip{margin-top:48px}
+.value-strip svg{color:#00aeca}
+.value-strip h3{font-size:13px}
+.value-strip p{color:#657184}
+.how-section{background:#f6f9fb}
+.how-section .section{padding-top:78px;padding-bottom:78px}
+.how-heading{margin:26px 0 32px}
+.how-heading>p{color:#657184}
+.steps{gap:12px}
+.step-card{border:1px solid #e7edf2;border-radius:10px;padding:20px;min-height:320px}
+.chat-preview,.mini-itinerary,.vote-preview{background:#f5f8fa;border-radius:7px}
+.discover-heading{margin:26px 0 30px}
+.discover-heading>p{color:#657184;font-size:12px}
+.destination-grid{gap:14px}
+.destination-card{border-radius:10px;overflow:hidden}
+.destination-image{transition:transform .35s}
+.destination-card:hover .destination-image{transform:scale(1.025)}
+.destination-tag{border-radius:5px}
+.destination-info{padding:17px}
+.manifesto{display:none}
+.faq-section.section{padding-top:82px;padding-bottom:82px}
+.faq-layout{margin-top:28px;gap:12%}
+.faq-layout>div>p{color:#657184;font-size:12px;line-height:1.8}
+.faq-item{border-bottom:1px solid #e8edf2}
+.faq-item button{padding:19px 0;font-size:13px}
+.faq-item p{color:#657184;font-size:12px;line-height:1.8}
+.waitlist{padding:48px 0;display:grid;grid-template-columns:1fr .8fr;gap:8%;align-items:center;border-top:1px solid #e8edf2;border-bottom:1px solid #e8edf2}
+.waitlist h2{font-size:clamp(36px,4vw,48px);letter-spacing:-2px}
+.waitlist-copy>p{font-size:12px;color:#657184;line-height:1.8;max-width:390px}
+.waitlist-form{max-width:400px}
+.waitlist-form input{border:1px solid #dce5ec;border-radius:7px}
+.waitlist-form button{background:#00c9df;color:#07172e;border-radius:7px}
+.waitlist-image{border-radius:10px}
+.stamp{border-radius:50%;background:#fff;color:#07172e}
+.form-note{color:#657184}
+.footer{padding-top:40px;padding-bottom:22px}
+.footer-main{align-items:center}
+.footer-main p{color:#657184}
+.footer-logo{max-width:125px}
+.footer-logo img{max-height:43px}
+.footer-email{color:#07172e}
+.footer-bottom{border-top:1px solid #e8edf2;color:#7a8796}
+.footer-bottom a:hover{color:#009fbd}
+.planner-modal{border-radius:12px}
+.planner-kicker{color:#008da5}
+.planner-modal h2{letter-spacing:-1.8px}
+.planner-modal input,.planner-modal textarea,.planner-modal select{border:1px solid #dce5ec;border-radius:7px}
+.planner-submit{border-radius:8px}
+@media(max-width:760px){
+ .wrap{width:calc(100% - 36px)}
+ .nav{height:68px}
+ .wordmark{max-width:128px}
+ .nav-cta{display:none}
+ .menu-button{display:flex;border:1px solid #e2e8ef;background:#fff;border-radius:7px;padding:9px;color:#07172e}
+ .nav-links{gap:18px}
+ .nav-open{background:#fff;border:1px solid #e8edf2;border-radius:10px;padding:18px;box-shadow:0 12px 30px #07172e10}
+ .nav-mobile-cta{display:flex;justify-content:center}
+ .hero{grid-template-columns:1fr;gap:28px;padding-top:45px;padding-bottom:42px;min-height:0}
+ .hero h1{font-size:clamp(50px,12vw,70px);letter-spacing:-3px}
+ .hero-foot{margin-top:28px}
+ .hero-art{height:350px;margin:0 8px 0 0}
+ .floating-note{right:-8px}
+ .photo-label{left:-8px}
+ .section{padding-top:62px;padding-bottom:62px}
+ .intro-grid{grid-template-columns:1fr;gap:22px}
+ .intro h2,.how-heading h2,.discover-heading h2,.faq-layout h2{font-size:clamp(34px,9vw,44px)}
+ .value-strip{grid-template-columns:1fr;margin-top:30px}
+ .value-strip>div,.value-strip>div+div{padding:22px 0;border-left:0;border-bottom:1px solid #e8edf2}
+ .value-strip>div:last-child{border-bottom:0}
+ .how-section .section{padding-top:62px;padding-bottom:62px}
+ .how-heading,.discover-heading{display:block}
+ .how-heading>p,.discover-heading>p{margin-top:16px}
+ .steps{grid-template-columns:1fr}
+ .step-card{min-height:0}
+ .destination-grid{grid-template-columns:1fr 1fr}
+ .destination-info{padding:12px}
+ .destination-info h3{font-size:17px}
+ .faq-layout{grid-template-columns:1fr;gap:30px}
+ .waitlist{grid-template-columns:1fr;padding:38px 0;gap:28px}
+ .waitlist-art{min-height:260px}
+ .footer-main{align-items:flex-start;gap:16px;flex-wrap:wrap}
+ .footer-bottom{gap:16px;align-items:flex-start;flex-direction:column}
+ .footer-bottom>div{flex-wrap:wrap;gap:14px}
+}
+@media(max-width:420px){.destination-grid{grid-template-columns:1fr}.hero-art{height:310px}.hero-actions{gap:18px;flex-wrap:wrap}.floating-note{padding:12px}}
