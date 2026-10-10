@@ -310,3 +310,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 @media(prefers-reduced-motion:reduce){.thinking-orbit:before,.thinking-orbit:after,.thinking-progress span{animation:none}}
 
 .waitlist-spinner{display:inline-block;width:15px;height:15px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:waitlist-spin .7s linear infinite}@keyframes waitlist-spin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.waitlist-spinner{animation:none}}
+
+
+/* Product action controls and consistent action-state layouts */
+.nav-product-actions{display:flex;align-items:center;gap:10px}
+.nav-icon-action{width:40px;height:40px;border:1px solid var(--line);border-radius:50%;background:rgba(255,255,255,.82);color:var(--ink);display:grid;place-items:center;cursor:pointer;transition:background .2s ease,border-color .2s ease,transform .2s ease}
+.nav-icon-action:hover{background:#eafcff;border-color:#a9eaf1;transform:translateY(-1px)}
+.nav-icon-action:focus-visible,.nav-cta:focus-visible,.button:focus-visible,.text-link:focus-visible,.destination-card:focus-visible{outline:3px solid #26c6da;outline-offset:3px}
+.planner-action-error{min-height:390px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:38px 8px}
+.planner-action-error h2{max-width:440px;margin:0 0 12px}
+.planner-action-error .thinking-copy{margin-bottom:22px;overflow-wrap:anywhere}
+.itinerary-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:24px 0}
+.itinerary-actions .button{display:inline-flex;align-items:center;justify-content:center;gap:9px}
+.button-light{background:#f2fbfc;color:#07172e;border:1px solid #d4eef2}
+.button-light:hover{background:#e5f9fb}
+@media(max-width:640px){.nav-product-actions{gap:6px}.nav-icon-action{width:36px;height:36px}.nav-product-actions .nav-cta{display:none}.itinerary-actions{display:grid;grid-template-columns:1fr 1fr}.itinerary-actions .text-link{padding:10px 0;text-align:left}}
