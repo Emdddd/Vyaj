@@ -67,7 +67,7 @@ export default function Home() {
   return (
     <main>
       <nav className="nav wrap">
-        <a href="#" className="wordmark" aria-label="VYAJ home"><span className="brand-icon">v</span> vyaj<span className="brand-dot">.</span></a>
+        <a href="#" className="wordmark" aria-label="VYAJ home"><img src="/vyaj-logo.svg" alt="VYAJ — Plan less. Travel more." /></a>
         <div className={`nav-links ${menuOpen ? "nav-open" : ""}`}>
           <a href="#how" onClick={() => setMenuOpen(false)}>How it works</a>
           <a href="#discover" onClick={() => setMenuOpen(false)}>Discover</a>
