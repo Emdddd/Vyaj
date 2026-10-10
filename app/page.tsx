@@ -94,9 +94,138 @@ export default function Home() {
     { title: "Cefalù: a coastal day", focus: "A change of pace with a historic seaside town.", activities: [["09:00", "Travel to Cefalù if current transport times and costs suit your plan"], ["12:30", "Explore the old town and cathedral square, then find a relaxed lunch"], ["16:00", "Walk by the waterfront before returning to Palermo, subject to the timetable"]] },
     { title: "A slower Sicilian finish", focus: "Local flavours, small discoveries and room for departure plans.", activities: [["09:30", "Start with coffee and a pastry at a local café"], ["11:00", "Browse a market or independent food shops for regional specialities"], ["13:00", "Try cannoli or another Sicilian treat, then leave a flexible buffer for departure"]] }
   ];
+  const cityItineraries: Record<string, typeof sicilyDays> = {
+    rome: [
+      { title: "Ancient Rome", focus: "The city’s defining ruins and lively piazzas.", activities: [["09:00", "Explore the Colosseum area; check timed-entry tickets in advance"], ["12:30", "Lunch around Monti and wander its small streets"], ["16:00", "Walk through the Roman Forum viewpoints and Piazza Venezia"]] },
+      { title: "Vatican & riverside", focus: "Art, monumental architecture and a walk along the Tiber.", activities: [["08:30", "Visit the Vatican Museums or St Peter’s Basilica; check entry rules"], ["13:00", "Lunch in Prati"], ["16:00", "Walk across Ponte Sant’Angelo towards the historic centre"]] },
+      { title: "Fountains & neighbourhoods", focus: "Classic landmarks mixed with local street life.", activities: [["09:00", "Visit the Trevi Fountain early and continue to the Pantheon"], ["12:30", "Explore Campo de’ Fiori and nearby lanes"], ["18:00", "Dinner in Trastevere; choose a restaurant after checking current menus"]] },
+      { title: "A slower Roman morning", focus: "Green space, viewpoints and one final local meal.", activities: [["09:30", "Walk through Villa Borghese gardens"], ["12:00", "Visit Piazza del Popolo and the surrounding streets"], ["15:00", "Leave time for a café stop and departure"]] }
+    ],
+    florence: [
+      { title: "Renaissance Florence", focus: "The Duomo and the city’s historic heart.", activities: [["09:00", "Explore Piazza del Duomo and the cathedral exterior"], ["12:30", "Try Tuscan lunch near Mercato Centrale"], ["15:00", "Walk Piazza della Signoria and the Arno riverfront"]] },
+      { title: "Art & the Arno", focus: "Choose a major gallery and leave room to enjoy the city.", activities: [["09:00", "Visit the Uffizi or Accademia with a pre-booked time slot"], ["13:00", "Lunch in Oltrarno"], ["16:00", "Cross Ponte Vecchio and explore artisan streets"]] },
+      { title: "Oltrarno & viewpoints", focus: "Craft workshops, gardens and a panoramic view.", activities: [["09:30", "Explore Santo Spirito and local artisan streets"], ["12:30", "Have a relaxed Tuscan lunch"], ["17:00", "Walk up to Piazzale Michelangelo for the view"]] },
+      { title: "Markets & last discoveries", focus: "A relaxed finish with food and neighbourhood wandering.", activities: [["09:00", "Browse San Lorenzo market if open"], ["11:30", "Visit a small museum or church of interest"], ["14:00", "Coffee and time for departure"]] }
+    ],
+    paris: [
+      { title: "Paris icons", focus: "Landmarks and a gentle first walk along the Seine.", activities: [["09:00", "Explore the Eiffel Tower area; check ticket availability if going up"], ["12:30", "Lunch at a neighbourhood café"], ["16:00", "Walk along the Seine towards Trocadéro or the river islands"]] },
+      { title: "Art & the historic centre", focus: "Museum time balanced with old Paris streets.", activities: [["09:00", "Choose the Louvre or Musée d’Orsay and check timed-entry tickets"], ["13:00", "Explore the Tuileries and nearby streets"], ["17:00", "Walk around Île de la Cité and Notre-Dame’s exterior"]] },
+      { title: "Montmartre & café culture", focus: "Village-like lanes, views and a slower afternoon.", activities: [["09:00", "Explore Montmartre and Sacré-Cœur"], ["12:30", "Lunch around Rue des Abbesses"], ["16:00", "Choose a café and wander nearby streets"]] },
+      { title: "Markets & the Marais", focus: "Boutiques, food shops and a flexible final day.", activities: [["09:30", "Walk Le Marais and Place des Vosges"], ["12:30", "Try a bakery or casual lunch spot"], ["15:00", "Browse local shops before departure"]] }
+    ],
+    london: [
+      { title: "Westminster & the river", focus: "London’s best-known landmarks on foot.", activities: [["09:00", "Walk Westminster Bridge, Big Ben and Parliament Square"], ["12:30", "Lunch around Covent Garden"], ["15:00", "Walk the South Bank if weather allows"]] },
+      { title: "Museums & Kensington", focus: "A museum-led day with time for green space.", activities: [["10:00", "Choose the British Museum or Natural History Museum; check hours"], ["13:00", "Lunch in the surrounding neighbourhood"], ["15:30", "Walk Kensington Gardens or Hyde Park"]] },
+      { title: "Markets & neighbourhoods", focus: "Street food, independent shops and city character.", activities: [["09:30", "Explore Borough Market when open"], ["12:00", "Walk the riverside towards Tower Bridge"], ["16:00", "Browse Covent Garden or Soho"]] },
+      { title: "A London local day", focus: "A flexible mix of parks, streets and a final meal.", activities: [["09:30", "Explore Notting Hill and its colourful streets"], ["12:30", "Lunch in the area"], ["15:00", "Choose a gallery, park or final neighbourhood walk"]] }
+    ],
+    barcelona: [
+      { title: "Gaudí & the Eixample", focus: "Modernist architecture and Catalan flavours.", activities: [["09:00", "Visit Sagrada Família with a timed ticket if entering"], ["12:30", "Lunch in Eixample"], ["15:30", "Walk Passeig de Gràcia and admire its architecture"]] },
+      { title: "Gothic Quarter & old town", focus: "Historic lanes and lively squares.", activities: [["09:00", "Explore the Gothic Quarter on foot"], ["12:30", "Find tapas around El Born"], ["15:00", "Visit the waterfront and Port Vell"]] },
+      { title: "Park Güell & Gràcia", focus: "Park views and an easygoing local neighbourhood.", activities: [["09:00", "Visit Park Güell; check entry times and tickets"], ["12:30", "Lunch in Gràcia"], ["16:00", "Explore its squares and independent shops"]] },
+      { title: "Montjuïc & the coast", focus: "Views, gardens and a flexible seaside finish.", activities: [["09:30", "Explore Montjuïc viewpoints and gardens"], ["12:30", "Lunch near Poble-sec"], ["15:30", "Take a walk along Barceloneta if time allows"]] }
+    ],
+    lisbon: [
+      { title: "Baixa & Alfama", focus: "Hillside lanes, tiled façades and Portuguese flavours.", activities: [["09:00", "Explore Praça do Comércio and Baixa"], ["12:00", "Walk Alfama’s lanes and viewpoints"], ["18:00", "Try a Portuguese dinner; check menus and prices"]] },
+      { title: "Belém by the river", focus: "Monuments, gardens and a classic pastry stop.", activities: [["09:00", "Visit Belém Tower’s surrounding area and riverside"], ["12:00", "See Jerónimos Monastery from outside or visit if open"], ["15:00", "Try a pastel de nata and walk the waterfront"]] },
+      { title: "Chiado & Bairro Alto", focus: "Bookshops, cafés and city viewpoints.", activities: [["09:30", "Explore Chiado and its historic cafés"], ["12:30", "Lunch near Mercado da Ribeira or a nearby street"], ["17:00", "Find a viewpoint before dinner"]] },
+      { title: "Sintra or a slow city day", focus: "Choose a day trip only if transit and entry times fit.", activities: [["09:00", "Option A: travel to Sintra after checking train and palace tickets"], ["12:30", "Explore the old town and have lunch"], ["16:00", "Return to Lisbon or keep the day local if preferred"]] }
+    ],
+    amsterdam: [
+      { title: "Canals & old centre", focus: "Waterfront streets and the historic core.", activities: [["09:00", "Walk the canal belt and Dam Square"], ["12:00", "Lunch around Jordaan"], ["15:00", "Take a canal cruise only after checking times and price"]] },
+      { title: "Art & Museumplein", focus: "A museum visit with time outdoors.", activities: [["09:30", "Choose the Rijksmuseum or Van Gogh Museum and book if needed"], ["13:00", "Lunch near Museumplein"], ["15:00", "Walk Vondelpark"]] },
+      { title: "Jordaan & local food", focus: "Independent shops, markets and a relaxed pace.", activities: [["09:30", "Explore Jordaan’s side streets"], ["12:00", "Browse a market if open"], ["15:00", "Try Dutch snacks and explore the Nine Streets"]] },
+      { title: "North or a final canal walk", focus: "A different view of the city before departure.", activities: [["10:00", "Take the free ferry to Amsterdam Noord if operating"], ["12:30", "Lunch in the area"], ["15:00", "Return for a final canal-side stroll"]] }
+    ],
+    copenhagen: [
+      { title: "Harbour & old Copenhagen", focus: "Colourful waterfronts and the historic centre.", activities: [["09:00", "Walk Nyhavn and the harbour"], ["12:00", "Lunch in the city centre"], ["15:00", "Explore Amalienborg’s exterior and nearby streets"]] },
+      { title: "Design & museums", focus: "Danish design, art and a calm city rhythm.", activities: [["10:00", "Visit Designmuseum Danmark or another museum; check opening hours"], ["13:00", "Lunch around the city centre"], ["15:00", "Walk the King’s Garden"]] },
+      { title: "Food halls & neighbourhoods", focus: "Casual local food and independent shops.", activities: [["09:30", "Explore Torvehallerne when open"], ["12:00", "Walk Nørrebro’s streets and shops"], ["17:00", "Choose a casual dinner spot"]] },
+      { title: "Canals & green space", focus: "A relaxed finish with waterfront views.", activities: [["09:30", "Walk Christianshavn and its canals"], ["12:30", "Lunch near the waterfront"], ["15:00", "Visit a park or browse a final neighbourhood before departure"]] }
+    ],
+    athens: [
+      { title: "Ancient Athens", focus: "The Acropolis and the historic centre.", activities: [["08:00", "Visit the Acropolis early; check tickets and seasonal hours"], ["12:00", "Lunch in Plaka"], ["15:00", "Walk around the Ancient Agora area"]] },
+      { title: "Museums & Plaka", focus: "Archaeology and old-town lanes.", activities: [["09:30", "Visit the Acropolis Museum"], ["12:30", "Explore Plaka and choose a taverna"], ["16:00", "Walk Anafiotika’s lanes respectfully"]] },
+      { title: "Markets & local neighbourhoods", focus: "Everyday Athens, food and city life.", activities: [["09:30", "Browse Varvakios Central Market if open"], ["12:30", "Explore Monastiraki"], ["17:00", "Head to a viewpoint such as Filopappou Hill"]] },
+      { title: "Coastal change of pace", focus: "A sea-facing option if transit time suits.", activities: [["09:30", "Explore the National Garden or a favourite central area"], ["12:30", "Lunch in the city"], ["15:00", "Consider the Athens Riviera only after checking transit and return time"]] }
+    ],
+    istanbul: [
+      { title: "Sultanahmet highlights", focus: "Imperial architecture and the old city.", activities: [["09:00", "Visit the Blue Mosque and nearby historic squares"], ["12:30", "Lunch in Sultanahmet"], ["14:00", "Explore Hagia Sophia’s visitor information before entry"]] },
+      { title: "Bazaars & flavours", focus: "Markets, spices and traditional food.", activities: [["09:30", "Explore the Grand Bazaar during opening hours"], ["12:30", "Visit the Spice Bazaar area and try local snacks"], ["16:00", "Walk Eminönü’s waterfront"]] },
+      { title: "Across the Bosphorus", focus: "Neighbourhood life on the Asian side.", activities: [["09:30", "Take a ferry after checking current services"], ["11:00", "Explore Kadıköy market streets"], ["15:00", "Enjoy a relaxed waterfront walk before returning"]] },
+      { title: "Galata & the waterfront", focus: "Historic lanes, views and a final Turkish meal.", activities: [["09:30", "Explore Galata’s streets and tower exterior"], ["12:30", "Walk Karaköy and stop for lunch"], ["16:00", "Choose a Bosphorus viewpoint and leave time for departure"]] }
+    ],
+    marrakech: [
+      { title: "Medina & Jemaa el-Fnaa", focus: "Historic lanes and the city’s central square.", activities: [["09:00", "Explore the medina with a map or trusted guide"], ["12:30", "Try Moroccan dishes at a place you’ve checked"], ["17:00", "Experience Jemaa el-Fnaa as the square comes alive"]] },
+      { title: "Palaces & gardens", focus: "Architecture and green spaces.", activities: [["09:00", "Visit Bahia Palace if open"], ["12:00", "Lunch in the medina"], ["15:00", "Explore a garden such as Jardin Majorelle after checking tickets"]] },
+      { title: "Souks & craftsmanship", focus: "Traditional crafts and local shopping.", activities: [["09:30", "Browse the souks at a relaxed pace"], ["12:30", "Pause for mint tea and lunch"], ["15:00", "Explore artisan quarters and small museums if open"]] },
+      { title: "A slower Moroccan day", focus: "Food, courtyards and flexible exploration.", activities: [["09:30", "Enjoy a traditional breakfast"], ["11:00", "Choose a museum or neighbourhood walk"], ["16:00", "Leave time for a hammam or café only if booked and suitable"]] }
+    ],
+    dubai: [
+      { title: "Downtown Dubai", focus: "Modern landmarks and the city centre.", activities: [["09:30", "Explore Downtown and the Burj Khalifa area"], ["12:30", "Lunch at a venue that fits your budget"], ["16:00", "Walk Dubai Mall’s public areas and the surrounding waterfront"]] },
+      { title: "Old Dubai & the Creek", focus: "Historic trading districts and traditional markets.", activities: [["09:00", "Explore Al Fahidi Historical Neighbourhood"], ["12:00", "Cross Dubai Creek by abra if services are running"], ["14:00", "Browse the Gold and Spice Souk areas"]] },
+      { title: "Beach & design districts", focus: "Coastal downtime and contemporary neighbourhoods.", activities: [["09:30", "Walk a public beach such as JBR, respecting local conditions"], ["12:30", "Lunch around Jumeirah or Dubai Marina"], ["16:00", "Explore Alserkal Avenue if galleries are open"]] },
+      { title: "A desert or city finale", focus: "Choose an excursion only after checking the full cost.", activities: [["09:30", "Keep the morning flexible around your interests"], ["12:30", "Have lunch and prepare for the afternoon"], ["15:00", "Optional desert tour with a reputable operator, booked and priced in advance"]] }
+    ],
+    bangkok: [
+      { title: "Riverside temples", focus: "Temples and river life in the old city.", activities: [["08:30", "Visit Wat Pho and check local dress requirements"], ["11:30", "Take a river ferry if running and visit the Wat Arun area"], ["16:00", "Explore riverside lanes and choose a Thai dinner"]] },
+      { title: "Palace & old Bangkok", focus: "Royal history and traditional neighbourhoods.", activities: [["08:30", "Visit the Grand Palace if open; confirm dress rules and tickets"], ["12:30", "Lunch in the old city"], ["15:00", "Explore nearby historic streets at a relaxed pace"]] },
+      { title: "Markets & street food", focus: "Local flavours and lively neighbourhoods.", activities: [["09:00", "Explore a market that operates on your travel day"], ["12:00", "Try street food from a busy, well-reviewed stall"], ["16:00", "Explore Chinatown’s lanes before the evening rush"]] },
+      { title: "Green space & modern Bangkok", focus: "A contrast of parks and contemporary city life.", activities: [["09:30", "Walk Lumphini Park"], ["12:30", "Lunch near a transit station"], ["15:00", "Explore a modern shopping or art district before departure"]] }
+    ],
+    tokyo: [
+      { title: "Asakusa & old Tokyo", focus: "Traditional streets, temples and Japanese snacks.", activities: [["09:00", "Visit Sensō-ji and explore Nakamise shopping street"], ["12:30", "Try a local lunch in Asakusa"], ["15:00", "Walk the Sumida riverside if weather allows"]] },
+      { title: "Meiji Shrine & Shibuya", focus: "Green sanctuary and modern city energy.", activities: [["09:00", "Walk through Meiji Jingu’s forested approach"], ["12:30", "Explore Harajuku and choose lunch"], ["15:30", "Visit Shibuya Crossing and nearby streets"]] },
+      { title: "Food & culture in the city", focus: "Markets, gardens and a neighbourhood of your choice.", activities: [["09:00", "Explore Tsukiji Outer Market; check current stall hours"], ["12:00", "Visit a garden or museum that interests you"], ["17:00", "Try a ramen or izakaya-style meal after checking options"]] },
+      { title: "Choose your Tokyo", focus: "A flexible final day based on your interests.", activities: [["09:30", "Explore Ueno Park and its museums or another district"], ["12:30", "Lunch near your chosen neighbourhood"], ["15:00", "Leave buffer time for shopping and onward travel"]] }
+    ],
+    kyoto: [
+      { title: "Fushimi Inari & southern Kyoto", focus: "Torii gates and historic streets.", activities: [["07:30", "Visit Fushimi Inari early to avoid the busiest periods"], ["11:30", "Lunch around the station area"], ["14:00", "Explore a nearby temple or traditional street"]] },
+      { title: "Higashiyama & Gion", focus: "Temple paths, old lanes and traditional architecture.", activities: [["09:00", "Explore Kiyomizu-dera if open and suitable for your plans"], ["12:30", "Walk Ninenzaka and Sannenzaka and find lunch"], ["16:00", "Pass through Gion respectfully; avoid restricted private lanes"]] },
+      { title: "Arashiyama & the river", focus: "Bamboo, gardens and a riverside walk.", activities: [["08:30", "Walk the Arashiyama bamboo grove early"], ["11:00", "Choose a garden or temple and check entry details"], ["14:00", "Explore the river area and nearby streets"]] },
+      { title: "Markets & quieter Kyoto", focus: "Food, craft shops and a gentle finish.", activities: [["09:30", "Browse Nishiki Market during operating hours"], ["12:30", "Try Kyoto-style dishes nearby"], ["15:00", "Visit a smaller temple or leave time for departure"]] }
+    ],
+    "new york": [
+      { title: "Lower Manhattan", focus: "Landmarks, waterfront views and city history.", activities: [["09:00", "Walk around the 9/11 Memorial area respectfully"], ["12:30", "Lunch in the Financial District"], ["15:00", "Explore Battery Park and the harbour views"]] },
+      { title: "Central Park & museums", focus: "Green space and a world-class museum choice.", activities: [["09:00", "Walk Central Park"], ["12:00", "Choose the Met or American Museum of Natural History; check tickets"], ["16:00", "Explore the Upper West Side or Upper East Side"]] },
+      { title: "Brooklyn & the bridge", focus: "Neighbourhood food and skyline views.", activities: [["09:00", "Walk across Brooklyn Bridge if conditions allow"], ["11:30", "Explore DUMBO and Brooklyn Bridge Park"], ["14:00", "Lunch and a neighbourhood walk in Brooklyn"]] },
+      { title: "Midtown & neighbourhoods", focus: "Iconic streets with room for personal interests.", activities: [["09:30", "Explore Bryant Park and the New York Public Library exterior"], ["12:30", "Lunch near your next stop"], ["15:00", "Choose a museum, gallery or neighbourhood before departure"]] }
+    ],
+    bali: [
+      { title: "Ubud & local culture", focus: "Art, markets and a slower inland day.", activities: [["09:00", "Explore central Ubud and local craft shops"], ["12:30", "Try Indonesian food at a place you’ve checked"], ["15:00", "Visit a nearby cultural site only after checking access rules"]] },
+      { title: "Rice terraces & nature", focus: "Green landscapes and a mindful pace.", activities: [["08:00", "Visit a rice terrace area early and respect local paths"], ["11:30", "Lunch in the surrounding area"], ["14:00", "Choose a waterfall or nature walk after checking conditions and transport"]] },
+      { title: "Temples & the coast", focus: "Cultural sites and coastal scenery.", activities: [["09:00", "Visit a temple with appropriate dress and behaviour"], ["12:30", "Lunch near the coast"], ["16:00", "Watch sunset from a public beach if weather permits"]] },
+      { title: "A flexible island day", focus: "Choose between wellness, crafts or a coastal outing.", activities: [["09:30", "Start slowly with breakfast"], ["11:00", "Choose a local workshop or market"], ["15:00", "Leave enough time for traffic and onward travel"]] }
+    ],
+    prague: [
+      { title: "Old Town & the river", focus: "Historic squares and classic Prague views.", activities: [["09:00", "Explore Old Town Square and the Astronomical Clock area"], ["12:30", "Lunch in a side street away from the busiest square"], ["15:00", "Walk Charles Bridge and the riverside"]] },
+      { title: "Castle district", focus: "Architecture, gardens and panoramic views.", activities: [["09:00", "Explore Prague Castle grounds; check visitor access and tickets"], ["12:30", "Lunch in Malá Strana"], ["15:00", "Walk Nerudova Street and nearby gardens if open"]] },
+      { title: "Jewish Quarter & cafés", focus: "History, museums and an unhurried afternoon.", activities: [["09:30", "Visit the Jewish Quarter sites with respect and check opening days"], ["12:30", "Choose a café or Czech lunch"], ["15:00", "Explore the river islands or nearby galleries"]] },
+      { title: "Local neighbourhoods", focus: "A relaxed final day beyond the main sights.", activities: [["09:30", "Explore Letná Park and its viewpoints"], ["12:30", "Lunch in a local neighbourhood"], ["15:00", "Browse shops or leave time for departure"]] }
+    ]
+  };
+  const destinationKey = destination.toLocaleLowerCase().includes("new york") ? "new york"
+    : destination.toLocaleLowerCase().includes("rome") ? "rome"
+    : destination.toLocaleLowerCase().includes("florence") ? "florence"
+    : destination.toLocaleLowerCase().includes("paris") ? "paris"
+    : destination.toLocaleLowerCase().includes("london") ? "london"
+    : destination.toLocaleLowerCase().includes("barcelona") ? "barcelona"
+    : destination.toLocaleLowerCase().includes("lisbon") ? "lisbon"
+    : destination.toLocaleLowerCase().includes("amsterdam") ? "amsterdam"
+    : destination.toLocaleLowerCase().includes("copenhagen") ? "copenhagen"
+    : destination.toLocaleLowerCase().includes("athens") ? "athens"
+    : destination.toLocaleLowerCase().includes("istanbul") ? "istanbul"
+    : destination.toLocaleLowerCase().includes("marrakech") ? "marrakech"
+    : destination.toLocaleLowerCase().includes("dubai") ? "dubai"
+    : destination.toLocaleLowerCase().includes("bangkok") ? "bangkok"
+    : destination.toLocaleLowerCase().includes("tokyo") ? "tokyo"
+    : destination.toLocaleLowerCase().includes("kyoto") ? "kyoto"
+    : /bali|indonesia/i.test(destination) ? "bali"
+    : /prague|praha/i.test(destination) ? "prague"
+    : "";
   const generalTitles = ["Arrive & get your bearings", "Explore beyond the obvious", "Make time for local life", "Leave room for a favourite", "A slower day, your way", "One last discovery", "Take the scenic route"];
   const resultDays = Array.from({ length: Math.min(dayCount, 7) }, (_, index) => {
-    const locationDays = style === "Food & culture" ? (isMalta ? maltaDays : isSicily ? sicilyDays : null) : null;
+    const locationDays = style === "Food & culture" ? (isMalta ? maltaDays : isSicily ? sicilyDays : cityItineraries[destinationKey] ?? null) : null;
     const locationDay = locationDays && index < locationDays.length ? locationDays[index] : null;
     return {
       day: index + 1,
