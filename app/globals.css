@@ -125,3 +125,73 @@ body{background:#fff;color:#07172e}
  .footer-bottom>div{flex-wrap:wrap;gap:14px}
 }
 @media(max-width:420px){.destination-grid{grid-template-columns:1fr}.hero-art{height:310px}.hero-actions{gap:18px;flex-wrap:wrap}.floating-note{padding:12px}}
+
+/* Modern VYAJ: clean typography, restrained layout, subtle motion */
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+:root{--ink:#07172e;--paper:#fff;--white:#fff;--lime:#00c9df;--muted:#66758a;--line:#e8edf2;--sans:'Manrope',Arial,sans-serif}
+body{font-family:var(--sans);background:#fff;color:#07172e}
+h1,h2,h3,p,a,button{letter-spacing:normal}
+.wrap{width:min(1120px,calc(100% - 64px))}
+.nav{height:76px}
+.nav-links{font-size:13px;gap:32px}
+.nav-cta{font-size:13px;border-radius:999px;padding:12px 18px}
+.hero{min-height:620px;padding-top:48px;padding-bottom:70px;gap:9%;grid-template-columns:1fr .9fr}
+.hero h1{font-family:'Manrope',Arial,sans-serif;font-weight:600;font-size:clamp(56px,6.5vw,82px);line-height:1.04;letter-spacing:-5px;margin:26px 0 20px;animation:vyaj-rise .75s cubic-bezier(.2,.7,.2,1) both}
+.hero h1 em{font-family:'Manrope',Arial,sans-serif;font-weight:400;font-style:normal;color:#00aeca;letter-spacing:-5px}
+.hero-copy{animation:vyaj-rise .7s .06s cubic-bezier(.2,.7,.2,1) both}
+.hero-text{font-size:15px;line-height:1.85;max-width:390px;color:#637188}
+.eyebrow{font-size:10px;letter-spacing:1.5px}
+.hero-actions{margin-top:30px}
+.button{font-size:13px;border-radius:999px;padding:15px 20px;transition:transform .25s ease,background .25s ease,box-shadow .25s ease}
+.button-dark{background:#07172e}
+.button-dark:hover{transform:translateY(-3px);box-shadow:0 10px 24px #07172e20;background:#12375a}
+.text-link{font-size:13px}
+.hero-foot,.hero-scroll,.ticker,.manifesto{display:none}
+.hero-art{height:460px;animation:vyaj-rise .8s .12s cubic-bezier(.2,.7,.2,1) both}
+.hero-photo{border-radius:16px;inset:0;background-image:linear-gradient(180deg,transparent 65%,#07172e20),url('https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1200&q=90');animation:vyaj-photo-in 1.1s ease both;overflow:hidden}
+.floating-note{border-radius:10px;animation:vyaj-float 5s ease-in-out infinite}
+.photo-label{border-radius:8px}
+.section{padding-top:76px;padding-bottom:76px}
+.section-kicker{font-size:10px}
+.intro-grid{margin-top:28px;gap:10%}
+.intro h2,.how-heading h2,.discover-heading h2,.faq-layout h2{font-family:'Manrope',Arial,sans-serif;font-weight:500;font-size:clamp(36px,4.3vw,54px);letter-spacing:-2.6px;line-height:1.13}
+.intro h2 em,.how-heading h2 em,.discover-heading h2 em,.faq-layout h2 em,.waitlist h2 em{font-family:'Manrope',Arial,sans-serif;font-style:normal;font-weight:400;color:#00aeca;letter-spacing:-2.6px}
+.intro-copy p{font-size:13px;line-height:1.85}
+.value-strip{display:none}
+.how-section{background:#f7fafc}
+.how-section .section{padding-top:74px;padding-bottom:74px}
+.how-heading{margin:25px 0 30px}
+.how-heading>p,.discover-heading>p{font-size:13px;line-height:1.8}
+.steps{gap:14px}
+.step-card{border:1px solid #e8edf2;border-radius:12px;min-height:300px;padding:20px}
+.step-card h3{font-family:'Manrope',Arial,sans-serif;font-size:16px;letter-spacing:-.4px}
+.step-card>p{font-size:12px;line-height:1.8}
+.chat-preview,.mini-itinerary,.vote-preview{border-radius:8px}
+.discover-heading{margin:25px 0 30px}
+.destination-grid{gap:16px}
+.destination-card{border-radius:12px;overflow:hidden}
+.destination-image{transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.destination-card:hover .destination-image{transform:scale(1.04)}
+.destination-tag{border-radius:6px}
+.destination-info h3{font-family:'Manrope',Arial,sans-serif;font-weight:600;letter-spacing:-.5px}
+.faq-layout{margin-top:26px}
+.faq-item button{font-size:13px;padding:19px 0}
+.faq-item p{font-size:12px;line-height:1.8}
+.waitlist{padding-top:65px;padding-bottom:65px}
+.waitlist h2{font-family:'Manrope',Arial,sans-serif;font-weight:500;font-size:clamp(38px,4.4vw,54px);letter-spacing:-2.5px}
+.waitlist-copy>p{font-size:13px;line-height:1.8}
+.waitlist-image{border-radius:12px}
+.stamp{display:none}
+.footer{padding-top:36px}
+.footer-main p{font-size:12px}
+.footer-bottom{font-size:9px}
+.planner-modal{font-family:'Manrope',Arial,sans-serif}
+.planner-modal h2{font-family:'Manrope',Arial,sans-serif;font-size:36px;font-weight:600;letter-spacing:-1.5px}
+.planner-modal h2 em{font-style:normal}
+.planner-modal label{font-size:12px}
+@keyframes vyaj-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes vyaj-photo-in{from{opacity:.5;transform:scale(1.035)}to{opacity:1;transform:scale(1)}}
+@keyframes vyaj-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+@media(max-width:760px){.wrap{width:calc(100% - 36px)}.hero{grid-template-columns:1fr;gap:28px;padding-top:40px;padding-bottom:44px}.hero h1{font-size:clamp(49px,11vw,68px);letter-spacing:-3px}.hero h1 em{letter-spacing:-3px}.hero-art{height:330px;margin:0 4px}.section{padding-top:58px;padding-bottom:58px}.intro-grid{grid-template-columns:1fr;gap:18px}.how-section .section{padding-top:58px;padding-bottom:58px}.steps{grid-template-columns:1fr}.step-card{min-height:0}.destination-grid{grid-template-columns:1fr 1fr}.faq-layout{grid-template-columns:1fr;gap:22px}.waitlist{grid-template-columns:1fr;padding:42px 0;gap:24px}}
+@media(max-width:420px){.destination-grid{grid-template-columns:1fr}.hero-art{height:300px}}
