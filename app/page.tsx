@@ -13,9 +13,9 @@ function PlacePhoto({ activity }: { activity: string }) {
     let cancelled = false;
     const controller = new AbortController();
     const searchTerms = activity
-      .replace(/\\b(visit|explore|walk|take|enjoy|have|try|choose|browse|travel|return|start|spend|see|discover|admire|leave|pause|find|and|then|before|after|if|open|check|current|time|times|ticket|tickets|advance|area|surrounding|historic|local|nearby|relaxed|relax|time|allows|subject|to|weather|transport|costs|suit|plan|or|a|the|in|on|at|for|with|from|towards|through|around|by|up|one|your|its|their|classic|major|small|final|flexible|optional|morning|afternoon|evening|day|lunch|dinner|coffee|cafe|café|restaurant|streets|street|city|neighbourhood|neighborhood|view|views|walkable|and|outdoors)\\b/gi, " ")
-      .replace(/[^\\p{L}\\p{N}\\s'-]/gu, " ")
-      .replace(/\\s+/g, " ")
+      .replace(/\b(visit|explore|walk|take|enjoy|have|try|choose|browse|travel|return|start|spend|see|discover|admire|leave|pause|find|and|then|before|after|if|open|check|current|time|times|ticket|tickets|advance|area|surrounding|historic|local|nearby|relaxed|relax|time|allows|subject|to|weather|transport|costs|suit|plan|or|a|the|in|on|at|for|with|from|towards|through|around|by|up|one|your|its|their|classic|major|small|final|flexible|optional|morning|afternoon|evening|day|lunch|dinner|coffee|cafe|café|restaurant|streets|street|city|neighbourhood|neighborhood|view|views|walkable|and|outdoors)\b/gi, " ")
+      .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
+      .replace(/\s+/g, " ")
       .trim();
     const query = (searchTerms || activity).slice(0, 140);
     const params = new URLSearchParams({
@@ -45,7 +45,7 @@ function PlacePhoto({ activity }: { activity: string }) {
             const info = page?.imageinfo?.[0];
             const url = info?.thumburl || info?.url;
             const mime = info?.mime || "";
-            return typeof url === "string" && mime.startsWith("image/") && !/\\.(svg|gif)$/i.test(url);
+            return typeof url === "string" && mime.startsWith("image/") && !/\.(svg|gif)$/i.test(url);
           })
           .map(page => ({
             url: page.imageinfo[0].thumburl || page.imageinfo[0].url,
@@ -54,7 +54,7 @@ function PlacePhoto({ activity }: { activity: string }) {
           }))
           .filter(item => !/logo|map|flag|icon|poster|diagram|coat of arms|collage|drawing/i.test(item.title));
         if (!cancelled && usable.length) {
-          const normalized = query.toLowerCase().split(/\\s+/).filter(word => word.length > 3);
+          const normalized = query.toLowerCase().split(/\s+/).filter(word => word.length > 3);
           usable.sort((a, b) => {
             const score = (title: string) => normalized.reduce((sum, word) => sum + (title.toLowerCase().includes(word) ? 2 : 0), 0);
             return score(b.title) - score(a.title);
