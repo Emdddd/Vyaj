@@ -1,7 +1,8 @@
  "use client";
 
 import { useState, type FormEvent } from "react";
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, ChevronDown, Compass, Globe2, Heart, MapPin, Menu, MessageCircle, Sparkles, Users, X } from "lucide-react";\nimport { postAction, type Itinerary } from "../lib/api";
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, ChevronDown, Compass, Globe2, Heart, MapPin, Menu, MessageCircle, Sparkles, Users, X } from "lucide-react";
+import { postAction, type Itinerary } from "../lib/api";
 
 const places = [
   { name: "Amalfi Coast", country: "Italy", note: "Sea air, slow lunches, hidden coves", image: "photo-1533105079780-92b9be482077", tag: "For the slow days" },
