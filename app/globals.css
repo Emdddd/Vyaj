@@ -325,3 +325,96 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .button-light{background:#f2fbfc;color:#07172e;border:1px solid #d4eef2}
 .button-light:hover{background:#e5f9fb}
 @media(max-width:640px){.nav-product-actions{gap:6px}.nav-icon-action{width:36px;height:36px}.nav-product-actions .nav-cta{display:none}.itinerary-actions{display:grid;grid-template-columns:1fr 1fr}.itinerary-actions .text-link{padding:10px 0;text-align:left}}
+
+
+/* VYAJ signature home refinement: cinematic, calm, and responsive */
+:root{--ink:#142124;--paper:#f7f8f5;--white:#fff;--lime:#26c6da;--muted:#748184;--line:#e1e8e6;--sans:'Manrope',Arial,sans-serif}
+body{background:#f7f8f5;color:#142124}
+.nav{border-bottom-color:rgba(20,33,36,.10)}
+.nav-links a:hover,.footer-bottom a:hover{color:#0d8998}
+.nav-product-actions{gap:8px}
+.nav-icon-action{border-color:rgba(20,33,36,.14);background:rgba(255,255,255,.72)}
+.nav-cta,.nav-mobile-cta{border-color:#142124}
+.nav-cta:hover{background:#142124}
+.hero{width:100%;max-width:none;min-height:min(790px,calc(100svh - 82px));padding:64px max(6vw,32px) 76px;grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);gap:5%;background:#071419;color:#f7f8f5;overflow:hidden}
+.hero-copy{padding-left:3%;max-width:620px}
+.eyebrow{color:#c2d1cf;letter-spacing:1.25px;font-size:9px}
+.eyebrow-dot{background:#26c6da;box-shadow:0 0 0 4px rgba(38,198,218,.12)}
+.hero h1{font-size:clamp(58px,6.3vw,90px);letter-spacing:-.065em;line-height:.99;font-weight:500;margin:28px 0 20px}
+.hero h1 em{color:#26c6da;letter-spacing:-.065em}
+.hero-text{color:#bdc9c7;max-width:390px;font-size:14px;line-height:1.85}
+.hero-composer{max-width:540px;margin-top:29px;padding:17px 17px 13px;border:1px solid rgba(225,244,242,.23);border-radius:17px;background:rgba(255,255,255,.07);backdrop-filter:blur(14px);transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
+.hero-composer:focus-within{border-color:#26c6da;box-shadow:0 0 0 3px rgba(38,198,218,.12);background:rgba(255,255,255,.09)}
+.hero-composer>label{color:#b6c8c7;font-size:9px;letter-spacing:1.15px}
+.hero-composer-field{margin-top:9px;gap:10px;color:#8da4a4}
+.hero-composer-field input{color:#f7f8f5;font-size:14px;min-width:0}
+.hero-composer-field input::placeholder{color:#9baead;opacity:1}
+.hero-composer-field button{width:42px;height:42px;flex:0 0 42px;border-radius:12px;background:#26c6da;color:#071419;transition:transform .16s ease,background .16s ease}
+.hero-composer-field button:hover{background:#74e0eb;transform:translateY(-1px)}
+.hero-suggestions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:12px}
+.hero-suggestions span{font-size:10px;color:#91a5a3}
+.hero-suggestions button{border:1px solid rgba(235,247,245,.17);border-radius:99px;padding:7px 10px;background:transparent;color:#dce7e5;font-size:10px;transition:background .16s ease,border-color .16s ease}
+.hero-suggestions button:hover{background:rgba(38,198,218,.1);border-color:rgba(38,198,218,.55)}
+.hero-secondary{display:flex;gap:21px;flex-wrap:wrap;margin-top:22px}
+.hero-secondary .text-link{color:#d5e1df;font-size:12px;display:inline-flex;align-items:center;gap:7px}
+.hero-secondary .text-link:hover{color:#26c6da}
+.hero-foot{color:#a8b9b7;font-size:11px;margin-top:30px}
+.hero-foot strong{color:#fff}
+.hero-foot-line{background:rgba(255,255,255,.25)}
+.hero-art{height:100%;min-height:520px;position:relative}
+.hero-photo{position:absolute;inset:0;border-radius:3px 3px 100px 3px;background-position:center;background-size:cover;animation:vyaj-photo-breathe 24s ease-in-out infinite alternate;transform:translateZ(0)}
+.hero-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,20,25,.04),rgba(7,20,25,.10) 55%,rgba(7,20,25,.34))}
+.photo-label{left:22px;bottom:24px;background:rgba(7,20,25,.65);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(12px);color:#fff}
+.photo-label small{color:#c6d3d1}
+.floating-note{top:13%;left:-30px;background:rgba(247,248,245,.94);border:1px solid rgba(255,255,255,.7);box-shadow:0 18px 45px rgba(0,0,0,.15)}
+.floating-note small{color:#748184}
+.floating-note strong{color:#142124}
+.note-icon{background:#dff7f9;color:#0d8998}
+.hero-index{color:#b7c7c5}
+.hero-index span{background:#26c6da}
+.hero-scroll{color:#b7c7c5}
+.hero-scroll div{background:#26c6da}
+.ticker{background:#102126;color:#e4eeeb}
+.ticker i{color:#26c6da}
+.button-lime{background:#26c6da;color:#071419}
+.button-lime:hover{background:#75e1eb}
+.destination-card{transition:transform .22s ease,filter .22s ease}
+.destination-card:hover{transform:translateY(-3px)}
+.planner-modal{background:#f7f8f5;color:#142124}
+.planner-kicker{color:#0d8998}
+.planner-thinking{min-height:420px}
+.thinking-orbit{color:#0d8998}
+.thinking-orbit:before{border-color:rgba(38,198,218,.32)}
+.thinking-orbit:after{border-color:#26c6da}
+.thinking-orbit span:first-child{background:#26c6da}
+.thinking-progress{background:#dce9e7}
+.thinking-progress span{background:#26c6da}
+.coming-soon-panel{border-color:#dce9e7;background:linear-gradient(145deg,#effafa,#fff)}
+.coming-soon-panel>span{color:#0d8998;border-color:#bde9ed}
+@keyframes vyaj-photo-breathe{from{transform:scale(1)}to{transform:scale(1.045)}}
+@media(max-width:900px){
+ .hero{min-height:auto;grid-template-columns:1fr;padding:52px 28px 70px;gap:32px}
+ .hero-copy{padding:0;max-width:720px}
+ .hero h1{font-size:clamp(56px,10vw,82px)}
+ .hero-art{min-height:420px;height:48svh;max-height:580px}
+ .floating-note{left:12px}
+ .hero-scroll{display:none}
+}
+@media(max-width:520px){
+ .hero{padding:42px 20px 48px;gap:27px}
+ .hero h1{font-size:clamp(51px,13.5vw,68px);letter-spacing:-.07em;margin:24px 0 17px}
+ .hero-text{font-size:13px}
+ .hero-composer{padding:14px 12px 11px;border-radius:14px}
+ .hero-composer-field input{font-size:12px}
+ .hero-suggestions{gap:6px}
+ .hero-suggestions button{font-size:9px;padding:7px 8px}
+ .hero-secondary{gap:15px}
+ .hero-art{min-height:350px;height:48svh}
+ .photo-label{left:12px;bottom:12px}
+ .floating-note{top:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ html{scroll-behavior:auto}
+ .hero-photo{animation:none}
+ .destination-card,.hero-composer,.hero-composer-field button{transition:none}
+}
