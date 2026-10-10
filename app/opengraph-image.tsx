@@ -54,7 +54,7 @@ export default function OpenGraphImage() {
           </div>
           <div style={{ fontSize: 52, fontWeight: 800, letterSpacing: 7 }}>VYAJ</div>
         </div>
-        <div style={{ fontSize: 64, fontWeight: 750, lineHeight: 1.12, maxWidth: 920 }}>
+        <div style={{ fontSize: 64, fontWeight: 750, lineHeight: 1.12, maxWidth: 920, display: "flex", flexDirection: "column" }}>
 <span>Your next trip,</span>
           <span>made yours.</span>
         </div>
