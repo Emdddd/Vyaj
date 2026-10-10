@@ -79,7 +79,7 @@ The older `/api/plan` route remains as a compatibility alias. Requests are size-
 
 ### Registered stubs
 
-These endpoints validate that a JSON object was sent and return an explicit feature state. They do not save data, send invitations, search live inventory, or perform a vote.
+These endpoints validate that a JSON object was sent (and validate email format for the waitlist) and return an explicit feature state. They do not save data, send invitations, search live inventory, authenticate users, book travel, or perform a vote.
 
 | Endpoint | Contract / state |
 | --- | --- |
@@ -91,6 +91,15 @@ These endpoints validate that a JSON object was sent and return an explicit feat
 | `/api/v1/actions/submit-vote` | `{ status: "coming_soon", feature: "submit-vote" }` |
 | `/api/v1/actions/view-notifications` | `{ status: "coming_soon", feature: "view-notifications" }` |
 | `/api/v1/actions/join-waitlist` | Validates email format, then returns `coming_soon`; it does not persist the address. |
+| `/api/v1/actions/view-profile` | `coming_soon`; profile/account UI is not connected to authentication. |
+| `/api/v1/actions/save-trip` | `coming_soon`; no trip is saved. |
+| `/api/v1/actions/share-trip` | `coming_soon`; no share link or invitation is created. |
+| `/api/v1/actions/open-settings` | `coming_soon`; settings are not persisted. |
+| `/api/v1/actions/login` | `coming_soon`; authentication is not implemented. |
+| `/api/v1/actions/signup` | `coming_soon`; account creation is not implemented. |
+| `/api/v1/actions/book-trip` | `coming_soon`; no bookings are made. |
+| `/api/v1/actions/add-activity` | `coming_soon`; itinerary changes are not saved. |
+| `/api/v1/actions/edit-itinerary` | `coming_soon`; itinerary changes are not saved. |
 
 ### Error response
 
