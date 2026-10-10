@@ -220,3 +220,70 @@ h1,h2,h3,p,a,button{letter-spacing:normal}
  .hero-secondary{gap:17px;flex-wrap:wrap}
  .hero-secondary .text-link{font-size:11px}
 }
+
+
+/* Final visual consistency pass — keep layout calm and intentional */
+:root{
+  --ink:#07172e;
+  --paper:#ffffff;
+  --white:#ffffff;
+  --lime:#00c9df;
+  --muted:#657184;
+  --line:#e7edf2;
+}
+body{overflow-x:hidden;background:#fff;color:var(--ink)}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:3px solid #00c9df;
+  outline-offset:3px;
+}
+.hero{align-items:center}
+.hero-copy{min-width:0}
+.hero h1{max-width:610px}
+.hero-text{max-width:410px}
+.hero-composer{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:510px;
+  margin-top:26px;
+  border:1px solid #e1e8ef;
+  box-shadow:0 12px 32px rgba(7,23,46,.055);
+}
+.hero-composer-field{min-height:56px}
+.hero-composer-field input{font-size:14px}
+.hero-suggestions{line-height:1.5}
+.hero-secondary{gap:20px;flex-wrap:wrap}
+.hero-secondary .text-link{white-space:nowrap}
+.hero-art{min-width:0}
+.hero-photo{background-position:center;background-size:cover}
+.floating-note{max-width:calc(100% - 14px)}
+.photo-label{max-width:calc(100% - 12px)}
+.hero-index{display:none}
+.destination-card:focus-visible{outline:3px solid #00c9df;outline-offset:4px}
+@media(max-width:760px){
+  .hero{align-items:stretch}
+  .hero-copy{width:100%}
+  .hero h1{max-width:100%;font-size:clamp(45px,11vw,66px);line-height:1.06;letter-spacing:-2.8px}
+  .hero h1 em{letter-spacing:-2.8px}
+  .hero-text{font-size:14px}
+  .hero-composer{max-width:none;margin-top:22px}
+  .hero-composer-field{gap:8px}
+  .hero-composer-field input{font-size:12px}
+  .hero-suggestions{align-items:flex-start}
+  .hero-secondary{gap:14px}
+  .hero-art{width:100%;margin:0;height:clamp(270px,78vw,370px)}
+  .photo-label{left:10px;bottom:10px}
+  .floating-note{right:10px;top:10px}
+  .destination-grid{align-items:start}
+  .destination-card{min-width:0}
+  .destination-info p{overflow-wrap:anywhere}
+}
+@media(max-width:420px){
+  .hero h1{font-size:clamp(42px,11vw,54px)}
+  .hero-secondary{align-items:flex-start;flex-direction:column}
+  .hero-composer-field input{min-width:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .hero-copy,.hero h1,.hero-art,.hero-photo,.floating-note{animation:none!important}
+}
