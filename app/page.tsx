@@ -1,6 +1,6 @@
  "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Check, ChevronDown, Compass, Globe2, Heart, MapPin, Menu, MessageCircle, Sparkles, Users, X } from "lucide-react";
 
 const places = [
@@ -31,7 +31,7 @@ export default function Home() {
   const [joined, setJoined] = useState(false);
 
   const startPlan = () => { setPlannerOpen(true); setPlanned(false); };
-  const submitPlan = (e: React.FormEvent) => { e.preventDefault(); setPlanned(true); };
+  const submitPlan = (e: FormEvent) => { e.preventDefault(); setPlanned(true); };
 
   return (
     <main>
