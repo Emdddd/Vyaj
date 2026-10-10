@@ -47,7 +47,7 @@ export default function Home() {
     try {
       const apiBase = process.env.NEXT_PUBLIC_VYAJ_API_URL;
       if (!apiBase) throw new Error("The AI service is not connected yet. The backend needs to be deployed and its URL added to the GitHub Actions variable NEXT_PUBLIC_VYAJ_API_URL.");
-      const response = await fetch(apiBase.replace(/\\/$/, "") + "/api/plan", {
+      const response = await fetch(apiBase.replace(/\/$/, "") + "/api/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ destination: destination.trim() || "Surprise me", duration: days, travellers, style, notes: prompt }),
