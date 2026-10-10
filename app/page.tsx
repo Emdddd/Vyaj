@@ -8,32 +8,29 @@ type TripStyle = "Food & culture" | "Nature & outdoors" | "Slow escape" | "A bit
 const styles: TripStyle[] = ["Food & culture", "Nature & outdoors", "Slow escape", "A bit of everything"];
 function PlacePhoto({ activity }: { activity: string }) {
   const [photo, setPhoto] = useState<{ url: string; title: string; page: string } | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     const controller = new AbortController();
-    const searchTerms = activity
-      .replace(/\b(visit|explore|walk|take|enjoy|have|try|choose|browse|travel|return|start|spend|see|discover|admire|leave|pause|find|and|then|before|after|if|open|check|current|time|times|ticket|tickets|advance|area|surrounding|historic|local|nearby|relaxed|relax|time|allows|subject|to|weather|transport|costs|suit|plan|or|a|the|in|on|at|for|with|from|towards|through|around|by|up|one|your|its|their|classic|major|small|final|flexible|optional|morning|afternoon|evening|day|lunch|dinner|coffee|cafe|café|restaurant|streets|street|city|neighbourhood|neighborhood|view|views|walkable|and|outdoors)\b/gi, " ")
-      .replace(/[^\p{L}\p{N}\s'-]/gu, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-    const query = (searchTerms || activity).slice(0, 140);
+    const query = activity
+      .replace(/\\b(visit|explore|walk|take|enjoy|have|try|choose|browse|travel|return|start|spend|see|discover|admire|leave|pause|find|and|then|before|after|if|open|check|current|time|times|ticket|tickets|advance|area|surrounding|historic|local|nearby|relaxed|relax|allows|subject|to|weather|transport|costs|suit|plan|or|a|the|in|on|at|for|with|from|towards|through|around|by|up|one|your|its|their|classic|major|small|final|flexible|optional|morning|afternoon|evening|day|lunch|dinner|coffee|cafe|café|restaurant|streets|street|city|neighbourhood|neighborhood|view|views|walkable|outdoors)\\b/gi, " ")
+      .replace(/[^\\p{L}\\p{N}\\s'-]/gu, " ")
+      .replace(/\\s+/g, " ")
+      .trim() || activity;
     const params = new URLSearchParams({
       action: "query",
       generator: "search",
-      gsrsearch: `filetype:bitmap ${query}`,
+      gsrsearch: query,
       gsrnamespace: "6",
-      gsrlimit: "8",
+      gsrlimit: "10",
       prop: "imageinfo",
-      iiprop: "url|extmetadata",
-      iiurlwidth: "240",
+      iiprop: "url|mime",
+      iiurlwidth: "320",
       format: "json",
       origin: "*",
     });
-    fetch(`https://commons.wikimedia.org/w/api.php?${params.toString()}`, {
-      signal: controller.signal,
-      headers: { Accept: "application/json" },
-    })
+    fetch(`https://commons.wikimedia.org/w/api.php?${params.toString()}`, { signal: controller.signal })
       .then(response => {
         if (!response.ok) throw new Error("Image search unavailable");
         return response.json();
@@ -41,22 +38,21 @@ function PlacePhoto({ activity }: { activity: string }) {
       .then(data => {
         const pages = Object.values(data?.query?.pages ?? []) as Array<any>;
         const usable = pages
-          .filter(page => {
+          .map(page => {
             const info = page?.imageinfo?.[0];
             const url = info?.thumburl || info?.url;
-            const mime = info?.mime || "";
-            return typeof url === "string" && mime.startsWith("image/") && !/\.(svg|gif)$/i.test(url);
+            return {
+              url: typeof url === "string" ? url : "",
+              title: String(page.title || "").replace(/^File:/, ""),
+              page: String(info?.descriptionurl || "https://commons.wikimedia.org/"),
+              mime: String(info?.mime || ""),
+            };
           })
-          .map(page => ({
-            url: page.imageinfo[0].thumburl || page.imageinfo[0].url,
-            title: String(page.title || "").replace(/^File:/, ""),
-            page: String(page.imageinfo[0].descriptionurl || ""),
-          }))
-          .filter(item => !/logo|map|flag|icon|poster|diagram|coat of arms|collage|drawing/i.test(item.title));
+          .filter(item => item.url && item.mime.startsWith("image/") && !/\\.(svg|gif)$/i.test(item.url) && !/logo|map|flag|icon|poster|diagram|coat of arms|collage|drawing/i.test(item.title));
         if (!cancelled && usable.length) {
-          const normalized = query.toLowerCase().split(/\s+/).filter(word => word.length > 3);
+          const words = query.toLowerCase().split(/\\s+/).filter(word => word.length > 2);
           usable.sort((a, b) => {
-            const score = (title: string) => normalized.reduce((sum, word) => sum + (title.toLowerCase().includes(word) ? 2 : 0), 0);
+            const score = (title: string) => words.reduce((sum, word) => sum + (title.toLowerCase().includes(word) ? 1 : 0), 0);
             return score(b.title) - score(a.title);
           });
           setPhoto(usable[0]);
@@ -69,13 +65,23 @@ function PlacePhoto({ activity }: { activity: string }) {
     };
   }, [activity]);
 
-  if (!photo) {
-    return <div className="v2-activity-photo v2-activity-photo-placeholder" aria-label="No verified place photo available"><MapPin size={17}/></div>;
-  }
-
+  const fallbackImages = [
+    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=320&q=75",
+    "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=320&q=75",
+    "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=320&q=75",
+  ];
+  const fallback = fallbackImages[activity.length % fallbackImages.length];
+  const imageUrl = failed ? fallback : photo?.url || fallback;
   return (
-    <a className="v2-activity-photo-link" href={photo.page} target="_blank" rel="noreferrer" title={`Photo source: Wikimedia Commons — ${photo.title}`}>
-      <img className="v2-activity-photo" src={photo.url} alt={`Wikimedia Commons photo: ${photo.title}`} loading="lazy" decoding="async"/>
+    <a className="v2-activity-photo-link" href={photo?.page || "https://commons.wikimedia.org/"} target="_blank" rel="noreferrer" title={photo ? `Photo source: Wikimedia Commons — ${photo.title}` : "Travel photo"}>
+      <img
+        className="v2-activity-photo"
+        src={imageUrl}
+        alt={photo ? photo.title : "Travel inspiration"}
+        loading="lazy"
+        decoding="async"
+        onError={() => { if (!failed) setFailed(true); }}
+      />
     </a>
   );
 }
