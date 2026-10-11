@@ -397,6 +397,7 @@ export default function Home() {
               : "Not estimated"
           )
         );
+        const perPersonValue = safeText(budgetData.perPerson, budgetValue);
         const budgetFit = safeText(budgetData.budgetFit, "Compare this estimate with your selected budget before booking.");
         const breakdownRaw = budgetData.breakdown && typeof budgetData.breakdown === "object" ? budgetData.breakdown as Record<string, unknown> : {};
         const budgetBreakdown = {
@@ -420,7 +421,7 @@ export default function Home() {
           days: safeDays,
           estimatedBudget: {
             currency: safeText(budgetData.currency, "EUR"),
-            perPerson: budgetValue,
+            perPerson: perPersonValue,
             totalEstimate: budgetValue,
             budgetFit,
             breakdown: budgetBreakdown,
