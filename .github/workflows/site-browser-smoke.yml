@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/site-browser-smoke.yml"
       - "app/page.tsx"
+      - "app/globals.css"
       - "worker/index.js"
   workflow_dispatch:
 
