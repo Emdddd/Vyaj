@@ -362,7 +362,47 @@ export default function Home() {
         notes: `Total budget: ${budget}. Please treat this as a planning target, not a verified quote.`,
       });
       if (response.status === "available" && response.itinerary) {
-        setAiItinerary(response.itinerary);
+        const raw = response.itinerary as unknown as Record<string, unknown>;
+        const safeText = (value: unknown, fallback = "") => typeof value === "string" ? value : fallback;
+        const safeList = (value: unknown) => Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+        const safeDays = Array.isArray(raw.days) ? raw.days.map((item, index) => {
+          const day = item && typeof item === "object" ? item as Record<string, unknown> : {};
+          const activities = Array.isArray(day.activities) ? day.activities.map((entry) => {
+            const activity = entry && typeof entry === "object" ? entry as Record<string, unknown> : {};
+            return {
+              time: safeText(activity.time, "Flexible"),
+              title: safeText(activity.title, "Explore at your own pace"),
+              description: safeText(activity.description),
+              location: safeText(activity.location),
+              estimatedCost: safeText(activity.estimatedCost),
+            };
+          }) : [];
+          return {
+            day: typeof day.day === "number" ? day.day : index + 1,
+            title: safeText(day.title, `Day ${index + 1}`),
+            summary: safeText(day.summary),
+            activities,
+          };
+        }) : [];
+        const budgetData = raw.estimatedBudget && typeof raw.estimatedBudget === "object" ? raw.estimatedBudget as Record<string, unknown> : {};
+        const normalized: Itinerary = {
+          tripTitle: safeText(raw.tripTitle, destination),
+          destination: safeText(raw.destination, destination),
+          overview: safeText(raw.overview),
+          days: safeDays,
+          estimatedBudget: {
+            currency: safeText(budgetData.currency, "EUR"),
+            perPerson: safeText(budgetData.perPerson, "Not estimated"),
+            notes: safeText(budgetData.notes, "Costs are estimates and should be checked before booking."),
+          },
+          tips: safeList(raw.tips),
+          assumptions: safeList(raw.assumptions),
+        };
+        if (!normalized.days.length) {
+          setError("The planner returned an incomplete itinerary. Please try again.");
+          return;
+        }
+        setAiItinerary(normalized);
         setResultReady(true);
         window.setTimeout(() => document.getElementById("sample-result")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
       } else if (response.status === "coming_soon") {
