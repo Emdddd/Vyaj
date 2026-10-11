@@ -652,7 +652,7 @@ export default function Home() {
               onFocus={() => { setAirportSearch(""); setAirportMenuOpen(true); }}
               onChange={event => { setAirportSearch(event.target.value); setDepartureCity(""); setAirportMenuOpen(true); setResultReady(false); setAiItinerary(null); }}
               onBlur={() => window.setTimeout(() => setAirportMenuOpen(false), 160)}
-              placeholder="Search airport, city, country or IATA code"
+              placeholder="Search airport or city"
               autoComplete="off"
               role="combobox"
               aria-autocomplete="list"
@@ -672,7 +672,7 @@ export default function Home() {
               {!airportLoading && !airportLoadError && airportList.length > 0 && filteredAirports.length === 0 && <p className="v2-airport-status">No matching airports. Try a city name or airport code.</p>}
               {!airportLoading && !airportLoadError && airportList.length === 0 && <p className="v2-airport-status">Start typing to search airports around the world.</p>}
             </div>}
-            <small>Search worldwide commercial airports by airport name, city, country or IATA code. Optional, but needed for a flight estimate.</small>
+            <small>Optional · add your departure airport for a flight estimate.</small>
           </div>
           <div className="v2-form-grid">
             <label className="v2-field"><span>How many days?</span><select value={days} onChange={event => { setDays(event.target.value); setResultReady(false); setAiItinerary(null); }}>{["2","3","4","5","6","7"].map(value => <option key={value} value={value}>{value} days</option>)}</select></label>
