@@ -163,6 +163,7 @@ function money(value: string) {
 
 export default function Home() {
   const [destination, setDestination] = useState("Sicily, Italy");
+  const [departureCity, setDepartureCity] = useState("");
   const [days, setDays] = useState("4");
   const [budget, setBudget] = useState("€600");
   const [travellers, setTravellers] = useState("2");
@@ -356,10 +357,11 @@ export default function Home() {
     try {
       const response = await postAction<Itinerary>("plan-trip", {
         destination: destination.trim(),
+        departureCity: departureCity.trim(),
         duration: `${days} days`,
         travellers: travellers === "1" ? "1 traveller" : travellers === "5+" ? "5 or more travellers" : `${travellers} travellers`,
         style,
-        notes: `Total budget: ${budget}. Please treat this as a planning target, not a verified quote.`,
+        notes: `Total budget: ${budget}. Please treat this as a planning target, not a verified quote. Departure city: ${departureCity.trim() || "not provided; do not invent flight estimates"}.`,
       });
       if (response.status === "available" && response.itinerary) {
         const raw = response.itinerary as unknown as Record<string, unknown>;
@@ -396,6 +398,15 @@ export default function Home() {
           )
         );
         const budgetFit = safeText(budgetData.budgetFit, "Compare this estimate with your selected budget before booking.");
+        const breakdownRaw = budgetData.breakdown && typeof budgetData.breakdown === "object" ? budgetData.breakdown as Record<string, unknown> : {};
+        const budgetBreakdown = {
+          flights: safeText(breakdownRaw.flights, departureCity.trim() ? "Not estimated" : "Not estimated — add a departure city"),
+          accommodation: safeText(breakdownRaw.accommodation, "Not estimated"),
+          food: safeText(breakdownRaw.food, "Not estimated"),
+          localTransport: safeText(breakdownRaw.localTransport, "Not estimated"),
+          activities: safeText(breakdownRaw.activities, "Not estimated"),
+          other: safeText(breakdownRaw.other, "Not estimated"),
+        };
         const budgetNotes = safeText(
           budgetData.notes,
           budgetFromUser
@@ -412,6 +423,7 @@ export default function Home() {
             perPerson: budgetValue,
             totalEstimate: budgetValue,
             budgetFit,
+            breakdown: budgetBreakdown,
             notes: budgetNotes,
           },
           tips: safeList(raw.tips),
@@ -483,6 +495,7 @@ export default function Home() {
         <form className="v2-builder-card" onSubmit={buildTrip}>
           <div className="v2-builder-top"><div><span className="v2-small-label">VYAJ TRIP BUILDER</span><h3>Where to next?</h3></div><span className="v2-demo-tag">DEMO</span></div>
           <div className="v2-field v2-destination-field"><label htmlFor="destination-input"><span>Destination</span></label><div className="v2-destination-input-wrap"><MapPin size={17} aria-hidden="true"/><input id="destination-input" value={destination} onFocus={() => setDestinationFocused(true)} onBlur={() => window.setTimeout(() => setDestinationFocused(false), 140)} onChange={event => { setDestination(event.target.value); setResultReady(false); setAiItinerary(null); setError(""); setDestinationFocused(true); }} placeholder="Search any city or destination" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={destinationFocused && filteredDestinations.length > 0} aria-controls="destination-suggestions" required/><button type="button" className="v2-destination-clear" aria-label="Clear destination" onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(""); setResultReady(false); setAiItinerary(null); setDestinationFocused(true); document.getElementById("destination-input")?.focus(); }}>×</button></div>{destinationFocused && filteredDestinations.length > 0 && <div className="v2-destination-suggestions" id="destination-suggestions" role="listbox" aria-label="Popular destinations">{filteredDestinations.map(item => <button type="button" role="option" aria-selected={destination === item.name} className="v2-destination-suggestion" key={item.name} onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(item.name); setResultReady(false); setError(""); setDestinationFocused(false); }}><span className="v2-destination-pin"><MapPin size={15}/></span><span className="v2-destination-copy"><strong>{item.name}</strong><small>{item.text}</small></span><ArrowUpRight size={14} className="v2-destination-arrow"/></button>)}</div>}<small>Choose a suggestion or type any destination. Suggestions are curated examples, not live search results.</small></div>
+          <div className="v2-field"><label htmlFor="departure-city-input"><span>Flying from (for flight estimates)</span></label><input id="departure-city-input" value={departureCity} onChange={event => { setDepartureCity(event.target.value); setResultReady(false); setAiItinerary(null); }} placeholder="Enter departure city or airport (e.g. Malta)" autoComplete="address-level2"/><small>Optional, but needed for a useful flight-cost estimate. Leave blank to show flights as not estimated.</small></div>
           <div className="v2-form-grid">
             <label className="v2-field"><span>How many days?</span><select value={days} onChange={event => { setDays(event.target.value); setResultReady(false); setAiItinerary(null); }}>{["2","3","4","5","6","7"].map(value => <option key={value} value={value}>{value} days</option>)}</select></label>
             <label className="v2-field"><span>Travellers</span><select value={travellers} onChange={event => { setTravellers(event.target.value); setResultReady(false); setAiItinerary(null); }}>{["1","2","3","4","5+"].map(value => <option key={value} value={value}>{value === "1" ? "1 person" : value === "5+" ? "5+ people" : value + " people"}</option>)}</select></label>
@@ -518,6 +531,7 @@ export default function Home() {
                   </div>)}
                 </article>)}</div>
                 <aside className="v2-result-aside"><span className="v2-small-label">ESTIMATED TRIP COST</span><h3>{aiItinerary.estimatedBudget?.totalEstimate || aiItinerary.estimatedBudget?.perPerson || "Not estimated"}</h3><p>{aiItinerary.estimatedBudget?.budgetFit || ""} {aiItinerary.estimatedBudget?.notes || "Costs are estimates and should be checked before booking."}</p>
+                  {aiItinerary.estimatedBudget?.breakdown && <div className="v2-budget-breakdown"><span className="v2-small-label">APPROXIMATE COST BREAKDOWN</span>{([{key:"flights",label:"Flights"},{key:"accommodation",label:"Hotel / accommodation"},{key:"food",label:"Food & drinks"},{key:"localTransport",label:"Local transport"},{key:"activities",label:"Activities & tickets"},{key:"other",label:"Other costs"}] as const).map(item => <div className="v2-budget-row" key={item.key}><span>{item.label}</span><strong>{aiItinerary.estimatedBudget?.breakdown?.[item.key] || "Not estimated"}</strong></div>)}</div>}
                   {aiItinerary.tips?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">TRAVEL TIPS</span><ul>{aiItinerary.tips.map((tip, index) => <li key={index}>{tip}</li>)}</ul></> : null}
                   {aiItinerary.assumptions?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">ASSUMPTIONS TO CHECK</span><ul>{aiItinerary.assumptions.map((assumption, index) => <li key={index}>{assumption}</li>)}</ul></> : null}
                   <div className="v2-assumption"><Sparkles size={15}/><span>AI-generated starter plan. Prices, opening hours, transport and availability are not live-verified.</span></div>
