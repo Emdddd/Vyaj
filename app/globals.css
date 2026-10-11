@@ -889,3 +889,141 @@ body { -webkit-font-smoothing: antialiased; }
     font-size: 15px;
   }
 }
+
+
+/* Site-wide legibility pass: stronger contrast, readable labels, and comfortable mobile text. */
+:root {
+  --v2-muted: #536579;
+}
+.v2-eyebrow {
+  color: #536579;
+  font-size: 11px;
+  letter-spacing: 1.25px;
+  line-height: 1.6;
+}
+.v2-eyebrow > span:first-child:not(.v2-status-dot) {
+  color: #087f98;
+}
+.v2-section-intro > p,
+.v2-how-heading > p,
+.v2-availability-heading > p,
+.v2-early-copy > p,
+.v2-hero-lead {
+  color: #536579;
+  font-size: 16px;
+  line-height: 1.8;
+}
+.v2-availability-heading > p { color: #536579; }
+.v2-status-row {
+  column-gap: 15px;
+  row-gap: 10px;
+}
+.v2-status-row strong {
+  color: #07172e;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.v2-status-row small {
+  display: block;
+  margin-top: 5px;
+  color: #536579;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.v2-status-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid #8fdce5;
+  border-radius: 5px;
+  background: #f5fdfe;
+  color: #087f98;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 1px;
+}
+.v2-status-label.v2-status-soon {
+  border-color: #c4d0d9;
+  background: #f7f9fb;
+  color: #536579;
+}
+.v2-nav > a:not(.v2-nav-cta) { color: #40566b; font-size: 14px; }
+.v2-nav-cta { font-size: 12px; }
+.v2-field > span,
+.v2-choice-field legend { color: #243c52; font-size: 13px; }
+.v2-field small,
+.v2-choice-field > small { color: #536579; font-size: 12px; line-height: 1.7; }
+.v2-budget-option,
+.v2-style-option { font-size: 13px; }
+.v2-form-note { color: #536579; font-size: 11px; line-height: 1.6; }
+.v2-result-heading > p,
+.v2-preview-aside > p,
+.v2-result-aside > p { color: #c0cfdb; font-size: 14px; line-height: 1.8; }
+.v2-result-content .v2-day-top > span,
+.v2-result-content .v2-activity > span { font-size: 12px; }
+.v2-result-content .v2-day-top > strong { font-size: 15px; line-height: 1.55; }
+.v2-result-content .v2-day-focus { font-size: 15px; line-height: 1.75; }
+.v2-result-content .v2-activity > div > strong { font-size: 16px; line-height: 1.6; }
+.v2-result-content .v2-activity > div > p { color: #40566b; font-size: 15px; line-height: 1.8; }
+.v2-budget-row { color: #536579; font-size: 13px; line-height: 1.7; }
+.v2-assumption { font-size: 13px; line-height: 1.8; }
+.v2-result-disclaimer { color: #536579; font-size: 12px; line-height: 1.8; }
+.v2-steps-timeline p { color: #536579; font-size: 15px; line-height: 1.8; }
+.v2-footer a,
+.v2-footer > span { color: #40566b; font-size: 12px; }
+.v2-footer > small { color: #536579; font-size: 11px; }
+.v2-waitlist-form > small { color: #536579; font-size: 12px; line-height: 1.75; }
+.v2-destination-copy strong { font-size: 14px; }
+.v2-destination-copy small { color: #536579; font-size: 12px; line-height: 1.6; }
+
+@media (max-width: 720px) {
+  .v2-eyebrow {
+    color: #536579;
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+  .v2-section-intro > p,
+  .v2-how-heading > p,
+  .v2-availability-heading > p,
+  .v2-early-copy > p,
+  .v2-hero-lead {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .v2-status-row {
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 10px 13px;
+    padding: 19px 0;
+  }
+  .v2-status-icon { width: 42px; height: 42px; }
+  .v2-status-row strong { font-size: 16px; line-height: 1.5; }
+  .v2-status-row small { font-size: 14px; line-height: 1.75; }
+  .v2-status-label {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 1px;
+    min-height: 36px;
+    padding: 8px 11px;
+    font-size: 11px;
+    letter-spacing: .9px;
+  }
+  .v2-field small,
+  .v2-choice-field > small { font-size: 12px; }
+  .v2-budget-option,
+  .v2-style-option { font-size: 13px; }
+  .v2-result-content .v2-day-top > strong { font-size: 14px; }
+  .v2-result-content .v2-day-focus { font-size: 14px; }
+  .v2-result-content .v2-activity > div > strong { font-size: 15px; }
+  .v2-result-content .v2-activity > div > p { font-size: 14px; }
+  .v2-budget-row { font-size: 13px; }
+  .v2-assumption { font-size: 12px; }
+  .v2-result-disclaimer { font-size: 12px; }
+  .v2-steps-timeline p { font-size: 14px; }
+  .v2-footer a,
+  .v2-footer > span { font-size: 12px; }
+  .v2-footer > small { font-size: 11px; }
+}
