@@ -42,7 +42,10 @@ jobs:
             const response = await mobile.goto('https://vyaj.eu', { waitUntil: 'domcontentloaded', timeout: 45000 });
             assert(response && response.ok(), `Live site did not load successfully: ${response?.status()}`);
             // GitHub Pages deploys asynchronously after a push; wait for the new experience instead of testing stale HTML.
-            for (let attempt = 0; attempt < 18 && await mobile.locator('#discover').count() === 0; attempt++) {
+            for (let attempt = 0; attempt < 18; attempt++) {
+              const discoveryReady = await mobile.locator('#discover').count() === 1
+                && await mobile.locator('.v2-discovery-card[aria-pressed="false"]').count() === 3;
+              if (discoveryReady) break;
               await mobile.waitForTimeout(5000);
               await mobile.reload({ waitUntil: 'domcontentloaded', timeout: 45000 });
             }
@@ -52,6 +55,7 @@ jobs:
             assert(await mobile.locator('#discover').count() === 1, 'Travel discovery section is missing');
             assert(await mobile.getByRole('heading', { name: /find the trip/i }).count() === 1, 'Discovery-first hero headline is missing');
             assert(await mobile.locator('.v2-discovery-card').count() === 3, 'Expected three interactive discovery cards');
+            assert(await mobile.locator('.v2-discovery-card[aria-pressed="false"]').count() === 3, 'Live site has not deployed the latest interactive discovery-card version');
             const mobileMetrics = await mobile.evaluate(() => ({
               viewport: window.innerWidth,
               page: document.documentElement.scrollWidth,
