@@ -648,3 +648,12 @@ button:focus-visible,a:focus-visible{outline:3px solid #00c9df;outline-offset:3p
   .v2-hero-image { transform: none; }
   .v2-button-bright:hover,.v2-discovery-card:active { transform: none; }
 }
+
+/* Keep the VYAJ mobile layout fixed against pinch-to-zoom while preserving normal scrolling. */
+html, body {
+  touch-action: pan-x pan-y;
+  -ms-content-zooming: none;
+  -ms-touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
