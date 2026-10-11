@@ -179,7 +179,27 @@ export default function Home() {
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [noticeOpen, setNoticeOpen] = useState(false);
+  const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [destinationFocused, setDestinationFocused] = useState(false);
+
+  async function submitWaitlist(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (waitlistStatus === "submitting") return;
+    setWaitlistStatus("submitting");
+    try {
+      const response = await fetch("https://formspree.io/f/xgaozoeg", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: new FormData(event.currentTarget)
+      });
+      if (!response.ok) throw new Error("Waitlist submission failed");
+      setWaitlistStatus("success");
+      setWaitlistEmail("");
+    } catch {
+      setWaitlistStatus("error");
+    }
+  }
 
   const tripIdea = useMemo(() => demoIdeas[style], [style]);
   useEffect(() => {
@@ -644,7 +664,7 @@ export default function Home() {
 
       <section className="v2-early-access v2-section" id="early-access">
         <div className="v2-early-art"><div className="v2-early-image"/><div className="v2-early-stamp" aria-label="VYAJ logo"><img src="/D0F8F0DA-F8C9-4B07-8ED2-B6B0F1A5D567.png" alt="VYAJ logo"/></div></div>
-        <div className="v2-early-copy"><div className="v2-eyebrow"><span>05</span><i/> THE NEXT CHAPTER</div><h2>Your next trip<br/>starts with <em>an idea.</em></h2><p>VYAJ is being built to make trip planning feel lighter, clearer and more personal. Try the demo today; the full planning experience is still on its way.</p><button className="v2-button v2-button-dark" onClick={() => setNoticeOpen(true)}>Get early access updates <ArrowUpRight size={17}/></button><small>Early-access sign-up is not connected yet.</small></div>
+        <div className="v2-early-copy"><div className="v2-eyebrow"><span>05</span><i/> THE NEXT CHAPTER</div><h2>Your next trip<br/>starts with <em>an idea.</em></h2><p>VYAJ is being built to make trip planning feel lighter, clearer and more personal. Try the demo today; the full planning experience is still on its way.</p><button className="v2-button v2-button-dark" onClick={() => { setWaitlistStatus("idle"); setNoticeOpen(true); }}>Join the waitlist <ArrowUpRight size={17}/></button><small>Get launch updates and be among the first to try VYAJ.</small></div>
       </section>
 
       <footer className="v2-footer">
@@ -654,7 +674,7 @@ export default function Home() {
         <small>© {new Date().getFullYear()} VYAJ. Made for the journeys ahead.</small>
       </footer>
 
-      {noticeOpen && <div className="v2-notice-backdrop" role="presentation" onClick={() => setNoticeOpen(false)}><div className="v2-notice" role="dialog" aria-modal="true" aria-labelledby="v2-notice-title" onClick={event => event.stopPropagation()}><button className="v2-notice-close" aria-label="Close" onClick={() => setNoticeOpen(false)}><X size={18}/></button><div className="v2-notice-icon"><Sparkles size={21}/></div><span className="v2-small-label">VYAJ / EARLY ACCESS</span><h2 id="v2-notice-title">We’re getting things ready.</h2><p>The early-access form isn’t connected yet, so we haven’t collected your details. Email <a href="mailto:hello@vyaj.eu">hello@vyaj.eu</a> if you’d like to get in touch.</p><button className="v2-button v2-button-dark" onClick={() => setNoticeOpen(false)}>Got it <Check size={16}/></button></div></div>}
+      {noticeOpen && <div className="v2-notice-backdrop" role="presentation" onClick={() => setNoticeOpen(false)}><div className="v2-notice" role="dialog" aria-modal="true" aria-labelledby="v2-notice-title" onClick={event => event.stopPropagation()}><button className="v2-notice-close" aria-label="Close" onClick={() => setNoticeOpen(false)}><X size={18}/></button><div className="v2-notice-icon"><Sparkles size={21}/></div><span className="v2-small-label">VYAJ / EARLY ACCESS</span><h2 id="v2-notice-title">We’re getting things ready.</h2><p>Join the VYAJ waitlist to hear when early access opens.</p>{waitlistStatus === "success" ? <div className="v2-waitlist-message v2-waitlist-success" role="status"><Check size={17}/> You’re on the list. We’ll keep you updated.</div> : <form className="v2-waitlist-form" onSubmit={submitWaitlist}><label htmlFor="waitlist-email">Email address</label><input id="waitlist-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={waitlistEmail} onChange={event => { setWaitlistEmail(event.target.value); if (waitlistStatus === "error") setWaitlistStatus("idle"); }} required/><input type="hidden" name="_subject" value="New VYAJ waitlist signup"/><button className="v2-button v2-button-dark" type="submit" disabled={waitlistStatus === "submitting"}>{waitlistStatus === "submitting" ? "Joining…" : "Join the waitlist"} <ArrowUpRight size={16}/></button>{waitlistStatus === "error" && <p className="v2-waitlist-message v2-waitlist-error" role="alert">Something went wrong. Please try again.</p>}<small>By joining, you agree to receive VYAJ launch updates by email.</small></form>}<button className="v2-button v2-button-outline" onClick={() => setNoticeOpen(false)}>Close</button></div></div>}
     </main>
   );
 }
