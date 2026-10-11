@@ -618,9 +618,9 @@ export default function Home() {
           <p>You don’t need a destination yet. Start with a feeling — VYAJ will help you find the rest.</p>
         </div>
         <div className="v2-discovery-grid">
-          <button type="button" className={selectedMood === "Puteaux, France" ? "v2-discovery-card v2-discovery-coast v2-discovery-card-selected" : "v2-discovery-card v2-discovery-coast"} aria-pressed={selectedMood === "Puteaux, France"} onClick={() => chooseMood("Puteaux, France", "Slow escape")} aria-label="Find your calm in Puteaux, France">
+          <button type="button" className={selectedMood === "Puteaux, France" ? "v2-discovery-card v2-discovery-coast v2-discovery-card-selected" : "v2-discovery-card v2-discovery-coast"} aria-pressed={selectedMood === "Puteaux, France"} onClick={() => chooseMood("Puteaux, France", "Slow escape")} aria-label="Find your kind of escape in Puteaux, France">
             <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">01 / SLOW DOWN</span>
-            <span className="v2-discovery-card-copy"><strong>Find your calm.</strong><span className="v2-discovery-place">Puteaux, France</span><small>Step away from the noise, quiet your mind, and give yourself space to feel at peace.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
+            <span className="v2-discovery-card-copy"><strong>Find your kind of escape.</strong><span className="v2-discovery-place">Puteaux, France</span><small>Step away from the noise, slow down, and give yourself space to feel the magic.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
           </button>
           <button type="button" className={selectedMood === "Valletta, Malta" ? "v2-discovery-card v2-discovery-wild v2-discovery-card-selected" : "v2-discovery-card v2-discovery-wild"} aria-pressed={selectedMood === "Dolomites, Italy"} onClick={() => chooseMood("Valletta, Malta", "Food & culture")} aria-label="Discover the history and coastal charm of Valletta, Malta">
             <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">02 / ISLAND STORIES</span>
