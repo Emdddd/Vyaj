@@ -490,6 +490,19 @@ export default function Home() {
             ? `Your selected budget is ${budgetFromUser}. This is a planning target, not a verified cost estimate; check prices before booking.`
             : "Costs are estimates and should be checked before booking."
         );
+        const hasCategoryEstimates = [
+          budgetBreakdown.accommodation,
+          budgetBreakdown.food,
+          budgetBreakdown.localTransport,
+          budgetBreakdown.activities,
+          budgetBreakdown.other,
+        ].some(value => value.trim() && !/^not estimated/i.test(value.trim()));
+        const totalEstimateDisplay = /^not estimated/i.test(budgetValue.trim()) && hasCategoryEstimates
+          ? "See breakdown below"
+          : budgetValue;
+        const budgetNotesDisplay = totalEstimateDisplay === "See breakdown below"
+          ? `${budgetNotes} The AI did not return a reliable total; review the category ranges below.`
+          : budgetNotes;
         const normalized: Itinerary = {
           tripTitle: safeText(raw.tripTitle, destination),
           destination: safeText(raw.destination, destination),
@@ -498,10 +511,10 @@ export default function Home() {
           estimatedBudget: {
             currency: safeText(budgetData.currency, "EUR"),
             perPerson: perPersonValue,
-            totalEstimate: budgetValue,
+            totalEstimate: totalEstimateDisplay,
             budgetFit,
             breakdown: budgetBreakdown,
-            notes: budgetNotes,
+            notes: budgetNotesDisplay,
           },
           tips: safeList(raw.tips),
           assumptions: safeList(raw.assumptions),
