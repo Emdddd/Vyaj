@@ -210,6 +210,12 @@ export default function Home() {
         body: new FormData(event.currentTarget)
       });
       if (!response.ok) throw new Error("Waitlist submission failed");
+      const emailResponse = await fetch("https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/join-waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ email: waitlistEmail.trim() }),
+      });
+      if (!emailResponse.ok) throw new Error("Welcome email could not be sent");
       setWaitlistStatus("success");
       setWaitlistEmail("");
     } catch {
