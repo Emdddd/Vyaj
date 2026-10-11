@@ -68,6 +68,11 @@ jobs:
             assert((await mobile.locator('#destination-input').inputValue()).includes('Madeira'), 'Choosing a discovery card did not prefill its destination');
             assert(await mobile.locator('.v2-style-option.v2-selected').innerText() === 'Nature & outdoors', 'Choosing a discovery card did not set the trip style');
             assert(await mobile.locator('.v2-discovery-card').first().getAttribute('aria-pressed') === 'true', 'Selected discovery card does not expose its selected state');
+            // scrollIntoView uses smooth scrolling; wait for the animation to reach the builder before asserting viewport position.
+            await mobile.waitForFunction(() => {
+              const builder = document.getElementById('trip-builder');
+              return !!builder && builder.getBoundingClientRect().top < window.innerHeight;
+            }, { timeout: 10000 }).catch(() => {});
             assert(await mobile.locator('#trip-builder').evaluate(el => el.getBoundingClientRect().top < window.innerHeight), 'Clicking a discovery card did not bring the trip builder into view');
             await mobile.locator('.v2-discovery-card').nth(2).click();
             assert((await mobile.locator('#destination-input').inputValue()).includes('Lisbon'), 'Choosing the culture card did not prefill Lisbon');
