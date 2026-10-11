@@ -1,5 +1,5 @@
 name = "vyaj-travel-api"
-main = "worker/index.ts"
+main = "worker/index.js"
 compatibility_date = "2026-10-10"
 workers_dev = true
 
