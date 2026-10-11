@@ -387,13 +387,15 @@ export default function Home() {
         const budgetData = raw.estimatedBudget && typeof raw.estimatedBudget === "object" ? raw.estimatedBudget as Record<string, unknown> : {};
         const budgetFromUser = budget;
         const budgetValue = safeText(
-          budgetData.perPerson,
-          typeof raw.estimatedBudget === "string" && raw.estimatedBudget.trim()
-            ? raw.estimatedBudget
-            : budgetFromUser && budgetFromUser !== "Flexible"
-              ? `${budgetFromUser} target budget`
-              : budgetFromUser === "Flexible" ? "Flexible budget" : "Not estimated"
+          budgetData.totalEstimate,
+          safeText(
+            budgetData.perPerson,
+            typeof raw.estimatedBudget === "string" && raw.estimatedBudget.trim()
+              ? raw.estimatedBudget
+              : "Not estimated"
+          )
         );
+        const budgetFit = safeText(budgetData.budgetFit, "Compare this estimate with your selected budget before booking.");
         const budgetNotes = safeText(
           budgetData.notes,
           budgetFromUser
@@ -408,6 +410,8 @@ export default function Home() {
           estimatedBudget: {
             currency: safeText(budgetData.currency, "EUR"),
             perPerson: budgetValue,
+            totalEstimate: budgetValue,
+            budgetFit,
             notes: budgetNotes,
           },
           tips: safeList(raw.tips).length ? safeList(raw.tips) : [
@@ -517,7 +521,7 @@ export default function Home() {
                     <span>{activity.time || "Flexible"}</span><div><strong>{activity.title}</strong><p>{activity.description}</p>{activity.location && <small>{activity.location}</small>}{activity.estimatedCost && <small> · {activity.estimatedCost}</small>}</div>
                   </div>)}
                 </article>)}</div>
-                <aside className="v2-result-aside"><span className="v2-small-label">ESTIMATED BUDGET</span><h3>{aiItinerary.estimatedBudget?.perPerson || "Not estimated"}</h3><p>{aiItinerary.estimatedBudget?.notes || "Costs are estimates and should be checked before booking."}</p>
+                <aside className="v2-result-aside"><span className="v2-small-label">ESTIMATED TRIP COST</span><h3>{aiItinerary.estimatedBudget?.totalEstimate || aiItinerary.estimatedBudget?.perPerson || "Not estimated"}</h3><p>{aiItinerary.estimatedBudget?.budgetFit || ""} {aiItinerary.estimatedBudget?.notes || "Costs are estimates and should be checked before booking."}</p>
                   {aiItinerary.tips?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">TRAVEL TIPS</span><ul>{aiItinerary.tips.map((tip, index) => <li key={index}>{tip}</li>)}</ul></> : null}
                   {aiItinerary.assumptions?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">ASSUMPTIONS TO CHECK</span><ul>{aiItinerary.assumptions.map((assumption, index) => <li key={index}>{assumption}</li>)}</ul></> : null}
                   <div className="v2-assumption"><Sparkles size={15}/><span>AI-generated starter plan. Prices, opening hours, transport and availability are not live-verified.</span></div>
