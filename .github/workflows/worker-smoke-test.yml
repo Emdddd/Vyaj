@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - ".github/workflows/worker-smoke-test.yml"
+      - "worker/index.js"
   workflow_dispatch:
 
 permissions:
@@ -40,7 +41,7 @@ jobs:
             --data '{"destination":"Valletta, Malta","departureCity":"London","duration":"2 days","travellers":"2 travellers","style":"Food & culture","notes":"Total budget: €500. Treat as an approximate planning target."}')"
           echo "Planner status: $STATUS"
           grep -i '^access-control-allow-origin:' /tmp/plan-headers || true
-          jq '{status, feature, title: .itinerary.tripTitle, days: (.itinerary.days | length), error}' /tmp/plan.json
+          jq '{status, feature, title: .itinerary.tripTitle, days: (.itinerary.days | length), estimatedTotal: .itinerary.estimatedBudget.totalEstimate, perPerson: .itinerary.estimatedBudget.perPerson, error}' /tmp/plan.json
           test "$STATUS" = "200"
           jq -e '.status == "available" and (.itinerary.days | type == "array") and (.itinerary.days | length > 0)' /tmp/plan.json >/dev/null
           grep -iq '^access-control-allow-origin: https://vyaj.eu' /tmp/plan-headers
