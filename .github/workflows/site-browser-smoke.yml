@@ -66,8 +66,8 @@ jobs:
             assert(mobileMetrics.page <= mobileMetrics.viewport + 2, `Horizontal overflow on mobile: ${mobileMetrics.page}px page vs ${mobileMetrics.viewport}px viewport`);
             await mobile.screenshot({ path: 'artifacts/vyaj-mobile.png', fullPage: true });
             await mobile.locator('.v2-discovery-card').first().click();
-            assert((await mobile.locator('#destination-input').inputValue()).includes('Madeira'), 'Choosing a discovery card did not prefill its destination');
-            assert(await mobile.locator('.v2-style-option.v2-selected').innerText() === 'Nature & outdoors', 'Choosing a discovery card did not set the trip style');
+            assert((await mobile.locator('#destination-input').inputValue()).includes('Puteaux'), 'Choosing the calm discovery card did not prefill Puteaux');
+            assert(await mobile.locator('.v2-style-option.v2-selected').innerText() === 'Slow escape', 'Choosing the calm discovery card did not set the trip style');
             assert(await mobile.locator('.v2-discovery-card').first().getAttribute('aria-pressed') === 'true', 'Selected discovery card does not expose its selected state');
             // scrollIntoView uses smooth scrolling; wait for the animation to reach the builder before asserting viewport position.
             await mobile.waitForFunction(() => {
