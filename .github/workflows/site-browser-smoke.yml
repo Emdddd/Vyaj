@@ -1,0 +1,90 @@
+name: VYAJ live browser smoke test
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/site-browser-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install project dependencies
+        run: npm install
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Test live desktop, mobile, waitlist modal and trip generation
+        run: |
+          mkdir -p artifacts
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { chromium } from 'playwright';
+
+          const browser = await chromium.launch({ headless: true });
+          try {
+            const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+            const response = await mobile.goto('https://vyaj.eu', { waitUntil: 'domcontentloaded', timeout: 45000 });
+            assert(response && response.ok(), `Live site did not load successfully: ${response?.status()}`);
+            await mobile.waitForTimeout(2000);
+            assert((await mobile.title()).toLowerCase().includes('vyaj'), 'Page title does not identify VYAJ');
+            assert(await mobile.locator('#destination-input').count() === 1, 'Trip builder destination field is missing');
+            const mobileMetrics = await mobile.evaluate(() => ({
+              viewport: window.innerWidth,
+              page: document.documentElement.scrollWidth,
+              height: document.documentElement.scrollHeight
+            }));
+            console.log('Mobile layout metrics:', JSON.stringify(mobileMetrics));
+            assert(mobileMetrics.page <= mobileMetrics.viewport + 2, `Horizontal overflow on mobile: ${mobileMetrics.page}px page vs ${mobileMetrics.viewport}px viewport`);
+            await mobile.screenshot({ path: 'artifacts/vyaj-mobile.png', fullPage: true });
+            await mobile.close();
+
+            const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
+            const desktopResponse = await desktop.goto('https://vyaj.eu', { waitUntil: 'domcontentloaded', timeout: 45000 });
+            assert(desktopResponse && desktopResponse.ok(), `Desktop page failed: ${desktopResponse?.status()}`);
+            await desktop.waitForTimeout(1500);
+            await desktop.screenshot({ path: 'artifacts/vyaj-desktop.png', fullPage: true });
+
+            const waitlistButton = desktop.getByRole('button', { name: /join the waitlist/i }).last();
+            await waitlistButton.click();
+            await desktop.getByRole('dialog').waitFor({ state: 'visible', timeout: 5000 });
+            await desktop.keyboard.press('Escape');
+            await desktop.getByRole('dialog').waitFor({ state: 'hidden', timeout: 5000 });
+            console.log('Waitlist modal opens and closes with Escape.');
+
+            await desktop.locator('#destination-input').fill('Valletta, Malta');
+            await desktop.locator('form.v2-builder-card select').first().selectOption('2');
+            await desktop.getByRole('button', { name: /plan my trip/i }).click();
+            await desktop.locator('.v2-trip-summary h3').waitFor({ state: 'visible', timeout: 65000 });
+            const title = (await desktop.locator('.v2-trip-summary h3').innerText()).trim();
+            const dayCount = await desktop.locator('.v2-day-card').count();
+            assert(title.length > 0, 'AI itinerary title is empty');
+            assert(dayCount > 0, 'AI itinerary contains no day cards');
+            await desktop.screenshot({ path: 'artifacts/vyaj-itinerary.png', fullPage: true });
+            console.log('Frontend-to-Worker trip generation succeeded:', JSON.stringify({ title, dayCount }));
+            await desktop.close();
+          } finally {
+            await browser.close();
+          }
+          NODE
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vyaj-browser-smoke-screenshots
+          path: artifacts/*.png
+          if-no-files-found: ignore
+          retention-days: 7
