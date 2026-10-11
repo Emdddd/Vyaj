@@ -392,7 +392,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #00c9df;outline-offset:3p
 .v2-discovery-card-image,.v2-discovery-shade{position:absolute;inset:0;z-index:-1}
 .v2-discovery-card-image{background-size:cover;background-position:center;transform:scale(1.015);transition:transform .8s var(--v2-ease),filter .5s}
 .v2-discovery-card:hover .v2-discovery-card-image{transform:scale(1.075)}
-.v2-discovery-coast .v2-discovery-card-image{background-image:url('https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=900&q=85')}
+.v2-discovery-coast .v2-discovery-card-image{background-image:url('https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=900&q=85')}
 .v2-discovery-wild .v2-discovery-card-image{background-image:url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=85')}
 .v2-discovery-culture .v2-discovery-card-image{background-image:url('https://images.unsplash.com/photo-1555881400-74d7acaacd8b?auto=format&fit=crop&w=900&q=85')}
 .v2-discovery-shade{background:linear-gradient(180deg,rgba(4,17,32,.45),transparent 32%,rgba(4,17,32,.10) 48%,rgba(4,17,32,.88) 100%);z-index:0}
