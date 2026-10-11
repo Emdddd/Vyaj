@@ -10,12 +10,12 @@ export const viewport: Viewport = {
 const socialImage = "/E4E6986E-D41A-485B-B3A5-2B22D70D4E26.png";
 
 export const metadata: Metadata = {
-  title: "VYAJ — Build your next trip",
-  description: "Turn a destination, a budget and a few days into a trip you can picture. Explore the VYAJ interactive trip-planning demo.",
+  title: "VYAJ — Discover your next escape",
+  description: "Discover a trip that feels like you. Explore inspiring escapes, personalise your journey and turn the feeling into a plan with VYAJ.",
   metadataBase: new URL("https://vyaj.eu"),
   openGraph: {
-    title: "VYAJ — Build your next trip",
-    description: "Plan your next trip around your time, budget and travel style.",
+    title: "VYAJ — Discover your next escape",
+    description: "Find your next escape, then shape a journey around your time, budget and travel style.",
     url: "https://vyaj.eu",
     siteName: "VYAJ",
     type: "website",
