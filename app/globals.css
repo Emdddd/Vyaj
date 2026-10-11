@@ -684,3 +684,15 @@ html, body {
   .v2-result-section { padding-top: 62px; padding-bottom: 64px; }
 }
 
+/* Remove the oversized gap between discovery cards and the trip builder */
+@media (max-width: 720px) {
+  .v2-discovery { padding-bottom: 18px !important; }
+  .v2-discovery-note { margin-bottom: 0 !important; }
+  .v2-builder { padding-top: 30px !important; }
+  .v2-section-intro { margin-top: 0; }
+}
+@media (min-width: 721px) {
+  .v2-discovery { padding-bottom: 42px; }
+  .v2-builder { padding-top: 58px; }
+}
+
