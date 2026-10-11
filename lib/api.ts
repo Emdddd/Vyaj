@@ -28,7 +28,7 @@ export type Itinerary = {
   destination: string;
   overview: string;
   days: ItineraryDay[];
-  estimatedBudget?: { currency?: string; perPerson?: string; notes?: string };
+  estimatedBudget?: { currency?: string; perPerson?: string; totalEstimate?: string; budgetFit?: string; notes?: string };
   tips?: string[];
   assumptions?: string[];
 };
