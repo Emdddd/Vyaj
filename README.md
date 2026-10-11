@@ -17,7 +17,7 @@ Browser (GitHub Pages / vyaj.eu)
   └── lib/api.ts
        └── NEXT_PUBLIC_VYAJ_API_URL
             └── Cloudflare Worker (worker/index.ts)
-                 └── Gemini API (server-side GEMINI_API_KEY)
+                 └── Groq API (server-side GROQ_API_KEY)
 ```
 
 GitHub Pages only hosts static files. Do not add Next.js server routes expecting them to run on Pages.
@@ -57,7 +57,7 @@ This URL is public configuration, not a secret.
 Set the secret in Cloudflare, never in the frontend or GitHub Pages files:
 
 ```bash
-npx wrangler secret put GEMINI_API_KEY
+npx wrangler secret put GROQ_API_KEY
 npx wrangler deploy
 ```
 
@@ -125,7 +125,7 @@ GitHub Actions builds the static export and deploys it to GitHub Pages on pushes
 ### Deploying the Worker
 
 1. Install/authenticate Wrangler: `npx wrangler login`.
-2. Add the Gemini secret with `npx wrangler secret put GEMINI_API_KEY`.
+2. Add the Groq secret with `npx wrangler secret put GROQ_API_KEY`.
 3. Deploy with `npx wrangler deploy`.
 4. Copy the real Worker URL printed by Cloudflare.
 5. Add that URL as the GitHub Actions repository variable `NEXT_PUBLIC_VYAJ_API_URL`.
