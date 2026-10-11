@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { postAction, type Itinerary } from "../lib/api";
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Clock3, Compass, MapPin, Menu, Sparkles, Users, X } from "lucide-react";
 
 type TripStyle = "Food & culture" | "Nature & outdoors" | "Slow escape" | "A bit of everything";
@@ -167,6 +168,8 @@ export default function Home() {
   const [travellers, setTravellers] = useState("2");
   const [style, setStyle] = useState<TripStyle>("Food & culture");
   const [resultReady, setResultReady] = useState(false);
+  const [aiItinerary, setAiItinerary] = useState<Itinerary | null>(null);
+  const [plannerLoading, setPlannerLoading] = useState(false);
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [noticeOpen, setNoticeOpen] = useState(false);
@@ -338,16 +341,40 @@ export default function Home() {
     };
   });
 
-  function buildTrip(event: FormEvent<HTMLFormElement>) {
+  async function buildTrip(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!destination.trim()) {
-      setError("Add a destination to preview your trip.");
+      setError("Add a destination to plan your trip.");
       setResultReady(false);
+      setAiItinerary(null);
       return;
     }
     setError("");
-    setResultReady(true);
-    window.setTimeout(() => document.getElementById("sample-result")?.scrollIntoView({ behavior: "smooth", block: "start" }), 60);
+    setPlannerLoading(true);
+    setResultReady(false);
+    setAiItinerary(null);
+    try {
+      const response = await postAction<Itinerary>("plan-trip", {
+        destination: destination.trim(),
+        duration: `${days} days`,
+        travellers: travellers === "1" ? "1 traveller" : travellers === "5+" ? "5 or more travellers" : `${travellers} travellers`,
+        style,
+        notes: `Total budget: ${budget}. Please treat this as a planning target, not a verified quote.`,
+      });
+      if (response.status === "available" && response.itinerary) {
+        setAiItinerary(response.itinerary);
+        setResultReady(true);
+        window.setTimeout(() => document.getElementById("sample-result")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+      } else if (response.status === "coming_soon") {
+        setError(response.message || "AI trip planning is coming soon.");
+      } else {
+        setError(response.message || "The trip planner is not available right now. Please try again later.");
+      }
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "We couldn't connect to the trip planner. Please try again.");
+    } finally {
+      setPlannerLoading(false);
+    }
   }
 
   function pickDestination(value: string) {
@@ -396,16 +423,16 @@ export default function Home() {
         </div>
         <form className="v2-builder-card" onSubmit={buildTrip}>
           <div className="v2-builder-top"><div><span className="v2-small-label">VYAJ TRIP BUILDER</span><h3>Where to next?</h3></div><span className="v2-demo-tag">DEMO</span></div>
-          <div className="v2-field v2-destination-field"><label htmlFor="destination-input"><span>Destination</span></label><div className="v2-destination-input-wrap"><MapPin size={17} aria-hidden="true"/><input id="destination-input" value={destination} onFocus={() => setDestinationFocused(true)} onBlur={() => window.setTimeout(() => setDestinationFocused(false), 140)} onChange={event => { setDestination(event.target.value); setResultReady(false); setError(""); setDestinationFocused(true); }} placeholder="Search any city or destination" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={destinationFocused && filteredDestinations.length > 0} aria-controls="destination-suggestions" required/><button type="button" className="v2-destination-clear" aria-label="Clear destination" onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(""); setResultReady(false); setDestinationFocused(true); document.getElementById("destination-input")?.focus(); }}>×</button></div>{destinationFocused && filteredDestinations.length > 0 && <div className="v2-destination-suggestions" id="destination-suggestions" role="listbox" aria-label="Popular destinations">{filteredDestinations.map(item => <button type="button" role="option" aria-selected={destination === item.name} className="v2-destination-suggestion" key={item.name} onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(item.name); setResultReady(false); setError(""); setDestinationFocused(false); }}><span className="v2-destination-pin"><MapPin size={15}/></span><span className="v2-destination-copy"><strong>{item.name}</strong><small>{item.text}</small></span><ArrowUpRight size={14} className="v2-destination-arrow"/></button>)}</div>}<small>Choose a suggestion or type any destination. Suggestions are curated examples, not live search results.</small></div>
+          <div className="v2-field v2-destination-field"><label htmlFor="destination-input"><span>Destination</span></label><div className="v2-destination-input-wrap"><MapPin size={17} aria-hidden="true"/><input id="destination-input" value={destination} onFocus={() => setDestinationFocused(true)} onBlur={() => window.setTimeout(() => setDestinationFocused(false), 140)} onChange={event => { setDestination(event.target.value); setResultReady(false); setAiItinerary(null); setError(""); setDestinationFocused(true); }} placeholder="Search any city or destination" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={destinationFocused && filteredDestinations.length > 0} aria-controls="destination-suggestions" required/><button type="button" className="v2-destination-clear" aria-label="Clear destination" onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(""); setResultReady(false); setAiItinerary(null); setDestinationFocused(true); document.getElementById("destination-input")?.focus(); }}>×</button></div>{destinationFocused && filteredDestinations.length > 0 && <div className="v2-destination-suggestions" id="destination-suggestions" role="listbox" aria-label="Popular destinations">{filteredDestinations.map(item => <button type="button" role="option" aria-selected={destination === item.name} className="v2-destination-suggestion" key={item.name} onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(item.name); setResultReady(false); setError(""); setDestinationFocused(false); }}><span className="v2-destination-pin"><MapPin size={15}/></span><span className="v2-destination-copy"><strong>{item.name}</strong><small>{item.text}</small></span><ArrowUpRight size={14} className="v2-destination-arrow"/></button>)}</div>}<small>Choose a suggestion or type any destination. Suggestions are curated examples, not live search results.</small></div>
           <div className="v2-form-grid">
-            <label className="v2-field"><span>How many days?</span><select value={days} onChange={event => { setDays(event.target.value); setResultReady(false); }}>{["2","3","4","5","6","7"].map(value => <option key={value} value={value}>{value} days</option>)}</select></label>
-            <label className="v2-field"><span>Travellers</span><select value={travellers} onChange={event => { setTravellers(event.target.value); setResultReady(false); }}>{["1","2","3","4","5+"].map(value => <option key={value} value={value}>{value === "1" ? "1 person" : value === "5+" ? "5+ people" : value + " people"}</option>)}</select></label>
+            <label className="v2-field"><span>How many days?</span><select value={days} onChange={event => { setDays(event.target.value); setResultReady(false); setAiItinerary(null); }}>{["2","3","4","5","6","7"].map(value => <option key={value} value={value}>{value} days</option>)}</select></label>
+            <label className="v2-field"><span>Travellers</span><select value={travellers} onChange={event => { setTravellers(event.target.value); setResultReady(false); setAiItinerary(null); }}>{["1","2","3","4","5+"].map(value => <option key={value} value={value}>{value === "1" ? "1 person" : value === "5+" ? "5+ people" : value + " people"}</option>)}</select></label>
           </div>
-          <fieldset className="v2-choice-field"><legend>Total budget</legend><div className="v2-budget-options">{["€300","€600","€1,000","Flexible"].map(value => <button type="button" key={value} className={budget === value ? "v2-budget-option v2-selected" : "v2-budget-option"} onClick={() => { setBudget(value); setResultReady(false); }} aria-pressed={budget === value}>{value}</button>)}</div><small>Choose your overall budget. It is a target, not a price quote; costs aren’t live-checked.</small></fieldset>
-          <fieldset className="v2-choice-field"><legend>Your kind of trip</legend><div className="v2-style-options">{styles.map(value => <button type="button" key={value} className={style === value ? "v2-style-option v2-selected" : "v2-style-option"} onClick={() => { setStyle(value); setResultReady(false); }} aria-pressed={style === value}>{value}</button>)}</div></fieldset>
+          <fieldset className="v2-choice-field"><legend>Total budget</legend><div className="v2-budget-options">{["€300","€600","€1,000","Flexible"].map(value => <button type="button" key={value} className={budget === value ? "v2-budget-option v2-selected" : "v2-budget-option"} onClick={() => { setBudget(value); setResultReady(false); setAiItinerary(null); }} aria-pressed={budget === value}>{value}</button>)}</div><small>Choose your overall budget. It is a target, not a price quote; costs aren’t live-checked.</small></fieldset>
+          <fieldset className="v2-choice-field"><legend>Your kind of trip</legend><div className="v2-style-options">{styles.map(value => <button type="button" key={value} className={style === value ? "v2-style-option v2-selected" : "v2-style-option"} onClick={() => { setStyle(value); setResultReady(false); setAiItinerary(null); }} aria-pressed={style === value}>{value}</button>)}</div></fieldset>
           {error && <p className="v2-form-error" role="alert">{error}</p>}
-          <button className="v2-button v2-button-dark v2-submit" type="submit">Preview my trip <ArrowUpRight size={17}/></button>
-          <p className="v2-form-note"><Sparkles size={13}/> Interactive sample · No booking or live AI connection</p>
+          <button className="v2-button v2-button-dark v2-submit" type="submit" disabled={plannerLoading}>{plannerLoading ? <><Sparkles size={16} className="v2-loading-sparkle"/> Thinking…</> : <>Plan my trip <ArrowUpRight size={17}/></>}</button>
+          <p className="v2-form-note"><Sparkles size={13}/> AI-generated starter plan · Estimates only, no bookings</p>
         </form>
       </section>
 
@@ -413,18 +440,32 @@ export default function Home() {
         <div className="v2-result-wrap">
           <div className="v2-result-heading">
             <div><div className="v2-eyebrow v2-eyebrow-light"><span>02</span><i/> A FIRST LOOK</div><h2>A trip you<br/><em>can picture.</em></h2></div>
-            <p>{resultReady ? "Here’s an illustrative sample shaped around your selections — not a live AI result or a verified travel plan." : "A useful plan is more than a list of places. This sample gives each day a rhythm without pretending prices or availability have been checked."}</p>
+            <p>{resultReady && aiItinerary ? "Your AI-generated starter itinerary is ready. Refine it around your preferences and verify details before travelling." : plannerLoading ? "VYAJ is shaping your itinerary around your destination and travel style." : "Start with a destination and a few preferences. VYAJ will turn them into a practical first itinerary."}</p>
           </div>
-          {resultReady ? (
+          {resultReady && aiItinerary ? (
             <div className="v2-result-content">
               <div className="v2-trip-summary">
-                <div className="v2-summary-icon"><MapPin size={19}/></div><div className="v2-summary-main"><span className="v2-small-label">YOUR SAMPLE TRIP</span><h3>{destination.trim()}</h3><p>{days} days <span>·</span> {travellers} {travellers === "1" ? "traveller" : "travellers"} <span>·</span> {style}</p></div><span className="v2-demo-tag v2-demo-tag-dark">SAMPLE</span>
+                <div className="v2-summary-icon"><MapPin size={19}/></div>
+                <div className="v2-summary-main"><span className="v2-small-label">YOUR VYAJ ITINERARY</span><h3>{aiItinerary.tripTitle || aiItinerary.destination || destination}</h3><p>{aiItinerary.destination || destination} <span>·</span> {days} days <span>·</span> {travellers} travellers <span>·</span> {style}</p></div>
+                <span className="v2-demo-tag v2-demo-tag-dark">AI PLAN</span>
               </div>
+              <p className="v2-day-focus">{aiItinerary.overview}</p>
               <div className="v2-result-grid">
-                <div className="v2-days-list">{resultDays.map(day => <article className="v2-day-card" key={day.day}><div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div><p className="v2-day-focus">{day.focus}</p>{day.activities.map(([time, activity]) => <div className="v2-activity" key={time + activity}><PlacePhoto activity={activity} destination={destination}/><span>{time}</span><p>{activity}</p></div>)}</article>)}</div>
-                <aside className="v2-result-aside"><span className="v2-small-label">YOUR STATED BUDGET</span><h3>{money(budget)}</h3><p>This is the budget you entered, not a calculated or verified trip cost.</p><div className="v2-budget-metrics"><div><small>Per person · total</small><strong>{budget === "Flexible" ? "Flexible" : travellers === "5+" ? "Varies" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Number(travellers)).toLocaleString("en-IE", { maximumFractionDigits: 0 })}</strong></div><div><small>Per day · group</small><strong>{budget === "Flexible" ? "Flexible" : "€" + (Number(budget.replace(/[^0-9]/g, "")) / Math.max(dayCount, 1)).toLocaleString("en-IE", { maximumFractionDigits: 2 })}</strong></div></div><p className="v2-budget-caption">Figures above are arithmetic based on your inputs only. Flights, accommodation, food, transport and tickets have not been priced or assumed included.</p><div className="v2-aside-divider"/><span className="v2-small-label">WHY THIS SHAPE?</span><p>{isSicily && style === "Food & culture" ? "Palermo is a practical cultural starting point for this sample, with one optional coastal day in Cefalù. The order is illustrative; confirm transport schedules before committing." : tripIdea.note}</p><div className="v2-assumption"><Sparkles size={15}/><span>Illustrative sample only. No live AI, verified prices, opening hours, transport schedules or availability.</span></div><button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>Edit your details <ArrowRight size={16}/></button></aside>
+                <div className="v2-days-list">{aiItinerary.days.map(day => <article className="v2-day-card" key={day.day}>
+                  <div className="v2-day-top"><span>DAY {String(day.day).padStart(2, "0")}</span><strong>{day.title}</strong></div>
+                  <p className="v2-day-focus">{day.summary}</p>
+                  {day.activities.map((activity, index) => <div className="v2-activity" key={`${day.day}-${index}-${activity.title}`}>
+                    <span>{activity.time || "Flexible"}</span><div><strong>{activity.title}</strong><p>{activity.description}</p>{activity.location && <small>{activity.location}</small>}{activity.estimatedCost && <small> · {activity.estimatedCost}</small>}</div>
+                  </div>)}
+                </article>)}</div>
+                <aside className="v2-result-aside"><span className="v2-small-label">ESTIMATED BUDGET</span><h3>{aiItinerary.estimatedBudget?.perPerson || "Not estimated"}</h3><p>{aiItinerary.estimatedBudget?.notes || "Costs are estimates and should be checked before booking."}</p>
+                  {aiItinerary.tips?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">TRAVEL TIPS</span><ul>{aiItinerary.tips.map((tip, index) => <li key={index}>{tip}</li>)}</ul></> : null}
+                  {aiItinerary.assumptions?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">ASSUMPTIONS TO CHECK</span><ul>{aiItinerary.assumptions.map((assumption, index) => <li key={index}>{assumption}</li>)}</ul></> : null}
+                  <div className="v2-assumption"><Sparkles size={15}/><span>AI-generated starter plan. Prices, opening hours, transport and availability are not live-verified.</span></div>
+                  <button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); setAiItinerary(null); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>Adjust your trip <ArrowRight size={16}/></button>
+                </aside>
               </div>
-              <p className="v2-result-disclaimer">This is an illustrative VYAJ prototype, not a live AI-generated itinerary. For Malta and Sicily, this demo includes illustrative destination-specific ideas; other destinations use general travel-planning ideas. None are live AI results or verified travel recommendations. Prices, opening hours, transport schedules and availability have not been verified. Check current details before booking or travelling.</p>
+              <p className="v2-result-disclaimer">Use this itinerary as a starting point, not a booking confirmation. Verify current opening hours, transport schedules, prices and availability before travelling.</p>
             </div>
           ) : (
             <div className="v2-result-preview">
