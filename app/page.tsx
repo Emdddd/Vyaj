@@ -162,7 +162,7 @@ function money(value: string) {
 }
 
 export default function Home() {
-  const [destination, setDestination] = useState("Sicily, Italy");
+  const [destination, setDestination] = useState("Paris, France");
   const [departureCity, setDepartureCity] = useState("");
   const [airportList, setAirportList] = useState<Array<{ iata?: string; icao?: string; name?: string; city?: string; country?: string }>>([]);
   const [airportSearch, setAirportSearch] = useState("");
