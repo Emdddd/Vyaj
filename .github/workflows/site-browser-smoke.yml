@@ -41,7 +41,12 @@ jobs:
             const mobile = await browser.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
             const response = await mobile.goto('https://vyaj.eu', { waitUntil: 'domcontentloaded', timeout: 45000 });
             assert(response && response.ok(), `Live site did not load successfully: ${response?.status()}`);
-            await mobile.waitForTimeout(2000);
+            // GitHub Pages deploys asynchronously after a push; wait for the new experience instead of testing stale HTML.
+            for (let attempt = 0; attempt < 18 && await mobile.locator('#discover').count() === 0; attempt++) {
+              await mobile.waitForTimeout(5000);
+              await mobile.reload({ waitUntil: 'domcontentloaded', timeout: 45000 });
+            }
+            await mobile.waitForTimeout(1200);
             assert((await mobile.title()).toLowerCase().includes('vyaj'), 'Page title does not identify VYAJ');
             assert(await mobile.locator('#destination-input').count() === 1, 'Trip builder destination field is missing');
             assert(await mobile.locator('#discover').count() === 1, 'Travel discovery section is missing');
