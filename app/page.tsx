@@ -385,6 +385,21 @@ export default function Home() {
           };
         }) : [];
         const budgetData = raw.estimatedBudget && typeof raw.estimatedBudget === "object" ? raw.estimatedBudget as Record<string, unknown> : {};
+        const budgetFromUser = notes.match(/Total budget:\\s*(€[\\d,]+|Flexible)/i)?.[1];
+        const budgetValue = safeText(
+          budgetData.perPerson,
+          typeof raw.estimatedBudget === "string" && raw.estimatedBudget.trim()
+            ? raw.estimatedBudget
+            : budgetFromUser && budgetFromUser !== "Flexible"
+              ? `${budgetFromUser} target budget`
+              : budgetFromUser === "Flexible" ? "Flexible budget" : "Not estimated"
+        );
+        const budgetNotes = safeText(
+          budgetData.notes,
+          budgetFromUser
+            ? `Your selected budget is ${budgetFromUser}. This is a planning target, not a verified cost estimate; check prices before booking.`
+            : "Costs are estimates and should be checked before booking."
+        );
         const normalized: Itinerary = {
           tripTitle: safeText(raw.tripTitle, destination),
           destination: safeText(raw.destination, destination),
@@ -392,8 +407,8 @@ export default function Home() {
           days: safeDays,
           estimatedBudget: {
             currency: safeText(budgetData.currency, "EUR"),
-            perPerson: safeText(budgetData.perPerson, "Not estimated"),
-            notes: safeText(budgetData.notes, "Costs are estimates and should be checked before booking."),
+            perPerson: budgetValue,
+            notes: budgetNotes,
           },
           tips: safeList(raw.tips),
           assumptions: safeList(raw.assumptions),
