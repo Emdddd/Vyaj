@@ -856,3 +856,36 @@ body { -webkit-font-smoothing: antialiased; }
   .v2-status-row strong { font-size: 12px; }
   .v2-status-row small { font-size: 11px; }
 }
+
+
+/* Waitlist section: make the value proposition obvious and the copy easier to read. */
+.v2-early-copy > p {
+  max-width: 470px;
+  color: #536579;
+  font-size: clamp(17px, 1.35vw, 19px);
+  line-height: 1.8;
+  letter-spacing: -.01em;
+}
+.v2-early-copy > small {
+  max-width: 430px;
+  color: #536579;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.v2-early-copy .v2-button {
+  font-size: 16px;
+  min-height: 64px;
+}
+@media (max-width: 720px) {
+  .v2-early-copy > p {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .v2-early-copy > small {
+    font-size: 12px;
+  }
+  .v2-early-copy .v2-button {
+    min-height: 58px;
+    font-size: 15px;
+  }
+}
