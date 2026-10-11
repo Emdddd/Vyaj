@@ -412,9 +412,16 @@ export default function Home() {
     : /bali|indonesia/i.test(destination) ? "bali"
     : /prague|praha/i.test(destination) ? "prague"
     : "";
+  const puteauxDays = [
+    { title: "Arrive & settle into Puteaux", focus: "A gentle start in the quieter streets just west of central Paris.", activities: [["09:30", "Ease into the day with coffee at a local café near the town centre"], ["11:00", "Take an unhurried walk through the town’s streets and local squares"], ["15:00", "Leave the afternoon open for rest, reading, or a relaxed café stop"]] },
+    { title: "Seine-side breathing space", focus: "A slower day built around the river and time outdoors.", activities: [["09:30", "Start with a relaxed breakfast close to your stay"], ["11:00", "Walk along the Seine quays and enjoy the riverside views"], ["16:00", "Take a quiet break in a nearby green space before dinner"]] },
+    { title: "Green corners & local life", focus: "Small discoveries without a packed schedule.", activities: [["10:00", "Explore the landscaped Esplanade de l’Hôtel de Ville"], ["12:30", "Choose a local bistro or café for a leisurely lunch"], ["15:00", "Browse local shops or return to your favourite spot for downtime"]] },
+    { title: "A gentle Paris-area finish", focus: "Keep the final day flexible, with the option to visit Paris if you feel like it.", activities: [["09:30", "Enjoy one last slow breakfast in Puteaux"], ["11:00", "Take a final walk by the river or through the neighbourhood"], ["14:00", "Optional: head towards La Défense or central Paris, checking transport times before leaving"]] }
+  ];
   const generalTitles = ["Arrive & get your bearings", "Explore beyond the obvious", "Make time for local life", "Leave room for a favourite", "A slower day, your way", "One last discovery", "Take the scenic route"];
   const resultDays = Array.from({ length: Math.min(dayCount, 7) }, (_, index) => {
-    const locationDays = style === "Food & culture" ? (isMalta ? maltaDays : isSicily ? sicilyDays : cityItineraries[destinationKey] ?? null) : null;
+    const isPuteaux = /puteaux/i.test(destination);
+    const locationDays = isPuteaux ? puteauxDays : style === "Food & culture" ? (isMalta ? maltaDays : isSicily ? sicilyDays : cityItineraries[destinationKey] ?? null) : null;
     const locationDay = locationDays && index < locationDays.length ? locationDays[index] : null;
     return {
       day: index + 1,
@@ -613,7 +620,7 @@ export default function Home() {
         <div className="v2-discovery-grid">
           <button type="button" className={selectedMood === "Puteaux, France" ? "v2-discovery-card v2-discovery-coast v2-discovery-card-selected" : "v2-discovery-card v2-discovery-coast"} aria-pressed={selectedMood === "Puteaux, France"} onClick={() => chooseMood("Puteaux, France", "Slow escape")} aria-label="Find your calm in Puteaux, France">
             <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">01 / SLOW DOWN</span>
-            <span className="v2-discovery-card-copy"><strong>Find your calm.</strong><small>A quieter side of Paris. Room to breathe, slow mornings, and space for yourself.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
+            <span className="v2-discovery-card-copy"><strong>Find your calm.</strong><span className="v2-discovery-place">Puteaux, France</span><small>A quieter side of Paris. Riverside walks, green spaces, and slower moments.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
           </button>
           <button type="button" className={selectedMood === "Dolomites, Italy" ? "v2-discovery-card v2-discovery-wild v2-discovery-card-selected" : "v2-discovery-card v2-discovery-wild"} aria-pressed={selectedMood === "Dolomites, Italy"} onClick={() => chooseMood("Dolomites, Italy", "Nature & outdoors")} aria-label="Discover an outdoor adventure in the Dolomites">
             <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">02 / GO FURTHER</span>
