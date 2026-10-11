@@ -1,5 +1,4 @@
 interface Env {
-  GEMINI_API_KEY: string;
   GROQ_API_KEY: string;
 }
 
@@ -113,7 +112,7 @@ export default {
       }, 200, origin);
     }
     if (origin && !allowedOrigins.has(origin)) return json({ error: "Origin not allowed." }, 403, origin);
-    if (!env.GROQ_API_KEY && !env.GEMINI_API_KEY) return json({ error: "The travel planner is being prepared. Please try again later." }, 503, origin);
+    if (!env.GROQ_API_KEY) return json({ error: "The travel planner is being prepared. Please try again later." }, 503, origin);
 
     const contentLength = Number(request.headers.get("Content-Length") || 0);
     if (contentLength > 12_000) return json({ error: "Your trip request is too long. Please shorten it and try again." }, 413, origin);
@@ -154,7 +153,7 @@ export default {
               "Authorization": "Bearer " + env.GROQ_API_KEY,
             },
             body: JSON.stringify({
-              model: "llama-3.3-70b-versatile",
+              model: "openai/gpt-oss-120b",
               messages: [
                 { role: "system", content: "Return only valid JSON. Do not use markdown." },
                 { role: "user", content: prompt },
@@ -172,32 +171,6 @@ export default {
           } else {
             console.error("Groq API returned", upstream.status, raw.slice(0, 400));
           }
-        } finally {
-          clearTimeout(timeout);
-        }
-      }
-
-      if (!outputText && env.GEMINI_API_KEY) {
-        provider = "gemini";
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 35_000);
-        try {
-          const upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key": env.GEMINI_API_KEY,
-            },
-            body: JSON.stringify({ model: "gemini-3.8-flash", input: prompt }),
-            signal: controller.signal,
-          });
-          const raw = await upstream.text();
-          if (!upstream.ok) {
-            console.error("Gemini fallback returned", upstream.status, raw.slice(0, 400));
-            if (upstream.status === 429) return json({ error: "The AI planner is busy or its usage limit was reached. Please try again later." }, 429, origin);
-            return json({ error: "The AI service could not complete this trip. Please try again shortly." }, 502, origin);
-          }
-          outputText = extractText(JSON.parse(raw));
         } finally {
           clearTimeout(timeout);
         }
