@@ -44,6 +44,9 @@ jobs:
             await mobile.waitForTimeout(2000);
             assert((await mobile.title()).toLowerCase().includes('vyaj'), 'Page title does not identify VYAJ');
             assert(await mobile.locator('#destination-input').count() === 1, 'Trip builder destination field is missing');
+            assert(await mobile.locator('#discover').count() === 1, 'Travel discovery section is missing');
+            assert(await mobile.getByRole('heading', { name: /find the trip/i }).count() === 1, 'Discovery-first hero headline is missing');
+            assert(await mobile.locator('.v2-discovery-card').count() === 3, 'Expected three interactive discovery cards');
             const mobileMetrics = await mobile.evaluate(() => ({
               viewport: window.innerWidth,
               page: document.documentElement.scrollWidth,
@@ -52,6 +55,10 @@ jobs:
             console.log('Mobile layout metrics:', JSON.stringify(mobileMetrics));
             assert(mobileMetrics.page <= mobileMetrics.viewport + 2, `Horizontal overflow on mobile: ${mobileMetrics.page}px page vs ${mobileMetrics.viewport}px viewport`);
             await mobile.screenshot({ path: 'artifacts/vyaj-mobile.png', fullPage: true });
+            await mobile.locator('.v2-discovery-card').first().click();
+            assert((await mobile.locator('#destination-input').inputValue()).includes('Madeira'), 'Choosing a discovery card did not prefill its destination');
+            assert(await mobile.locator('.v2-style-option.v2-selected').innerText() === 'Nature & outdoors', 'Choosing a discovery card did not set the trip style');
+            console.log('Mobile discovery cards correctly prefill destination and travel style.');
             await mobile.close();
 
             const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 });
