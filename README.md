@@ -16,7 +16,7 @@ VYAJ is a premium travel-planning experience built with Next.js, React, and Type
 Browser (GitHub Pages / vyaj.eu)
   └── lib/api.ts
        └── NEXT_PUBLIC_VYAJ_API_URL
-            └── Cloudflare Worker (worker/index.ts)
+            └── Cloudflare Worker (worker/index.js)
                  └── Groq API (server-side GROQ_API_KEY)
 ```
 
@@ -40,7 +40,7 @@ The website runs at `http://localhost:3000`. Without the Worker URL, the planner
 Set the GitHub Actions repository variable:
 
 - Name: `NEXT_PUBLIC_VYAJ_API_URL`
-- Value: the base URL of your deployed Cloudflare Worker, for example `https://vyaj-ai-api.<your-account>.workers.dev` (use the actual URL shown by Cloudflare; do not guess it).
+- Value: the base URL of your deployed Cloudflare Worker, for example `https://vyaj-travel-api.kholymad.workers.dev` (use the actual URL shown by Cloudflare; do not guess it).
 
 Path suffixes are added by the API client. Do not include `/api` in the variable.
 
@@ -61,9 +61,9 @@ npx wrangler secret put GROQ_API_KEY
 npx wrangler deploy
 ```
 
-Run these commands from the repository root. Wrangler uses `wrangler.toml` and deploys `worker/index.ts`. Enter the key only at Wrangler's interactive prompt. Never commit it to the repository.
+Run these commands from the repository root. Wrangler uses `wrangler.toml` and deploys `worker/index.js`. Enter the key only at Wrangler's interactive prompt. Never commit it to the repository.
 
-Allowed browser origins are explicitly listed in `worker/index.ts`; update that list deliberately if the production domain changes.
+Allowed browser origins are explicitly listed in `worker/index.js`; update that list deliberately if the production domain changes.
 
 ## API contract
 
