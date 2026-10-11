@@ -65,3 +65,6 @@
 .v2-result-aside ul{padding-left:18px;margin:12px 0;color:#52697d;font-size:11px;line-height:1.8}
 .v2-result-aside li+li{margin-top:7px}
 @media(prefers-reduced-motion:reduce){.v2-loading-sparkle{animation:none}}
+
+/* Prevent iOS Safari from auto-zooming when form fields receive focus. */
+@media (max-width: 720px){.v2-field input,.v2-field select{font-size:16px}}
