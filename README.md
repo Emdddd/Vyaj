@@ -7,7 +7,7 @@ VYAJ is a premium travel-planning experience built with Next.js, React, and Type
 - Responsive VYAJ landing experience with destination inspiration, FAQs, and waitlist UI.
 - Trip-planner modal with validated required destination, THINKING status, real API request, actual itinerary rendering on confirmed API success, and a separate Coming Soon result for explicit `coming_soon` responses.
 - Central typed API client in `lib/api.ts`, including a request timeout and user-safe network/API errors.
-- Versioned Worker action contracts. The trip planner calls the Gemini API server-side; the other registered actions explicitly return `coming_soon` until implemented.
+- Versioned Worker action contracts. The trip planner calls the Groq API server-side; the other registered actions explicitly return `coming_soon` until implemented.
 - API secrets are read only by the Worker, not exposed as `NEXT_PUBLIC_*` values.
 
 ## Architecture
@@ -134,7 +134,7 @@ GitHub Actions builds the static export and deploys it to GitHub Pages on pushes
 ## Known limitations — be explicit
 
 - Group collaboration, voting, notifications, destination search, itinerary adjustment, and invitations are API stubs returning `coming_soon`; they are not implemented product operations yet.
-- The email waitlist form calls the API stub and truthfully reports Coming Soon; it does not persist addresses or send confirmation email.
+- The waitlist modal submits directly to the configured Formspree form ID (`xgaozoeg`). Code-level submission handling is present, but successful delivery has not been end-to-end verified; confirm it with a controlled test signup before launch.
 - Authentication, user accounts, persistent trips, database storage, invitation delivery, and production-grade rate limiting are not implemented.
 - No live booking, real-time prices, opening hours, or transport availability are connected.
 - The Worker currently has CORS/origin checks, request size/field limits, and an upstream timeout, but CORS is not authentication and is not a substitute for rate limiting. Add an edge rate-limit rule before promoting the AI endpoint to broad public use.
