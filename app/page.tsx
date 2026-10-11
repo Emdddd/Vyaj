@@ -611,9 +611,9 @@ export default function Home() {
           <p>You don’t need a destination yet. Start with a feeling — VYAJ will help you find the rest.</p>
         </div>
         <div className="v2-discovery-grid">
-          <button type="button" className={selectedMood === "Madeira, Portugal" ? "v2-discovery-card v2-discovery-coast v2-discovery-card-selected" : "v2-discovery-card v2-discovery-coast"} aria-pressed={selectedMood === "Madeira, Portugal"} onClick={() => chooseMood("Madeira, Portugal", "Nature & outdoors")} aria-label="Discover a slow coastal escape in Madeira">
-            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">01 / SLOW ESCAPE</span>
-            <span className="v2-discovery-card-copy"><strong>Exhale.</strong><small>Ocean air. No rush. Room to reset.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
+          <button type="button" className={selectedMood === "Puteaux, France" ? "v2-discovery-card v2-discovery-coast v2-discovery-card-selected" : "v2-discovery-card v2-discovery-coast"} aria-pressed={selectedMood === "Puteaux, France"} onClick={() => chooseMood("Puteaux, France", "Slow escape")} aria-label="Find your calm in Puteaux, France">
+            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">01 / SLOW DOWN</span>
+            <span className="v2-discovery-card-copy"><strong>Find your calm.</strong><small>A quieter side of Paris. Room to breathe, slow mornings, and space for yourself.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
           </button>
           <button type="button" className={selectedMood === "Dolomites, Italy" ? "v2-discovery-card v2-discovery-wild v2-discovery-card-selected" : "v2-discovery-card v2-discovery-wild"} aria-pressed={selectedMood === "Dolomites, Italy"} onClick={() => chooseMood("Dolomites, Italy", "Nature & outdoors")} aria-label="Discover an outdoor adventure in the Dolomites">
             <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">02 / GO FURTHER</span>
