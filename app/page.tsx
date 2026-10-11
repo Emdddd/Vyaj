@@ -544,6 +544,15 @@ export default function Home() {
     document.getElementById("trip-builder")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
+  function chooseMood(value: string, nextStyle: TripStyle) {
+    setDestination(value);
+    setStyle(nextStyle);
+    setResultReady(false);
+    setAiItinerary(null);
+    setError("");
+    document.getElementById("trip-builder")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
   return (
     <main className="v2-site">
       <header className="v2-header">
@@ -560,19 +569,45 @@ export default function Home() {
       <section className="v2-hero" id="top">
         <div className="v2-hero-image" aria-hidden="true" />
         <div className="v2-hero-overlay" aria-hidden="true" />
+        <div className="v2-hero-grain" aria-hidden="true" />
         <div className="v2-hero-content">
-          <div className="v2-eyebrow v2-eyebrow-light"><span className="v2-status-dot" /> YOUR NEXT TRIP, MADE CLEARER</div>
-          <h1>Less planning.<br/><span>More going.</span></h1>
-          <p className="v2-hero-lead">Turn a destination, a budget and a few days into a trip you can picture.</p>
-          <a className="v2-button v2-button-bright" href="#trip-builder">Build my trip <ArrowUpRight size={17}/></a>
-          <div className="v2-hero-foot"><span><Sparkles size={14}/> A simpler way to shape your next getaway</span><a href="#trip-builder">Try the interactive demo <ArrowDown size={14}/></a></div>
+          <div className="v2-eyebrow v2-eyebrow-light"><span className="v2-status-dot" /> YOUR WORLD IS WAITING</div>
+          <h1>Find the trip<br/>you didn’t know<br/><span>you needed.</span></h1>
+          <p className="v2-hero-lead">Tell VYAJ what you’re craving. Discover a trip that feels like you — then turn it into a plan.</p>
+          <div className="v2-hero-actions">
+            <a className="v2-button v2-button-bright" href="#discover">Discover my next trip <ArrowUpRight size={17}/></a>
+            <a className="v2-hero-secondary" href="#trip-builder">I know where I’m going <ArrowDown size={15}/></a>
+          </div>
+          <div className="v2-hero-foot"><span><Sparkles size={14}/> Inspiration first. Your plan next.</span><span className="v2-hero-proof"><span className="v2-proof-line"/> Made around you</span></div>
         </div>
         <div className="v2-hero-card" aria-label="A preview of the VYAJ trip planning experience">
-          <div className="v2-hero-card-top"><span className="v2-card-kicker">A TRIP, TAKING SHAPE</span><span className="v2-hero-live-dot" /> <span className="v2-hero-live-label">YOUR WAY</span></div>
-          <div className="v2-hero-mini-destination"><div className="v2-hero-mini-icon"><Compass size={18}/></div><div><strong>Somewhere wonderful</strong><span>Made around you, not a template</span></div></div>
+          <div className="v2-hero-card-top"><span className="v2-card-kicker">YOUR NEXT POSSIBILITY</span><span className="v2-hero-live-dot" /> <span className="v2-hero-live-label">READY TO DISCOVER</span></div>
+          <div className="v2-hero-mini-destination"><div className="v2-hero-mini-icon"><Compass size={18}/></div><div><strong>Not just a destination.</strong><span>A feeling, turned into a journey.</span></div></div>
           <div className="v2-hero-mini-route"><span /><span /><span /></div>
-          <div className="v2-hero-mini-stats"><div><span>01</span><small>Your pace</small></div><div><span>02</span><small>Your budget</small></div><div><span>03</span><small>Your days</small></div></div>
+          <div className="v2-hero-mini-stats"><div><span>01</span><small>Discover</small></div><div><span>02</span><small>Personalise</small></div><div><span>03</span><small>Go</small></div></div>
         </div>
+      </section>
+
+      <section className="v2-discovery v2-section" id="discover" aria-labelledby="v2-discovery-title">
+        <div className="v2-discovery-heading">
+          <div><div className="v2-eyebrow"><span>01</span><i/> FIND YOUR KIND OF ESCAPE</div><h2 id="v2-discovery-title">What are you<br/><em>craving?</em></h2></div>
+          <p>You don’t need a destination yet. Start with a feeling — VYAJ will help you find the rest.</p>
+        </div>
+        <div className="v2-discovery-grid">
+          <button type="button" className="v2-discovery-card v2-discovery-coast" onClick={() => chooseMood("Madeira, Portugal", "Nature & outdoors")} aria-label="Discover a slow coastal escape in Madeira">
+            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">01 / SLOW ESCAPE</span>
+            <span className="v2-discovery-card-copy"><strong>Exhale.</strong><small>Ocean air. No rush. Room to reset.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
+          </button>
+          <button type="button" className="v2-discovery-card v2-discovery-wild" onClick={() => chooseMood("Dolomites, Italy", "Nature & outdoors")} aria-label="Discover an outdoor adventure in the Dolomites">
+            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">02 / GO FURTHER</span>
+            <span className="v2-discovery-card-copy"><strong>Feel alive.</strong><small>Big views. Fresh air. New stories.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
+          </button>
+          <button type="button" className="v2-discovery-card v2-discovery-culture" onClick={() => chooseMood("Lisbon, Portugal", "Food & culture")} aria-label="Discover a food and culture escape in Lisbon">
+            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">03 / GET LOST IN CULTURE</span>
+            <span className="v2-discovery-card-copy"><strong>Follow curiosity.</strong><small>Hidden streets. Local flavours. Slow nights.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
+          </button>
+        </div>
+        <p className="v2-discovery-note"><Sparkles size={14}/> Pick a feeling to start a personalised trip plan.</p>
       </section>
 
       <section className="v2-builder v2-section" id="trip-builder">
