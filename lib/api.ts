@@ -48,7 +48,7 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE = (process.env.NEXT_PUBLIC_VYAJ_API_URL || "").replace(/\/$/, "");
+const API_BASE = (process.env.NEXT_PUBLIC_VYAJ_API_URL || "https://vyaj-travel-api.kholymad.workers.dev").replace(/\/$/, "");
 const REQUEST_TIMEOUT_MS = 28_000;
 
 export async function postAction<T>(
