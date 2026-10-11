@@ -75,8 +75,11 @@ jobs:
               return !!builder && builder.getBoundingClientRect().top < window.innerHeight;
             }, { timeout: 10000 }).catch(() => {});
             assert(await mobile.locator('#trip-builder').evaluate(el => el.getBoundingClientRect().top < window.innerHeight), 'Clicking a discovery card did not bring the trip builder into view');
+            await mobile.locator('.v2-discovery-card').nth(1).click();
+            assert((await mobile.locator('#destination-input').inputValue()).includes('Valletta'), 'Choosing the Malta card did not prefill Valletta');
+            assert(await mobile.locator('.v2-style-option.v2-selected').innerText() === 'Food & culture', 'Choosing the Malta card did not set the trip style');
             await mobile.locator('.v2-discovery-card').nth(2).click();
-            assert((await mobile.locator('#destination-input').inputValue()).includes('Lisbon'), 'Choosing the culture card did not prefill Lisbon');
+            assert((await mobile.locator('#destination-input').inputValue()).includes('Rome'), 'Choosing the Italy card did not prefill Rome');
             assert(await mobile.locator('.v2-style-option.v2-selected').innerText() === 'Food & culture', 'Choosing the culture card did not set the trip style');
             assert(await mobile.locator('.v2-discovery-card').nth(2).getAttribute('aria-pressed') === 'true', 'The newly selected card is not marked selected');
             console.log('Mobile discovery cards correctly prefill destination and travel style, scroll to the builder, and expose the selected state.');
