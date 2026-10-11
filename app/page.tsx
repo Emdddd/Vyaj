@@ -567,11 +567,11 @@ export default function Home() {
           <a className="v2-button v2-button-bright" href="#trip-builder">Build my trip <ArrowUpRight size={17}/></a>
           <div className="v2-hero-foot"><span><Sparkles size={14}/> A simpler way to shape your next getaway</span><a href="#trip-builder">Try the interactive demo <ArrowDown size={14}/></a></div>
         </div>
-        <div className="v2-hero-card">
-          <span className="v2-card-kicker">YOUR TRIP STARTS WITH</span>
-          <div><MapPin size={16}/><span>A place you want to see</span></div>
-          <div><Compass size={16}/><span>A budget that feels right</span></div>
-          <div><Clock3 size={16}/><span>Time to make it yours</span></div>
+        <div className="v2-hero-card" aria-label="A preview of the VYAJ trip planning experience">
+          <div className="v2-hero-card-top"><span className="v2-card-kicker">A TRIP, TAKING SHAPE</span><span className="v2-hero-live-dot" /> <span className="v2-hero-live-label">YOUR WAY</span></div>
+          <div className="v2-hero-mini-destination"><div className="v2-hero-mini-icon"><Compass size={18}/></div><div><strong>Somewhere wonderful</strong><span>Made around you, not a template</span></div></div>
+          <div className="v2-hero-mini-route"><span /><span /><span /></div>
+          <div className="v2-hero-mini-stats"><div><span>01</span><small>Your pace</small></div><div><span>02</span><small>Your budget</small></div><div><span>03</span><small>Your days</small></div></div>
         </div>
       </section>
 
