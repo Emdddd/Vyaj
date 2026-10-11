@@ -207,7 +207,7 @@ export default function Home() {
         if (!cancelled) setAirportLoading(false);
       });
     return () => { cancelled = true; };
-  }, [airportMenuOpen, airportList.length, airportLoading]);
+  }, [airportMenuOpen, airportList.length]);
 
   const filteredAirports = useMemo(() => {
     const query = airportSearch.trim().toLowerCase();
