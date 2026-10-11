@@ -33,7 +33,10 @@ async function handle(request, env) {
     "Never invent exact opening hours, live prices, live availability, transport timetables or reservations. Label costs as estimates, keep routes geographically sensible, include downtime, and do not claim live checks. If the destination is ambiguous, state the assumption."
   ].join("\n");
   try {
-    const response=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+env.GROQ_API_KEY},body:JSON.stringify({model:"openai/gpt-oss-120b",messages:[{role:"system",content:"Return only valid JSON, without markdown."},{role:"user",content:prompt}],temperature:0.2,max_tokens:4000,response_format:{type:"json_object"}}),signal:AbortSignal.timeout(30000)});
+    const upstreamUrl="https://api.groq.com/openai/v1/chat/completions";
+    const upstreamOptions={method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+env.GROQ_API_KEY},body:JSON.stringify({model:"openai/gpt-oss-120b",messages:[{role:"system",content:"Return only valid JSON, without markdown."},{role:"user",content:prompt}],temperature:0.2,max_tokens:4000,response_format:{type:"json_object"}}),signal:AbortSignal.timeout(30000)};
+    let response=await fetch(upstreamUrl,upstreamOptions);
+    if(response.status>=500&&response.status<=599){await new Promise(resolve=>setTimeout(resolve,600));response=await fetch(upstreamUrl,upstreamOptions);}
     if(!response.ok){const detail=await response.text();console.error("Groq API error",response.status,detail.slice(0,500));return respond({error:response.status===429?"The AI planner is busy or its usage limit was reached. Please try again shortly.":"The AI service could not complete this trip. Please try again shortly."},response.status===429?429:502);}
     const result=await response.json(), output=result.choices&&result.choices[0]&&result.choices[0].message?result.choices[0].message.content:"";
     const first=output.indexOf("{"),last=output.lastIndexOf("}");if(first<0||last<=first)throw new Error("Invalid AI JSON");
