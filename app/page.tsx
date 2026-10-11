@@ -245,7 +245,7 @@ export default function Home() {
   }, [destination]);
   const dayCount = Number(days);
   const isSicily = /sicily|sicilia|palermo/i.test(destination);
-  const isMalta = /\\bmalta\\b|valletta|mdina|gozo|birgu/i.test(destination);
+  const isMalta = /\bmalta\b|valletta|mdina|gozo|birgu/i.test(destination);
   const maltaDays = [
     { title: "Valletta: history & first flavours", focus: "Explore Malta’s capital on foot, from grand architecture to local food.", activities: [["09:30", "Walk Republic Street and explore Valletta’s historic centre"], ["12:30", "Visit St John’s Co-Cathedral if open; check ticket details before visiting"], ["18:00", "Enjoy harbour views from the Upper Barrakka Gardens, then try a Maltese dinner"]] },
     { title: "Mdina & Rabat: the old island", focus: "Medieval lanes, historic sights and traditional Maltese tastes.", activities: [["09:00", "Explore Mdina’s quiet streets and bastions"], ["12:00", "Walk into Rabat and choose a local café for lunch"], ["15:00", "Visit St Paul’s Catacombs or another local heritage site if open"], ["18:00", "Return at a relaxed pace and leave the evening flexible"]] },
