@@ -728,3 +728,44 @@ html, body {
   }
 }
 
+
+
+/* VYAJ preview compass: subtle premium orbital motion */
+@keyframes v2-compass-float {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+  50% { transform: translate3d(0, -5px, 0) rotate(4deg); }
+}
+@keyframes v2-orbit-ring {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes v2-orbit-dot {
+  from { transform: rotate(0deg) translateX(37px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(37px) rotate(-360deg); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .v2-preview-orbit {
+    animation: v2-compass-float 4.8s ease-in-out infinite;
+    transform-origin: 50% 50%;
+  }
+  .v2-preview-orbit:before {
+    animation: v2-orbit-ring 18s linear infinite;
+    transform-origin: 50% 50%;
+  }
+  .v2-preview-orbit span {
+    animation: v2-orbit-ring 12s linear infinite reverse;
+    transform-origin: 50% 50%;
+  }
+  .v2-preview-orbit i {
+    animation: v2-orbit-dot 7s linear infinite;
+    transform-origin: -25px 25px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v2-preview-orbit,
+  .v2-preview-orbit:before,
+  .v2-preview-orbit span,
+  .v2-preview-orbit i {
+    animation: none !important;
+  }
+}
