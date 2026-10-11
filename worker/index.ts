@@ -1,5 +1,6 @@
 interface Env {
   GEMINI_API_KEY: string;
+  GROQ_API_KEY: string;
 }
 
 const allowedOrigins = new Set([
@@ -112,7 +113,7 @@ export default {
       }, 200, origin);
     }
     if (origin && !allowedOrigins.has(origin)) return json({ error: "Origin not allowed." }, 403, origin);
-    if (!env.GEMINI_API_KEY) return json({ error: "The travel planner is being prepared. Please try again later." }, 503, origin);
+    if (!env.GROQ_API_KEY && !env.GEMINI_API_KEY) return json({ error: "The travel planner is being prepared. Please try again later." }, 503, origin);
 
     const contentLength = Number(request.headers.get("Content-Length") || 0);
     if (contentLength > 12_000) return json({ error: "Your trip request is too long. Please shorten it and try again." }, 413, origin);
@@ -131,38 +132,79 @@ export default {
     const notes = typeof body?.notes === "string" ? body.notes.trim().slice(0, 1200) : "";
     if (!destination) return json({ error: "Tell us where you would like to go, or enter 'Surprise me'." }, 400, origin);
 
-    const prompt = "You are VYAJ, a thoughtful travel-planning assistant. Create a useful, realistic starter itinerary based on these traveller details.\n" +
-      "Destination: " + destination + "\nTrip length: " + duration + "\nTravellers: " + travellers +
-      "\nTravel style: " + style + "\nAdditional wishes: " + (notes || "None provided") + "\n\n" +
+    const prompt = "You are VYAJ, a thoughtful travel-planning assistant. Create a useful, realistic starter itinerary based on these traveller details.\\n" +
+      "Destination: " + destination + "\\nTrip length: " + duration + "\\nTravellers: " + travellers +
+      "\\nTravel style: " + style + "\\nAdditional wishes: " + (notes || "None provided") + "\\n\\n" +
       "Return ONLY valid JSON, with no markdown and no text outside JSON, using exactly this shape: " +
       '{"tripTitle":"Short evocative title","destination":"Destination","overview":"2–3 sentence trip overview","days":[{"day":1,"title":"Day theme","summary":"Short explanation of the day","activities":[{"time":"09:30","title":"Activity name","description":"What to do and why it fits","location":"Place or neighbourhood","estimatedCost":"€0–€15 per person"}]}],"estimatedBudget":{"currency":"EUR","perPerson":"Estimated range excluding flights","notes":"Explain assumptions and exclusions"},"tips":["Practical tip"],"assumptions":["Important uncertainty"]}' +
-      "\nGenerate 2–4 activities per day and one day object per trip day where feasible; for very long trips, give a useful first 7-day outline and say so in assumptions. Never invent exact opening hours, current prices, live availability, transport timetables, or reservations. Label costs as estimates. If the destination is ambiguous, state your assumption. Keep travel geographically sensible, avoid impossible schedules, include downtime, and don't claim you checked live information. Use concise, specific descriptions.";
+      "\\nGenerate 2–3 activities per day and one day object per trip day where feasible; for very long trips, give a useful first 7-day outline and say so in assumptions. Never invent exact opening hours, current prices, live availability, transport timetables, or reservations. Label costs as estimates. If the destination is ambiguous, state your assumption. Keep travel geographically sensible, avoid impossible schedules, include downtime, and don't claim you checked live information. Use concise, specific descriptions.";
 
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 55_000);
-      const upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": env.GEMINI_API_KEY,
-        },
-        body: JSON.stringify({ model: "gemini-3.8-flash", input: prompt }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-      const raw = await upstream.text();
-      if (!upstream.ok) {
-        console.error("Gemini API returned", upstream.status, raw.slice(0, 500));
-        if (upstream.status === 429) return json({ error: "The AI planner is busy or its usage limit was reached. Please try again later." }, 429, origin);
-        if (upstream.status === 401 || upstream.status === 403) return json({ error: "The Gemini API key or its permissions need checking in Google AI Studio." }, 502, origin);
-        return json({ error: "The AI service could not complete this trip. Please try again shortly." }, 502, origin);
+      let outputText = "";
+      let provider = "groq";
+      if (env.GROQ_API_KEY) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 25_000);
+        try {
+          const upstream = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + env.GROQ_API_KEY,
+            },
+            body: JSON.stringify({
+              model: "llama-3.3-70b-versatile",
+              messages: [
+                { role: "system", content: "Return only valid JSON. Do not use markdown." },
+                { role: "user", content: prompt },
+              ],
+              temperature: 0.2,
+              max_tokens: 3000,
+              response_format: { type: "json_object" },
+            }),
+            signal: controller.signal,
+          });
+          const raw = await upstream.text();
+          if (upstream.ok) {
+            const payload = JSON.parse(raw);
+            outputText = payload?.choices?.[0]?.message?.content ?? "";
+          } else {
+            console.error("Groq API returned", upstream.status, raw.slice(0, 400));
+          }
+        } finally {
+          clearTimeout(timeout);
+        }
       }
-      const payload = JSON.parse(raw);
-      const outputText = extractText(payload);
+
+      if (!outputText && env.GEMINI_API_KEY) {
+        provider = "gemini";
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 35_000);
+        try {
+          const upstream = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": env.GEMINI_API_KEY,
+            },
+            body: JSON.stringify({ model: "gemini-3.8-flash", input: prompt }),
+            signal: controller.signal,
+          });
+          const raw = await upstream.text();
+          if (!upstream.ok) {
+            console.error("Gemini fallback returned", upstream.status, raw.slice(0, 400));
+            if (upstream.status === 429) return json({ error: "The AI planner is busy or its usage limit was reached. Please try again later." }, 429, origin);
+            return json({ error: "The AI service could not complete this trip. Please try again shortly." }, 502, origin);
+          }
+          outputText = extractText(JSON.parse(raw));
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+
       const itinerary = parseJson(outputText);
       if (!itinerary?.tripTitle || !Array.isArray(itinerary?.days)) throw new Error("Unexpected itinerary shape");
-      return json({ status: "available", feature: "plan-trip", itinerary }, 200, origin);
+      return json({ status: "available", feature: "plan-trip", itinerary, provider }, 200, origin);
     } catch (error) {
       console.error("Trip planning failed", error instanceof Error ? error.message : String(error));
       if (error instanceof Error && error.name === "AbortError") return json({ error: "The planner took too long. Please try again." }, 504, origin);
