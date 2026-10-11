@@ -769,3 +769,18 @@ html, body {
     animation: none !important;
   }
 }
+
+
+/* Keep the orbiting accent anchored to the compass centre */
+@media (prefers-reduced-motion: no-preference) {
+  .v2-preview-orbit i {
+    top: calc(50% - 2.5px);
+    right: auto;
+    left: calc(50% - 2.5px);
+    transform-origin: center;
+  }
+}
+@keyframes v2-orbit-dot {
+  from { transform: rotate(0deg) translateX(37px); }
+  to { transform: rotate(360deg) translateX(37px); }
+}
