@@ -410,7 +410,11 @@ export default function Home() {
             perPerson: budgetValue,
             notes: budgetNotes,
           },
-          tips: safeList(raw.tips),
+          tips: safeList(raw.tips).length ? safeList(raw.tips) : [
+            "Check current opening hours and reserve timed-entry attractions before you go.",
+            "Keep some flexibility between activities and verify local transport routes on the day.",
+            "Treat all listed prices as estimates; confirm costs and payment requirements before booking.",
+          ],
           assumptions: safeList(raw.assumptions),
         };
         if (!normalized.days.length) {
