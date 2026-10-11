@@ -696,3 +696,35 @@ html, body {
   .v2-builder { padding-top: 58px; }
 }
 
+/* Tighten the mobile hero-to-discovery transition; remove dead space */
+@media (max-width: 720px) {
+  .v2-hero {
+    min-height: 0 !important;
+    padding-top: 62px !important;
+    padding-bottom: 24px !important;
+    overflow: hidden;
+  }
+  .v2-hero-card {
+    margin-top: 22px !important;
+    margin-bottom: 0 !important;
+  }
+  .v2-hero-foot {
+    margin-top: 24px !important;
+  }
+  .v2-discovery {
+    padding-top: 34px !important;
+    padding-bottom: 18px !important;
+  }
+  .v2-discovery-heading {
+    margin-bottom: 20px !important;
+  }
+}
+@media (min-width: 721px) {
+  .v2-hero {
+    min-height: min(720px, calc(100svh - 82px));
+  }
+  .v2-discovery {
+    padding-top: 58px !important;
+  }
+}
+
