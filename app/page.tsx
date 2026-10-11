@@ -164,6 +164,11 @@ function money(value: string) {
 export default function Home() {
   const [destination, setDestination] = useState("Sicily, Italy");
   const [departureCity, setDepartureCity] = useState("");
+  const [airportList, setAirportList] = useState<Array<{ iata?: string; icao?: string; name?: string; city?: string; country?: string }>>([]);
+  const [airportSearch, setAirportSearch] = useState("");
+  const [airportMenuOpen, setAirportMenuOpen] = useState(false);
+  const [airportLoading, setAirportLoading] = useState(false);
+  const [airportLoadError, setAirportLoadError] = useState("");
   const [days, setDays] = useState("4");
   const [budget, setBudget] = useState("€600");
   const [travellers, setTravellers] = useState("2");
@@ -177,6 +182,42 @@ export default function Home() {
   const [destinationFocused, setDestinationFocused] = useState(false);
 
   const tripIdea = useMemo(() => demoIdeas[style], [style]);
+  useEffect(() => {
+    if (!airportMenuOpen || airportList.length || airportLoading) return;
+    let cancelled = false;
+    setAirportLoading(true);
+    setAirportLoadError("");
+    fetch("https://aerocodes.org/data/airports.json")
+      .then(response => {
+        if (!response.ok) throw new Error("Airport list unavailable");
+        return response.json();
+      })
+      .then((data: unknown) => {
+        if (cancelled) return;
+        const rows = Array.isArray(data) ? data : [];
+        const airports = rows.filter((item): item is { iata?: string; icao?: string; name?: string; city?: string; country?: string } =>
+          Boolean(item && typeof item === "object" && typeof (item as { iata?: unknown }).iata === "string" && typeof (item as { name?: unknown }).name === "string")
+        );
+        setAirportList(airports);
+      })
+      .catch(() => {
+        if (!cancelled) setAirportLoadError("Couldn’t load the airport list. Check your connection and try again.");
+      })
+      .finally(() => {
+        if (!cancelled) setAirportLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [airportMenuOpen, airportList.length, airportLoading]);
+
+  const filteredAirports = useMemo(() => {
+    const query = airportSearch.trim().toLowerCase();
+    const matching = airportList.filter(airport => {
+      const haystack = [airport.iata, airport.icao, airport.name, airport.city, airport.country].filter(Boolean).join(" ").toLowerCase();
+      return !query || haystack.includes(query);
+    });
+    return matching.slice(0, 30);
+  }, [airportList, airportSearch]);
+
   const filteredDestinations = useMemo(() => {
     const query = destination.trim().toLocaleLowerCase();
     const matches = destinationHints.filter(item => !query || item.name.toLocaleLowerCase().includes(query) || item.country.toLocaleLowerCase().includes(query) || item.text.toLocaleLowerCase().includes(query));
@@ -496,7 +537,36 @@ export default function Home() {
         <form className="v2-builder-card" onSubmit={buildTrip}>
           <div className="v2-builder-top"><div><span className="v2-small-label">VYAJ TRIP BUILDER</span><h3>Where to next?</h3></div><span className="v2-demo-tag">DEMO</span></div>
           <div className="v2-field v2-destination-field"><label htmlFor="destination-input"><span>Destination</span></label><div className="v2-destination-input-wrap"><MapPin size={17} aria-hidden="true"/><input id="destination-input" value={destination} onFocus={() => setDestinationFocused(true)} onBlur={() => window.setTimeout(() => setDestinationFocused(false), 140)} onChange={event => { setDestination(event.target.value); setResultReady(false); setAiItinerary(null); setError(""); setDestinationFocused(true); }} placeholder="Search any city or destination" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={destinationFocused && filteredDestinations.length > 0} aria-controls="destination-suggestions" required/><button type="button" className="v2-destination-clear" aria-label="Clear destination" onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(""); setResultReady(false); setAiItinerary(null); setDestinationFocused(true); document.getElementById("destination-input")?.focus(); }}>×</button></div>{destinationFocused && filteredDestinations.length > 0 && <div className="v2-destination-suggestions" id="destination-suggestions" role="listbox" aria-label="Popular destinations">{filteredDestinations.map(item => <button type="button" role="option" aria-selected={destination === item.name} className="v2-destination-suggestion" key={item.name} onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(item.name); setResultReady(false); setError(""); setDestinationFocused(false); }}><span className="v2-destination-pin"><MapPin size={15}/></span><span className="v2-destination-copy"><strong>{item.name}</strong><small>{item.text}</small></span><ArrowUpRight size={14} className="v2-destination-arrow"/></button>)}</div>}<small>Choose a suggestion or type any destination. Suggestions are curated examples, not live search results.</small></div>
-          <div className="v2-field"><label htmlFor="departure-city-input"><span>Flying from (for flight estimates)</span></label><input id="departure-city-input" value={departureCity} onChange={event => { setDepartureCity(event.target.value); setResultReady(false); setAiItinerary(null); }} placeholder="Enter departure city or airport (e.g. Malta)" autoComplete="address-level2"/><small>Optional, but needed for a useful flight-cost estimate. Leave blank to show flights as not estimated.</small></div>
+          <div className="v2-field v2-airport-field">
+            <label htmlFor="departure-city-input"><span>Flying from (for flight estimates)</span></label>
+            <input
+              id="departure-city-input"
+              value={airportMenuOpen ? airportSearch : departureCity}
+              onFocus={() => { setAirportSearch(""); setAirportMenuOpen(true); }}
+              onChange={event => { setAirportSearch(event.target.value); setDepartureCity(""); setAirportMenuOpen(true); setResultReady(false); setAiItinerary(null); }}
+              onBlur={() => window.setTimeout(() => setAirportMenuOpen(false), 160)}
+              placeholder="Search airport, city, country or IATA code"
+              autoComplete="off"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={airportMenuOpen}
+              aria-controls="departure-airport-suggestions"
+            />
+            {airportMenuOpen && <div className="v2-destination-suggestions v2-airport-suggestions" id="departure-airport-suggestions" role="listbox" aria-label="Worldwide departure airports">
+              {airportLoading && <p className="v2-airport-status">Loading worldwide airport list…</p>}
+              {!airportLoading && airportLoadError && <p className="v2-airport-status">{airportLoadError}</p>}
+              {!airportLoading && !airportLoadError && airportList.length > 0 && filteredAirports.map((airport, index) => {
+                const label = [airport.city, airport.country].filter(Boolean).join(", ");
+                const value = [label || airport.name, airport.iata ? "(" + airport.iata + ")" : "", airport.name && airport.name !== label ? "— " + airport.name : ""].filter(Boolean).join(" ");
+                return <button type="button" role="option" aria-selected={departureCity === value} className="v2-destination-suggestion" key={(airport.iata || airport.icao || airport.name || "airport") + "-" + index} onMouseDown={event => event.preventDefault()} onClick={() => { setDepartureCity(value); setAirportSearch(""); setAirportMenuOpen(false); setResultReady(false); setAiItinerary(null); }}>
+                  <span className="v2-destination-pin"><MapPin size={15}/></span><span className="v2-destination-copy"><strong>{label || airport.name} {airport.iata ? "· " + airport.iata : ""}</strong><small>{airport.name}{airport.icao ? " · " + airport.icao : ""}</small></span><ArrowUpRight size={14} className="v2-destination-arrow"/>
+                </button>;
+              })}
+              {!airportLoading && !airportLoadError && airportList.length > 0 && filteredAirports.length === 0 && <p className="v2-airport-status">No matching airports. Try a city name or airport code.</p>}
+              {!airportLoading && !airportLoadError && airportList.length === 0 && <p className="v2-airport-status">Start typing to search airports around the world.</p>}
+            </div>}
+            <small>Search worldwide commercial airports by airport name, city, country or IATA code. Optional, but needed for a flight estimate.</small>
+          </div>
           <div className="v2-form-grid">
             <label className="v2-field"><span>How many days?</span><select value={days} onChange={event => { setDays(event.target.value); setResultReady(false); setAiItinerary(null); }}>{["2","3","4","5","6","7"].map(value => <option key={value} value={value}>{value} days</option>)}</select></label>
             <label className="v2-field"><span>Travellers</span><select value={travellers} onChange={event => { setTravellers(event.target.value); setResultReady(false); setAiItinerary(null); }}>{["1","2","3","4","5+"].map(value => <option key={value} value={value}>{value === "1" ? "1 person" : value === "5+" ? "5+ people" : value + " people"}</option>)}</select></label>
