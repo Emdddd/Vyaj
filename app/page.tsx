@@ -182,6 +182,7 @@ export default function Home() {
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [destinationFocused, setDestinationFocused] = useState(false);
+  const [selectedMood, setSelectedMood] = useState("");
 
   useEffect(() => {
     if (!noticeOpen) return;
@@ -545,12 +546,19 @@ export default function Home() {
   }
 
   function chooseMood(value: string, nextStyle: TripStyle) {
+    setSelectedMood(value);
     setDestination(value);
     setStyle(nextStyle);
     setResultReady(false);
     setAiItinerary(null);
     setError("");
+    setDestinationFocused(false);
+    setMenuOpen(false);
     document.getElementById("trip-builder")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    window.setTimeout(() => {
+      const input = document.getElementById("destination-input");
+      if (input instanceof HTMLInputElement) input.focus({ preventScroll: true });
+    }, 450);
   }
 
   return (
@@ -594,15 +602,15 @@ export default function Home() {
           <p>You don’t need a destination yet. Start with a feeling — VYAJ will help you find the rest.</p>
         </div>
         <div className="v2-discovery-grid">
-          <button type="button" className="v2-discovery-card v2-discovery-coast" onClick={() => chooseMood("Madeira, Portugal", "Nature & outdoors")} aria-label="Discover a slow coastal escape in Madeira">
+          <button type="button" className={selectedMood === "Madeira, Portugal" ? "v2-discovery-card v2-discovery-coast v2-discovery-card-selected" : "v2-discovery-card v2-discovery-coast"} aria-pressed={selectedMood === "Madeira, Portugal"} onClick={() => chooseMood("Madeira, Portugal", "Nature & outdoors")} aria-label="Discover a slow coastal escape in Madeira">
             <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">01 / SLOW ESCAPE</span>
             <span className="v2-discovery-card-copy"><strong>Exhale.</strong><small>Ocean air. No rush. Room to reset.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
           </button>
-          <button type="button" className="v2-discovery-card v2-discovery-wild" onClick={() => chooseMood("Dolomites, Italy", "Nature & outdoors")} aria-label="Discover an outdoor adventure in the Dolomites">
+          <button type="button" className={selectedMood === "Dolomites, Italy" ? "v2-discovery-card v2-discovery-wild v2-discovery-card-selected" : "v2-discovery-card v2-discovery-wild"} aria-pressed={selectedMood === "Dolomites, Italy"} onClick={() => chooseMood("Dolomites, Italy", "Nature & outdoors")} aria-label="Discover an outdoor adventure in the Dolomites">
             <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">02 / GO FURTHER</span>
             <span className="v2-discovery-card-copy"><strong>Feel alive.</strong><small>Big views. Fresh air. New stories.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
           </button>
-          <button type="button" className="v2-discovery-card v2-discovery-culture" onClick={() => chooseMood("Lisbon, Portugal", "Food & culture")} aria-label="Discover a food and culture escape in Lisbon">
+          <button type="button" className={selectedMood === "Lisbon, Portugal" ? "v2-discovery-card v2-discovery-culture v2-discovery-card-selected" : "v2-discovery-card v2-discovery-culture"} aria-pressed={selectedMood === "Lisbon, Portugal"} onClick={() => chooseMood("Lisbon, Portugal", "Food & culture")} aria-label="Discover a food and culture escape in Lisbon">
             <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">03 / GET LOST IN CULTURE</span>
             <span className="v2-discovery-card-copy"><strong>Follow curiosity.</strong><small>Hidden streets. Local flavours. Slow nights.</small><span className="v2-discovery-link">Explore this feeling <ArrowUpRight size={15}/></span></span>
           </button>
