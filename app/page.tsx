@@ -215,7 +215,10 @@ export default function Home() {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ email: waitlistEmail.trim() }),
       });
-      if (!emailResponse.ok) throw new Error("Welcome email could not be sent");
+      const emailResult = await emailResponse.json().catch(() => ({}));
+      if (!emailResponse.ok || emailResult.status !== "available") {
+        throw new Error(emailResult.error || "Welcome email could not be sent");
+      }
       setWaitlistStatus("success");
       setWaitlistEmail("");
     } catch {
