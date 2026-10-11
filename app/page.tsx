@@ -385,7 +385,7 @@ export default function Home() {
           };
         }) : [];
         const budgetData = raw.estimatedBudget && typeof raw.estimatedBudget === "object" ? raw.estimatedBudget as Record<string, unknown> : {};
-        const budgetFromUser = notes.match(/Total budget:\\s*(€[\\d,]+|Flexible)/i)?.[1];
+        const budgetFromUser = budget;
         const budgetValue = safeText(
           budgetData.perPerson,
           typeof raw.estimatedBudget === "string" && raw.estimatedBudget.trim()
