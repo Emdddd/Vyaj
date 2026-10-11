@@ -1,0 +1,46 @@
+name: VYAJ Worker smoke test
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/worker-smoke-test.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check production CORS preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/plan-trip"
+          STATUS="$(curl --silent --show-error --max-time 15 -D /tmp/options-headers -o /tmp/options-body -w '%{http_code}' -X OPTIONS "$URL" \
+            -H 'Origin: https://vyaj.eu' \
+            -H 'Access-Control-Request-Method: POST' \
+            -H 'Access-Control-Request-Headers: content-type')"
+          echo "OPTIONS status: $STATUS"
+          cat /tmp/options-headers
+          test "$STATUS" = "204"
+          grep -iq '^access-control-allow-origin: https://vyaj.eu' /tmp/options-headers
+      - name: Generate a real test itinerary
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/plan-trip"
+          STATUS="$(curl --silent --show-error --max-time 50 -D /tmp/plan-headers -o /tmp/plan.json -w '%{http_code}' -X POST "$URL" \
+            -H 'Origin: https://vyaj.eu' \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/json' \
+            --data '{"destination":"Valletta, Malta","departureCity":"London","duration":"2 days","travellers":"2 travellers","style":"Food & culture","notes":"Total budget: €500. Treat as an approximate planning target."}')"
+          echo "Planner status: $STATUS"
+          grep -i '^access-control-allow-origin:' /tmp/plan-headers || true
+          jq '{status, feature, title: .itinerary.tripTitle, days: (.itinerary.days | length), error}' /tmp/plan.json
+          test "$STATUS" = "200"
+          jq -e '.status == "available" and (.itinerary.days | type == "array") and (.itinerary.days | length > 0)' /tmp/plan.json >/dev/null
+          grep -iq '^access-control-allow-origin: https://vyaj.eu' /tmp/plan-headers
