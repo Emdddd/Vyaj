@@ -784,3 +784,75 @@ html, body {
   from { transform: rotate(0deg) translateX(37px); }
   to { transform: rotate(360deg) translateX(37px); }
 }
+
+
+/* Improve readability across the site, especially generated trip details */
+body { -webkit-font-smoothing: antialiased; }
+.v2-section-intro > p,
+.v2-how-heading > p,
+.v2-availability-heading > p,
+.v2-early-copy > p,
+.v2-hero-lead {
+  font-size: 15px;
+  line-height: 1.8;
+}
+.v2-nav > a:not(.v2-nav-cta) { font-size: 13px; }
+.v2-field > span,
+.v2-choice-field legend { font-size: 12px; }
+.v2-field input,
+.v2-field select { font-size: 14px; }
+.v2-field small,
+.v2-choice-field > small { font-size: 11px; line-height: 1.65; }
+.v2-budget-option,
+.v2-style-option { font-size: 12px; }
+.v2-preview-day b { font-size: 14px; line-height: 1.5; }
+.v2-preview-day small { font-size: 12px; line-height: 1.65; }
+.v2-preview-aside > p,
+.v2-result-heading > p { font-size: 13px; line-height: 1.8; }
+.v2-summary-main p { font-size: 12px; line-height: 1.7; }
+.v2-result-content .v2-day-top > span { font-size: 10px; }
+.v2-result-content .v2-day-top > strong { font-size: 14px; line-height: 1.5; }
+.v2-result-content .v2-day-focus { font-size: 14px; line-height: 1.7; }
+.v2-result-content .v2-activity > span { font-size: 11px; line-height: 1.6; }
+.v2-result-content .v2-activity > div > strong { font-size: 15px; line-height: 1.55; }
+.v2-result-content .v2-activity > div > p { font-size: 14px; line-height: 1.75; }
+.v2-result-aside > p { font-size: 13px; line-height: 1.8; }
+.v2-budget-row { font-size: 12px; line-height: 1.65; }
+.v2-assumption { font-size: 12px; line-height: 1.75; }
+.v2-result-disclaimer { font-size: 11px; line-height: 1.8; }
+.v2-steps-timeline p { font-size: 13px; line-height: 1.8; }
+.v2-status-row strong { font-size: 13px; }
+.v2-status-row small { font-size: 11px; line-height: 1.65; }
+.v2-footer > div { font-size: 11px; }
+.v2-footer > small { font-size: 10px; }
+
+@media (max-width: 720px) {
+  .v2-hero-lead,
+  .v2-section-intro > p,
+  .v2-how-heading > p,
+  .v2-availability-heading > p,
+  .v2-early-copy > p { font-size: 15px; line-height: 1.8; }
+  .v2-field input,
+  .v2-field select { font-size: 16px; }
+  .v2-field small,
+  .v2-choice-field > small { font-size: 12px; }
+  .v2-budget-option,
+  .v2-style-option { font-size: 12px; }
+  .v2-preview-day b { font-size: 14px; }
+  .v2-preview-day small { font-size: 12px; }
+  .v2-preview-aside > p { font-size: 13px; }
+  .v2-summary-main p { font-size: 11px; }
+  .v2-result-content .v2-day-top > span { font-size: 10px; }
+  .v2-result-content .v2-day-top > strong { font-size: 13px; }
+  .v2-result-content .v2-day-focus { font-size: 13px; line-height: 1.7; }
+  .v2-result-content .v2-activity { grid-template-columns: 58px minmax(0,1fr); gap: 10px; }
+  .v2-result-content .v2-activity > span { font-size: 11px; }
+  .v2-result-content .v2-activity > div > strong { font-size: 14px; line-height: 1.55; }
+  .v2-result-content .v2-activity > div > p { font-size: 13px; line-height: 1.75; }
+  .v2-budget-row { font-size: 12px; }
+  .v2-assumption { font-size: 11px; }
+  .v2-result-disclaimer { font-size: 11px; }
+  .v2-steps-timeline p { font-size: 12px; }
+  .v2-status-row strong { font-size: 12px; }
+  .v2-status-row small { font-size: 11px; }
+}
