@@ -134,3 +134,5 @@
   }
 }
 
+
+.v2-airport-field{position:relative}.v2-airport-suggestions{top:calc(100% - 24px);max-height:320px}.v2-airport-status{margin:0;padding:13px 12px;color:#718699;font-size:11px;line-height:1.6}.v2-airport-suggestions .v2-destination-copy{min-width:0}.v2-airport-suggestions .v2-destination-copy strong{display:block;font-size:11px;line-height:1.5}.v2-airport-suggestions .v2-destination-copy small{display:block;white-space:normal;font-size:9px;line-height:1.5;color:#7c8f9e}@media(max-width:720px){.v2-airport-suggestions{max-height:260px}}
