@@ -668,27 +668,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="v2-discovery v2-section" id="discover" aria-labelledby="v2-discovery-title">
-        <div className="v2-discovery-heading">
-          <div><div className="v2-eyebrow"><span>01</span><i/> {t("FIND YOUR KIND OF ESCAPE")}</div><h2 id="v2-discovery-title">{language === "ar" ? "ما نوع الرحلة التي ترغب فيها؟" : <>{t("What are you")}<br/><em>{t("craving?")}</em></>}</h2></div>
-          <p>{t("You don’t need a destination yet. Start with a feeling — VYAJ will help you find the rest.")}</p>
-        </div>
-        <div className="v2-discovery-grid">
-          <button type="button" className={selectedMood === "Puteaux, France" ? "v2-discovery-card v2-discovery-coast v2-discovery-card-selected" : "v2-discovery-card v2-discovery-coast"} aria-pressed={selectedMood === "Puteaux, France"} onClick={() => chooseMood("Puteaux, France", "Slow escape")} aria-label="Find your kind of escape in Puteaux, France">
-            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">01 / {t("SLOW DOWN")}</span>
-            <span className="v2-discovery-card-copy"><strong>{t("Find your kind of escape.")}</strong><span className="v2-discovery-place">Puteaux, France</span><small>{t("Step away from the noise, slow down, and give yourself space to feel the magic.")}</small><span className="v2-discovery-link">{t("Explore this feeling")} <ArrowUpRight size={15}/></span></span>
-          </button>
-          <button type="button" className={selectedMood === "Valletta, Malta" ? "v2-discovery-card v2-discovery-wild v2-discovery-card-selected" : "v2-discovery-card v2-discovery-wild"} aria-pressed={selectedMood === "Valletta, Malta"} onClick={() => chooseMood("Valletta, Malta", "Food & culture")} aria-label="Discover the history and coastal charm of Valletta, Malta">
-            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">02 / {t("ISLAND STORIES")}</span>
-            <span className="v2-discovery-card-copy"><strong>{t("Find your island rhythm.")}</strong><span className="v2-discovery-place">Valletta, Malta</span><small>{t("Golden streets, sea views, and the easy rhythm of Mediterranean life.")}</small><span className="v2-discovery-link">{t("Explore this feeling")} <ArrowUpRight size={15}/></span></span>
-          </button>
-          <button type="button" className={selectedMood === "Rome, Italy" ? "v2-discovery-card v2-discovery-culture v2-discovery-card-selected" : "v2-discovery-card v2-discovery-culture"} aria-pressed={selectedMood === "Rome, Italy"} onClick={() => chooseMood("Rome, Italy", "Food & culture")} aria-label="Discover the food and culture of Rome, Italy">
-            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">03 / {t("GET LOST IN CULTURE")}</span>
-            <span className="v2-discovery-card-copy"><strong>{t("Get lost in history.")}</strong><span className="v2-discovery-place">Rome, Italy</span><small>{t("Ancient wonders, lively piazzas, and unforgettable Italian flavours.")}</small><span className="v2-discovery-link">{t("Explore this feeling")} <ArrowUpRight size={15}/></span></span>
-          </button>
-        </div>
-        <p className="v2-discovery-note"><Sparkles size={14}/> {t("Pick a feeling to start a personalised trip plan.")}</p>
-      </section>
+
 
       <section className="v2-builder v2-section" id="trip-builder">
         <div className="v2-section-intro">
@@ -842,8 +822,30 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="v2-discovery v2-section" id="discover" aria-labelledby="v2-discovery-title">
+        <div className="v2-discovery-heading">
+          <div><div className="v2-eyebrow"><span>03</span><i/> {t("FIND YOUR KIND OF ESCAPE")}</div><h2 id="v2-discovery-title">{language === "ar" ? "ما نوع الرحلة التي ترغب فيها؟" : <>{t("What are you")}<br/><em>{t("craving?")}</em></>}</h2></div>
+          <p>{t("You don’t need a destination yet. Start with a feeling — VYAJ will help you find the rest.")}</p>
+        </div>
+        <div className="v2-discovery-grid">
+          <button type="button" className={selectedMood === "Puteaux, France" ? "v2-discovery-card v2-discovery-coast v2-discovery-card-selected" : "v2-discovery-card v2-discovery-coast"} aria-pressed={selectedMood === "Puteaux, France"} onClick={() => chooseMood("Puteaux, France", "Slow escape")} aria-label="Find your kind of escape in Puteaux, France">
+            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">01 / {t("SLOW DOWN")}</span>
+            <span className="v2-discovery-card-copy"><strong>{t("Find your kind of escape.")}</strong><span className="v2-discovery-place">Puteaux, France</span><small>{t("Step away from the noise, slow down, and give yourself space to feel the magic.")}</small><span className="v2-discovery-link">{t("Explore this feeling")} <ArrowUpRight size={15}/></span></span>
+          </button>
+          <button type="button" className={selectedMood === "Valletta, Malta" ? "v2-discovery-card v2-discovery-wild v2-discovery-card-selected" : "v2-discovery-card v2-discovery-wild"} aria-pressed={selectedMood === "Valletta, Malta"} onClick={() => chooseMood("Valletta, Malta", "Food & culture")} aria-label="Discover the history and coastal charm of Valletta, Malta">
+            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">02 / {t("ISLAND STORIES")}</span>
+            <span className="v2-discovery-card-copy"><strong>{t("Find your island rhythm.")}</strong><span className="v2-discovery-place">Valletta, Malta</span><small>{t("Golden streets, sea views, and the easy rhythm of Mediterranean life.")}</small><span className="v2-discovery-link">{t("Explore this feeling")} <ArrowUpRight size={15}/></span></span>
+          </button>
+          <button type="button" className={selectedMood === "Rome, Italy" ? "v2-discovery-card v2-discovery-culture v2-discovery-card-selected" : "v2-discovery-card v2-discovery-culture"} aria-pressed={selectedMood === "Rome, Italy"} onClick={() => chooseMood("Rome, Italy", "Food & culture")} aria-label="Discover the food and culture of Rome, Italy">
+            <span className="v2-discovery-card-image" aria-hidden="true"/><span className="v2-discovery-shade" aria-hidden="true"/><span className="v2-discovery-index">03 / {t("GET LOST IN CULTURE")}</span>
+            <span className="v2-discovery-card-copy"><strong>{t("Get lost in history.")}</strong><span className="v2-discovery-place">Rome, Italy</span><small>{t("Ancient wonders, lively piazzas, and unforgettable Italian flavours.")}</small><span className="v2-discovery-link">{t("Explore this feeling")} <ArrowUpRight size={15}/></span></span>
+          </button>
+        </div>
+        <p className="v2-discovery-note"><Sparkles size={14}/> {t("Pick a feeling to start a personalised trip plan.")}</p>
+      </section>
+
       <section className="v2-how v2-section" id="how">
-        <div className="v2-how-heading"><div className="v2-eyebrow"><span>03</span><i/> {t("HOW IT WORKS")}</div><h2>{language === "ar" ? <>من فكرة بسيطة<br/><em>إلى رحلة تستحقها</em></> : <>{t("From “somewhere”")}<br/>{t("to")} <em>{t("let’s go.")}</em></>}</h2><p>{t("Keep the decisions simple. Make the trip feel like yours.")}</p></div>
+        <div className="v2-how-heading"><div className="v2-eyebrow"><span>04</span><i/> {t("HOW IT WORKS")}</div><h2>{language === "ar" ? <>من فكرة بسيطة<br/><em>إلى رحلة تستحقها</em></> : <>{t("From “somewhere”")}<br/>{t("to")} <em>{t("let’s go.")}</em></>}</h2><p>{t("Keep the decisions simple. Make the trip feel like yours.")}</p></div>
         <div className="v2-steps v2-steps-timeline">
           <article><div className="v2-step-rail"><div className="v2-step-icon"><MapPin size={21}/></div><span className="v2-step-number">01</span></div><div className="v2-step-copy"><span className="v2-step-kicker">{t("STEP 01")}</span><h3>{t("Set the essentials")}</h3><p>{t("Choose your destination, dates and a budget you’re comfortable with.")}</p></div></article>
           <article><div className="v2-step-rail"><div className="v2-step-icon"><Sparkles size={21}/></div><span className="v2-step-number">02</span></div><div className="v2-step-copy"><span className="v2-step-kicker">{t("STEP 02")}</span><h3>{t("Shape your days")}</h3><p>{t("Explore a sample itinerary shaped around your travel style.")}</p></div></article>
@@ -853,7 +855,7 @@ export default function Home() {
 
       <section className="v2-availability" id="availability">
         <div className="v2-availability-inner">
-          <div className="v2-eyebrow v2-eyebrow-light"><span>04</span><i/> {t("CLEAR FROM DAY ONE")}</div>
+          <div className="v2-eyebrow v2-eyebrow-light"><span>05</span><i/> {t("CLEAR FROM DAY ONE")}</div>
           <div className="v2-availability-heading"><h2>{t("Useful now.")}<br/><em>{t("More to come.")}</em></h2><p>{t("We’d rather be clear about what’s ready than promise features that aren’t connected yet.")}</p></div>
           <div className="v2-feature-status">
             <div className="v2-status-row"><span className="v2-status-icon v2-status-ready"><Check size={17}/></span><div><strong>{t("Interactive trip preview")}</strong><small>{t("Works in this demo using your choices.")}</small></div><span className="v2-status-label">{t("AVAILABLE")}</span></div>
