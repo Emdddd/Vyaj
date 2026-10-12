@@ -698,11 +698,26 @@ export default function Home() {
                 if (flightReturnDate && flightReturnDate < flightDepartureDate) { setFlightError("Return date must be after departure."); return; }
                 const from = flightOrigin.trim();
                 const to = flightDestination.trim();
-                const route = `Google Flights from ${from} to ${to}`;
-                const dates = flightTripType === "roundtrip" && flightReturnDate ? ` departing ${flightDepartureDate} returning ${flightReturnDate}` : ` departing ${flightDepartureDate}`;
-                const passengerCount = travellers === "5+" ? "5 passengers" : `${travellers} ${travellers === "1" ? "passenger" : "passengers"}`;
-                const searchText = `${route}${dates}, ${passengerCount}, economy, prices in EUR`;
-                window.location.href = `https://www.google.com/search?${new URLSearchParams({ q: searchText }).toString()}`;
+                const origin = flightOriginCode || (from.toLowerCase() === "malta" ? "MLA" : "");
+                const destination = flightDestinationCode || (/^paris(?:,|$)/i.test(to) ? "CDG" : "");
+                const passengerCount = travellers === "5+" ? 5 : Number(travellers) || 1;
+                // Google Flights stores a full flight search in its tfs protobuf URL parameter.
+                const varint = (value: number): number[] => { const bytes: number[] = []; do { let byte = value & 127; value = Math.floor(value / 128); if (value) byte |= 128; bytes.push(byte); } while (value); return bytes; };
+                const field = (number: number, bytes: number[]): number[] => [...varint(number * 8 + 2), ...varint(bytes.length), ...bytes];
+                const str = (number: number, value: string): number[] => field(number, Array.from(new TextEncoder().encode(value)));
+                const airport = (code: string): number[] => [...varint(8), ...varint(1), ...str(2, code)];
+                const leg = (date: string, start: string, end: string): number[] => field(3, [...str(2, date), ...field(13, airport(start)), ...field(14, airport(end))]);
+                if (origin && destination) {
+                  const roundTrip = flightTripType === "roundtrip";
+                  const bytes = [8, 0, ...leg(flightDepartureDate, origin, destination), ...(roundTrip ? leg(flightReturnDate, destination, origin) : []), ...Array.from({ length: passengerCount }, () => [64, 1]).flat(), 72, 1, 152, 1, roundTrip ? 1 : 2];
+                  const tfs = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+                  window.location.href = `https://www.google.com/travel/flights/search?${new URLSearchParams({ tfs, hl: "en", curr: "EUR", gl: "mt", tfu: "EgQIABABIgA" })}`;
+                } else {
+                  // For a city typed without selecting an airport, let Google Flights resolve the city name.
+                  const dates = flightTripType === "roundtrip" ? `on ${flightDepartureDate} returning ${flightReturnDate}` : `on ${flightDepartureDate} one way`;
+                  const q = `Flights from ${from} to ${to} ${dates} ${passengerCount} adults economy`;
+                  window.location.href = `https://www.google.com/travel/flights?${new URLSearchParams({ q, hl: "en", curr: "EUR", gl: "mt" })}`;
+                }
               }}><PlaneTakeoff size={16}/> Search cheapest flights <ArrowUpRight size={16}/></button>
               {flightError && <p className="v2-form-error" role="alert">{flightError}</p>}
               <small className="v2-flight-disclaimer">You’ll continue to Google Flights to compare current fares and book with the airline or travel provider. Prices and availability are confirmed by the provider.</small>
