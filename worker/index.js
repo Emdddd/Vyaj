@@ -7,8 +7,37 @@ async function handle(request, env) {
   const respond=(data,status=200)=>new Response(JSON.stringify(data),{status,headers});
   if(request.method==="OPTIONS") return new Response(null,{status:origin&&!corsOrigins.has(origin)?403:204,headers});
   const url=new URL(request.url);
-  const actionPaths={"/api/v1/actions/plan-trip":"plan-trip","/api/plan":"plan-trip","/api/v1/actions/decide-for-us":"decide-for-us","/api/v1/actions/surprise-me":"surprise-me","/api/v1/actions/search-destinations":"search-destinations","/api/v1/actions/adjust-itinerary":"adjust-itinerary","/api/v1/actions/invite-travelers":"invite-travelers","/api/v1/actions/submit-vote":"submit-vote","/api/v1/actions/view-notifications":"view-notifications","/api/v1/actions/join-waitlist":"join-waitlist","/api/v1/actions/view-profile":"view-profile","/api/v1/actions/save-trip":"save-trip","/api/v1/actions/share-trip":"share-trip","/api/v1/actions/open-settings":"open-settings","/api/v1/actions/login":"login","/api/v1/actions/signup":"signup","/api/v1/actions/book-trip":"book-trip","/api/v1/actions/add-activity":"add-activity","/api/v1/actions/edit-itinerary":"edit-itinerary"}; const action=actionPaths[url.pathname]; if(!action)return respond({error:"Not found."},404);
-  if(request.method!=="POST") return respond({error:"Use POST for this action."},405); if(action!=="plan-trip"){let payload;try{payload=await request.json()}catch{return respond({error:"Please send valid action details."},400)} if(!payload||typeof payload!=="object"||Array.isArray(payload))return respond({error:"Please send valid action details."},400); if(action==="join-waitlist"){
+  const actionPaths={"/api/v1/actions/plan-trip":"plan-trip","/api/v1/actions/search-flights":"search-flights","/api/plan":"plan-trip","/api/v1/actions/decide-for-us":"decide-for-us","/api/v1/actions/surprise-me":"surprise-me","/api/v1/actions/search-destinations":"search-destinations","/api/v1/actions/adjust-itinerary":"adjust-itinerary","/api/v1/actions/invite-travelers":"invite-travelers","/api/v1/actions/submit-vote":"submit-vote","/api/v1/actions/view-notifications":"view-notifications","/api/v1/actions/join-waitlist":"join-waitlist","/api/v1/actions/view-profile":"view-profile","/api/v1/actions/save-trip":"save-trip","/api/v1/actions/share-trip":"share-trip","/api/v1/actions/open-settings":"open-settings","/api/v1/actions/login":"login","/api/v1/actions/signup":"signup","/api/v1/actions/book-trip":"book-trip","/api/v1/actions/add-activity":"add-activity","/api/v1/actions/edit-itinerary":"edit-itinerary"}; const action=actionPaths[url.pathname]; if(!action)return respond({error:"Not found."},404);
+  if(request.method!=="POST") return respond({error:"Use POST for this action."},405); if(action!=="plan-trip"){let payload;try{payload=await request.json()}catch{return respond({error:"Please send valid action details."},400)} if(!payload||typeof payload!=="object"||Array.isArray(payload))return respond({error:"Please send valid action details."},400); if(action==="search-flights"){
+    const code=(v)=>typeof v==="string"&&/^[A-Z]{3}$/.test(v)?v:"";
+    const origin=code(payload.origin),destination=code(payload.destination);
+    const departureDate=typeof payload.departureDate==="string"?payload.departureDate:"";
+    const returnDate=typeof payload.returnDate==="string"?payload.returnDate:"";
+    const adults=Number(payload.adults);
+    const currencyCode=typeof payload.currencyCode==="string"&&/^[A-Z]{3}$/.test(payload.currencyCode)?payload.currencyCode:"EUR";
+    const travelClass=typeof payload.travelClass==="string"&&["ECONOMY","PREMIUM_ECONOMY","BUSINESS","FIRST"].includes(payload.travelClass)?payload.travelClass:"ECONOMY";
+    const validDate=(v)=>/^\\d{4}-\\d{2}-\\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
+    if(!origin||!destination||origin===destination||!validDate(departureDate)||!Number.isInteger(adults)||adults<1||adults>9||(returnDate&&(!validDate(returnDate)||returnDate<departureDate)))return respond({error:"Check the airports, dates and number of travellers."},400);
+    if(!env.AMADEUS_API_KEY||!env.AMADEUS_API_SECRET)return respond({error:"Live flight search is not configured yet. Add the Amadeus API credentials to the Cloudflare Worker."},503);
+    try{
+      const tokenResponse=await fetch("https://test.api.amadeus.com/v1/security/oauth2/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({grant_type:"client_credentials",client_id:env.AMADEUS_API_KEY,client_secret:env.AMADEUS_API_SECRET}),signal:AbortSignal.timeout(12000)});
+      const tokenBody=await tokenResponse.json().catch(()=>({}));
+      if(!tokenResponse.ok||!tokenBody.access_token){console.error("Amadeus auth failed",tokenResponse.status);return respond({error:"The flight search provider could not authenticate. Check the Amadeus credentials."},502);}
+      const params=new URLSearchParams({originLocationCode:origin,destinationLocationCode:destination,departureDate,adults:String(adults),currencyCode,travelClass,max:"20"});
+      if(returnDate)params.set("returnDate",returnDate);
+      const offersResponse=await fetch("https://test.api.amadeus.com/v2/shopping/flight-offers?"+params.toString(),{headers:{Authorization:"Bearer "+tokenBody.access_token,Accept:"application/vnd.amadeus+json"},signal:AbortSignal.timeout(18000)});
+      const offersBody=await offersResponse.json().catch(()=>({}));
+      if(!offersResponse.ok){const providerMessage=Array.isArray(offersBody.errors)?offersBody.errors[0]?.detail:"";console.error("Amadeus flight search failed",offersResponse.status,String(providerMessage||"").slice(0,200));return respond({error:offersResponse.status===429?"Flight search is busy right now. Please try again shortly.":"We couldn't retrieve flight offers for those details. Try different dates or airports."},offersResponse.status===429?429:502);}
+      const carriers=offersBody.dictionaries?.carriers||{};
+      const formatTime=(value)=>typeof value==="string"&&value.length>=16?value.slice(11,16):"—";
+      const formatDuration=(value)=>{if(typeof value!=="string")return "—";const h=value.match(/(\\d+)H/),m=value.match(/(\\d+)M/);return [h?h[1]+"h":"",m?m[1]+"m":""].filter(Boolean).join(" ")||value;};
+      const data=(Array.isArray(offersBody.data)?offersBody.data:[]).map((offer,index)=>{
+        const itinerary=offer.itineraries?.[0],segments=itinerary?.segments||[],first=segments[0],last=segments[segments.length-1],carrier=first?.carrierCode||"";
+        return {id:String(offer.id||index),airline:carriers[carrier]||carrier||"Airline",price:String(offer.price?.total||""),currency:offer.price?.currency||currencyCode,departure:formatTime(first?.departure?.at),arrival:formatTime(last?.arrival?.at),duration:formatDuration(itinerary?.duration),stops:Math.max(0,segments.length-1),bookingUrl:"",segments:segments.map((segment)=>({airline:carriers[segment.carrierCode]||segment.carrierCode||"Airline",flightNumber:String(segment.number||""),from:segment.departure?.iataCode||"",to:segment.arrival?.iataCode||"",departure:segment.departure?.at||"",arrival:segment.arrival?.at||""}))};
+      }).filter((offer)=>offer.price&&offer.departure&&offer.arrival).sort((a,b)=>Number(a.price)-Number(b.price));
+      return respond({status:"available",feature:"search-flights",data},200);
+    }catch(error){console.error("Flight search failed",error instanceof Error?error.name+":"+error.message:String(error));return respond({error:"We couldn't connect to the flight provider. Please try again."},502);}
+  } if(action==="join-waitlist"){
     const email=typeof payload.email==="string"?payload.email.trim().toLowerCase():"";
     if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return respond({error:"Enter a valid email address and try again."},400);
     if(!env.RESEND_API_KEY)return respond({error:"Welcome email service is not configured yet."},503);
