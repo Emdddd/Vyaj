@@ -1173,3 +1173,40 @@ body { -webkit-font-smoothing: antialiased; }
   text-align: left;
 }
 .v2-lang-ar p,.v2-lang-ar small,.v2-lang-ar label { line-height: 1.9; }
+
+
+/* Arabic: neutral sans-serif, natural letter shaping, generous spacing.
+   Keep the layout LTR; only Arabic text is rendered in its natural language flow. */
+.v2-lang-ar {
+  font-family: Tahoma, Arial, sans-serif;
+  font-synthesis: none;
+}
+.v2-lang-ar :is(h1,h2,h3,h4,p,small,strong,label,a,button,span,li,legend) {
+  font-family: Tahoma, Arial, sans-serif;
+  letter-spacing: 0 !important;
+  word-spacing: 0 !important;
+  font-kerning: normal;
+  font-feature-settings: normal;
+  text-rendering: optimizeLegibility;
+}
+.v2-lang-ar :is(h1,h2,h3,h4) {
+  line-height: 1.5 !important;
+  font-weight: 600;
+  text-wrap: pretty;
+}
+.v2-lang-ar :is(p,small,label,li,.v2-hero-foot,.v2-hero-lead,.v2-steps-timeline p) {
+  line-height: 1.95 !important;
+}
+.v2-lang-ar .v2-eyebrow,
+.v2-lang-ar .v2-card-kicker,
+.v2-lang-ar .v2-discovery-index,
+.v2-lang-ar .v2-hero-live-label {
+  letter-spacing: 0 !important;
+  line-height: 1.8 !important;
+}
+/* German labels need room for longer words without clipping. */
+.v2-lang-de .v2-language-picker select { min-width: 104px; }
+.v2-lang-de :is(.v2-planner-tab strong,.v2-planner-tab small,.v2-status-label,.v2-button) {
+  white-space: normal;
+  line-height: 1.45;
+}
