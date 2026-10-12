@@ -35,7 +35,7 @@ async function handle(request, env) {
         const segments=Array.isArray(itinerary.flights)?itinerary.flights:[],first=segments[0],last=segments[segments.length-1];
         const price=Number(itinerary.price);
         const bookingOptions=Array.isArray(itinerary.booking_options)?itinerary.booking_options:[];
-        const bookingUrl=bookingOptions.find((option)=>typeof option?.link==="string"&&/^https?:\\/\\//i.test(option.link))?.link||"";
+        const bookingUrl=bookingOptions.find((option)=>typeof option?.link==="string"&&/^https?:\/\//i.test(option.link))?.link||"";
         return {id:String(itinerary.departure_token||index),airline:segments.map((segment)=>segment.airline).filter(Boolean).filter((name,i,all)=>all.indexOf(name)===i).join(" · ")||"Airline",price:Number.isFinite(price)?String(price):"",currency:currencyCode,departure:formatTime(first?.departure_airport?.time),arrival:formatTime(last?.arrival_airport?.time),duration:formatDuration(itinerary.total_duration),stops:Math.max(0,segments.length-1),bookingUrl};
       }).filter((flight)=>flight.price&&flight.departure!=="—"&&flight.arrival!=="—").sort((a,b)=>Number(a.price)-Number(b.price)).slice(0,20);
       return respond({status:"available",feature:"search-flights",data,provider:"Google Flights via SerpApi"},200);
