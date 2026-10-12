@@ -1148,3 +1148,28 @@ body { -webkit-font-smoothing: antialiased; }
 .v2-lang-ar .v2-discovery-heading h2 em,
 .v2-lang-ar .v2-section-intro h2 em,
 .v2-lang-ar .v2-how-heading h2 em { letter-spacing: normal !important; }
+
+
+/* Arabic typography: simpler system sans, correct shaping and natural spacing. Layout stays LTR. */
+.v2-lang-ar h1,.v2-lang-ar h2,.v2-lang-ar h3,.v2-lang-ar h4,
+.v2-lang-ar p,.v2-lang-ar small,.v2-lang-ar strong,.v2-lang-ar label,
+.v2-lang-ar a,.v2-lang-ar button,.v2-lang-ar span,.v2-lang-ar li,
+.v2-lang-ar input,.v2-lang-ar select,.v2-lang-ar textarea {
+  font-family: Tahoma, Arial, sans-serif !important;
+  letter-spacing: 0 !important;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+.v2-lang-ar h1,.v2-lang-ar h2,.v2-lang-ar h3,.v2-lang-ar h4 {
+  line-height: 1.4 !important;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+.v2-lang-ar .v2-hero h1,.v2-lang-ar .v2-section-intro h2,
+.v2-lang-ar .v2-discovery-heading h2,.v2-lang-ar .v2-how-heading h2,
+.v2-lang-ar .v2-availability-heading h2,.v2-lang-ar .v2-early-copy h2 {
+  direction: rtl;
+  unicode-bidi: plaintext;
+  text-align: left;
+}
+.v2-lang-ar p,.v2-lang-ar small,.v2-lang-ar label { line-height: 1.9; }
