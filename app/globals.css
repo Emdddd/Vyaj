@@ -1286,3 +1286,26 @@ body { -webkit-font-smoothing: antialiased; }
   }
   .v2-nav-open { clip-path: inset(0 0 0 0 round 0 0 18px 18px); }
 }
+
+/* Live flight results */
+.v2-flight-loading{display:flex;align-items:center;gap:10px;padding:18px 4px;color:#466a7d;font-size:12px}
+.v2-flight-spinner{width:16px;height:16px;border:2px solid #cfe8ed;border-top-color:#008eac;border-radius:50%;animation:v2-flight-spin .8s linear infinite}
+@keyframes v2-flight-spin{to{transform:rotate(360deg)}}
+.v2-flight-results{display:grid;gap:10px;margin-top:20px}
+.v2-flight-results-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#15354a;font-size:12px;padding:4px 0}
+.v2-flight-results-heading span{color:#6a7f8e;font-size:10px}
+.v2-flight-result-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:15px;border:1px solid #e0e9ee;border-radius:12px;background:#fff;box-shadow:0 5px 18px rgba(7,23,46,.035)}
+.v2-flight-airline{display:flex;align-items:center;gap:8px;color:#16374b;font-size:12px}
+.v2-flight-airline svg{color:#078ca2}
+.v2-flight-times{display:grid;grid-template-columns:auto minmax(24px,1fr) auto;align-items:center;gap:10px;margin:15px 0 8px}
+.v2-flight-times>div{display:grid;gap:3px}
+.v2-flight-times>div:last-child{text-align:right}
+.v2-flight-times strong{font-size:20px;letter-spacing:-.5px;color:#10283b}
+.v2-flight-times small,.v2-flight-meta{font-size:10px;color:#718493}
+.v2-flight-route-line{height:1px;background:#cbdde4;position:relative}
+.v2-flight-route-line i{position:absolute;width:6px;height:6px;border:1px solid #8daebb;background:#fff;border-radius:50%;top:-3px;left:calc(50% - 3px)}
+.v2-flight-meta{display:flex;gap:12px}
+.v2-flight-result-price{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:5px;min-width:88px;border-left:1px solid #edf1f4;padding-left:14px}
+.v2-flight-result-price strong{font-size:21px;letter-spacing:-.6px;color:#087f94;white-space:nowrap}
+.v2-flight-result-price small,.v2-flight-result-price span{font-size:9px;color:#718493;text-align:right}
+@media(max-width:480px){.v2-flight-result-card{grid-template-columns:minmax(0,1fr);gap:12px}.v2-flight-result-price{border-left:0;border-top:1px solid #edf1f4;padding:12px 0 0;align-items:flex-start}.v2-flight-result-price small,.v2-flight-result-price span{text-align:left}.v2-flight-times strong{font-size:18px}}
