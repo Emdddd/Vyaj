@@ -694,6 +694,7 @@ export default function Home() {
               <button className="v2-button v2-button-dark v2-flight-search-button" type="button" onClick={() => {
                 setFlightError("");
                 if (!flightOrigin.trim() || !flightDestination.trim() || !flightDepartureDate) { setFlightError("Enter your departure city, destination and departure date."); return; }
+                if (flightTripType === "roundtrip" && !flightReturnDate) { setFlightError("Choose a return date or select One way only."); return; }
                 if (flightReturnDate && flightReturnDate < flightDepartureDate) { setFlightError("Return date must be after departure."); return; }
                 const from = flightOrigin.trim();
                 const to = flightDestination.trim();
