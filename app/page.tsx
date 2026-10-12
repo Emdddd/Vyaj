@@ -618,7 +618,7 @@ export default function Home() {
         <a href="#top" className="v2-brand" aria-label="VYAJ home"><img src="/D0F8F0DA-F8C9-4B07-8ED2-B6B0F1A5D567.png" alt="VYAJ" /></a>
         <button type="button" className="v2-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
         <nav className={menuOpen ? "v2-nav v2-nav-open" : "v2-nav"} aria-label="Main navigation">
-          <label className="v2-language-picker"><span>{t("Language")}</span><select aria-label={t("Language")} value={language} onChange={event => setLanguage(event.target.value as Language)}><option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option><option value="it">Italiano</option></select></label>
+          
           <a href="#how" onClick={() => setMenuOpen(false)}>{t("How it works")}</a>
           <a href="#availability" onClick={() => setMenuOpen(false)}>{t("What’s available")}</a>
           <a href="#early-access" onClick={() => setMenuOpen(false)}>{t("Early access")}</a>
@@ -857,6 +857,7 @@ export default function Home() {
       </footer>
 
       {noticeOpen && <div className="v2-notice-backdrop" role="presentation" onClick={() => setNoticeOpen(false)}><div className="v2-notice" role="dialog" aria-modal="true" aria-labelledby="v2-notice-title" aria-describedby="v2-notice-description" onClick={event => event.stopPropagation()}><button type="button" className="v2-notice-close" aria-label="Close" onClick={() => setNoticeOpen(false)}><X size={18}/></button><div className="v2-notice-icon"><Sparkles size={21}/></div><span className="v2-small-label">VYAJ / EARLY ACCESS</span><h2 id="v2-notice-title">Be first to try VYAJ.</h2><p id="v2-notice-description">Add your email for early-access invitations and launch updates. It’s free, and you can unsubscribe at any time.</p>{waitlistStatus === "success" ? <div className="v2-waitlist-message v2-waitlist-success" role="status"><Check size={17}/> You’re on the list. We’ll keep you updated.</div> : <form className="v2-waitlist-form" onSubmit={submitWaitlist}><label htmlFor="waitlist-email">Email address</label><input id="waitlist-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" value={waitlistEmail} onChange={event => { setWaitlistEmail(event.target.value); if (waitlistStatus === "error") setWaitlistStatus("idle"); }} required/><input type="hidden" name="_subject" value="New VYAJ waitlist signup"/><button className="v2-button v2-button-dark" type="submit" disabled={waitlistStatus === "submitting"}>{waitlistStatus === "submitting" ? "Joining…" : "Get early access"} <ArrowUpRight size={16}/></button>{waitlistStatus === "error" && <p className="v2-waitlist-message v2-waitlist-error" role="alert">Something went wrong. Please try again.</p>}<small>By joining, you agree to receive VYAJ launch updates by email.</small></form>}<button type="button" className="v2-button v2-button-outline" onClick={() => setNoticeOpen(false)}>Close</button></div></div>}
-    </main>
+    <div className="v2-language-floating"><label className="v2-language-picker"><span>{t("Language")}</span><select aria-label={t("Language")} value={language} onChange={event => setLanguage(event.target.value as Language)}><option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option><option value="it">Italiano</option></select></label></div>
+      </main>
   );
 }
