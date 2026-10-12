@@ -25,7 +25,7 @@ async function handle(request, env) {
   if(!env.GROQ_API_KEY) return respond({error:"Groq API key is not configured."},503);
   let body; try {const t=await request.text(); if(t.length>12000)return respond({error:"Trip request is too long."},413);body=JSON.parse(t);} catch{return respond({error:"Please send valid trip details."},400);}
   const destination=typeof body.destination==="string"?body.destination.trim().slice(0,120):"";
-  const outputLanguage=body.language==="fr"?"French":body.language==="it"?"Italian":body.language==="ar"?"Arabic":"English";
+  const outputLanguage=body.language==="fr"?"French":body.language==="it"?"Italian":body.language==="de"?"German":body.language==="ar"?"Arabic":"English";
   if(!destination)return respond({error:"Enter a destination first."},400);
   const departureCity=typeof body.departureCity==="string"?body.departureCity.trim().slice(0,120):"";
   const duration=String(body.duration||"5–7 days").slice(0,40), travellers=String(body.travellers||"Two people").slice(0,40), style=String(body.style||"A bit of everything").slice(0,100), notes=String(body.notes||"None").slice(0,1200);
