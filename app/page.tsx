@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { postAction, type Itinerary } from "../lib/api";
 import { ArrowDown, ArrowRight, ArrowUpRight, CalendarDays, Check, Clock3, Compass, MapPin, Menu, Plane, PlaneTakeoff, Sparkles, Users, X } from "lucide-react";
 
@@ -211,6 +211,7 @@ export default function Home() {
   const [plannerLoading, setPlannerLoading] = useState(false);
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const headerRef = useRef<HTMLElement | null>(null);
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const [noticeOpen, setNoticeOpen] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState("");
@@ -219,6 +220,15 @@ export default function Home() {
   const [selectedMood, setSelectedMood] = useState("");
   const [language, setLanguage] = useState<Language>("en");
   const t = (value: string) => pageCopy[language][value] || translations[language][value] || value;
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const closeOnOutsidePress = (event: PointerEvent) => {
+      if (event.target instanceof Node && !headerRef.current?.contains(event.target)) setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOnOutsidePress);
+    return () => document.removeEventListener("pointerdown", closeOnOutsidePress);
+  }, [menuOpen]);
 
   useEffect(() => {
     const updateHeader = () => setHeaderScrolled(window.scrollY > 12);
@@ -645,7 +655,7 @@ export default function Home() {
 
   return (
     <main className={`v2-site v2-lang-${language}`} lang={language} dir="ltr">
-      <header className={headerScrolled ? "v2-header v2-header-scrolled" : "v2-header"}>
+      <header ref={headerRef} className={headerScrolled ? "v2-header v2-header-scrolled" : "v2-header"}>
         <a href="#top" className="v2-brand" aria-label="VYAJ home"><img src="/D0F8F0DA-F8C9-4B07-8ED2-B6B0F1A5D567.png" alt="VYAJ" /></a>
         <button type="button" className="v2-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
         <nav className={menuOpen ? "v2-nav v2-nav-open" : "v2-nav"} aria-label="Main navigation">
