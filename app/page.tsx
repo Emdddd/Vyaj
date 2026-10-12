@@ -670,7 +670,7 @@ export default function Home() {
 
       <section className="v2-discovery v2-section" id="discover" aria-labelledby="v2-discovery-title">
         <div className="v2-discovery-heading">
-          <div><div className="v2-eyebrow"><span>01</span><i/> FIND YOUR KIND OF ESCAPE</div><h2 id="v2-discovery-title">{t("What are you")}<br/><em>{t("craving?")}</em></h2></div>
+          <div><div className="v2-eyebrow"><span>01</span><i/> FIND YOUR KIND OF ESCAPE</div><h2 id="v2-discovery-title">{language === "ar" ? "ما نوع الرحلة التي ترغب فيها؟" : <>{t("What are you")}<br/><em>{t("craving?")}</em></>}</h2></div>
           <p>{t("You don’t need a destination yet. Start with a feeling — VYAJ will help you find the rest.")}</p>
         </div>
         <div className="v2-discovery-grid">
@@ -693,7 +693,7 @@ export default function Home() {
       <section className="v2-builder v2-section" id="trip-builder">
         <div className="v2-section-intro">
           <div className="v2-eyebrow"><span>01</span><i/> {t("START WITH THE BASICS")}</div>
-          <h2>{t("Build a trip")}<br/><em>{t("that fits.")}</em></h2>
+          <h2>{language === "ar" ? <>خطّط لرحلة<br/><em>تناسبك فعلًا</em></> : <>{t("Build a trip")}<br/><em>{t("that fits.")}</em></>}</h2>
           <p>{t("Set the essentials. We’ll show you how a more considered itinerary could come together.")}</p>
           <div className="v2-mini-proof"><span><Check size={15}/></span> {t("No perfect prompt required.")}</div>
         </div>
@@ -843,7 +843,7 @@ export default function Home() {
       </section>
 
       <section className="v2-how v2-section" id="how">
-        <div className="v2-how-heading"><div className="v2-eyebrow"><span>03</span><i/> {t("HOW IT WORKS")}</div><h2>{t("From “somewhere”")}<br/>{t("to")} <em>{t("let’s go.")}</em></h2><p>{t("Keep the decisions simple. Make the trip feel like yours.")}</p></div>
+        <div className="v2-how-heading"><div className="v2-eyebrow"><span>03</span><i/> {t("HOW IT WORKS")}</div><h2>{language === "ar" ? <>من فكرة بسيطة<br/><em>إلى رحلة تستحقها</em></> : <>{t("From “somewhere”")}<br/>{t("to")} <em>{t("let’s go.")}</em></>}</h2><p>{t("Keep the decisions simple. Make the trip feel like yours.")}</p></div>
         <div className="v2-steps v2-steps-timeline">
           <article><div className="v2-step-rail"><div className="v2-step-icon"><MapPin size={21}/></div><span className="v2-step-number">01</span></div><div className="v2-step-copy"><span className="v2-step-kicker">{t("STEP 01")}</span><h3>{t("Set the essentials")}</h3><p>{t("Choose your destination, dates and a budget you’re comfortable with.")}</p></div></article>
           <article><div className="v2-step-rail"><div className="v2-step-icon"><Sparkles size={21}/></div><span className="v2-step-number">02</span></div><div className="v2-step-copy"><span className="v2-step-kicker">{t("STEP 02")}</span><h3>{t("Shape your days")}</h3><p>{t("Explore a sample itinerary shaped around your travel style.")}</p></div></article>
