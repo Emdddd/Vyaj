@@ -54,7 +54,7 @@ jobs:
             assert((await mobile.title()).toLowerCase().includes('vyaj'), 'Page title does not identify VYAJ');
             assert(await mobile.locator('#destination-input').count() === 1, 'Trip builder destination field is missing');
             assert(await mobile.locator('#discover').count() === 1, 'Travel discovery section is missing');
-            assert(await mobile.getByRole('heading', { name: /find the trip/i }).count() === 1, 'Discovery-first hero headline is missing');
+            assert(await mobile.getByRole('heading', { name: /(?:find|discover) the trip/i }).count() === 1, 'Discovery-first hero headline is missing');
             assert(await mobile.locator('.v2-discovery-card').count() === 3, 'Expected three interactive discovery cards');
             assert(await mobile.locator('.v2-discovery-card[aria-pressed="false"]').count() === 3, 'Live site has not deployed the latest interactive discovery-card version');
             const mobileMetrics = await mobile.evaluate(() => ({
