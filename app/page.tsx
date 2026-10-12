@@ -168,6 +168,9 @@ export default function Home() {
   const [flightOrigin, setFlightOrigin] = useState("Malta");
   const [flightDepartureDate, setFlightDepartureDate] = useState("");
   const [flightReturnDate, setFlightReturnDate] = useState("");
+  const [flightSearching, setFlightSearching] = useState(false);
+  const [flightError, setFlightError] = useState("");
+  const [flightResults, setFlightResults] = useState<Array<{ id: string; airline: string; price: string; currency: string; departure: string; arrival: string; duration: string; stops: number; bookingUrl: string }>>([]);
   const [airportList, setAirportList] = useState<Array<{ iata?: string; icao?: string; name?: string; city?: string; country?: string }>>([]);
   const [airportSearch, setAirportSearch] = useState("");
   const [airportMenuOpen, setAirportMenuOpen] = useState(false);
@@ -652,18 +655,32 @@ export default function Home() {
             </button>
             {flightPanelOpen && <div className="v2-flight-panel" id="v2-flight-search">
               <div className="v2-flight-panel-heading"><div><span className="v2-small-label">VYAJ FLIGHT SEARCH</span><h4>Find your way there.</h4></div><Plane size={21}/></div>
-              <p className="v2-flight-intro">Search live fares, compare airlines and continue to a booking provider. Your search opens in Google Flights.</p>
+              <p className="v2-flight-intro">Compare live flight offers by price, airline, travel time and stops. Choose an option to continue to a booking search.</p>
               <div className="v2-form-grid">
-                <label className="v2-field"><span>Flying from</span><input value={flightOrigin} onChange={event => setFlightOrigin(event.target.value)} placeholder="City or airport" autoComplete="off" required /></label>
-                <label className="v2-field"><span>Flying to</span><input value={destination} onChange={event => setDestination(event.target.value)} placeholder="Destination city" autoComplete="off" required /></label>
+                <label className="v2-field"><span>Flying from</span><input value={flightOrigin} onChange={event => { setFlightOrigin(event.target.value); setFlightResults([]); setFlightError(""); }} placeholder="City or airport" autoComplete="off" required /></label>
+                <label className="v2-field"><span>Flying to</span><input value={destination} onChange={event => { setDestination(event.target.value); setFlightResults([]); setFlightError(""); }} placeholder="Destination city" autoComplete="off" required /></label>
               </div>
               <div className="v2-form-grid">
-                <label className="v2-field"><span>Departure date</span><input type="date" value={flightDepartureDate} min={new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightDepartureDate(event.target.value); if (flightReturnDate && event.target.value > flightReturnDate) setFlightReturnDate(""); }} required /></label>
-                <label className="v2-field"><span>Return date <small>(optional)</small></span><input type="date" value={flightReturnDate} min={flightDepartureDate || new Date().toLocaleDateString("en-CA")} onChange={event => setFlightReturnDate(event.target.value)} /></label>
+                <label className="v2-field"><span>Departure date</span><input type="date" value={flightDepartureDate} min={new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightDepartureDate(event.target.value); setFlightResults([]); if (flightReturnDate && event.target.value > flightReturnDate) setFlightReturnDate(""); }} required /></label>
+                <label className="v2-field"><span>Return date <small>(optional)</small></span><input type="date" value={flightReturnDate} min={flightDepartureDate || new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightReturnDate(event.target.value); setFlightResults([]); }} /></label>
               </div>
-              <div className="v2-flight-note"><CalendarDays size={15}/><span>{flightReturnDate ? "Round trip" : "One way"} · {travellers === "5+" ? "5+ travellers" : travellers + (travellers === "1" ? " traveller" : " travellers")} · Economy</span></div>
-              <a className="v2-button v2-button-dark v2-flight-search-button" href={flightOrigin.trim() && destination.trim() && flightDepartureDate ? "https://www.google.com/travel/flights?q=" + encodeURIComponent((flightReturnDate ? "Round trip flights" : "One way flights") + " from " + flightOrigin.trim() + " to " + destination.trim() + " on " + flightDepartureDate + (flightReturnDate ? " returning " + flightReturnDate : "") + " " + (travellers === "5+" ? "5" : travellers) + " passengers economy") + "&curr=EUR&hl=en" : undefined} target="_blank" rel="noreferrer" onClick={event => { if (!flightOrigin.trim() || !destination.trim() || !flightDepartureDate) { event.preventDefault(); setError("Enter your departure city, destination and travel date to search flights."); } }}><PlaneTakeoff size={16}/> Find flights & compare prices <ArrowUpRight size={16}/></a>
-              <small className="v2-flight-disclaimer">Flight prices and airline options are shown by Google Flights and can change. VYAJ doesn’t yet display live fare results inside the app.</small>
+              <div className="v2-flight-note"><CalendarDays size={15}/><span>{flightReturnDate ? "Round trip" : "One way"} · {travellers === "5+" ? "5+ travellers" : travellers + (travellers === "1" ? " traveller" : " travellers")} · Economy · EUR</span></div>
+              <button className="v2-button v2-button-dark v2-flight-search-button" type="button" disabled={flightSearching} onClick={async () => {
+                if (!flightOrigin.trim() || !destination.trim() || !flightDepartureDate) { setFlightError("Enter your departure city, destination and departure date."); return; }
+                if (flightReturnDate && flightReturnDate < flightDepartureDate) { setFlightError("Return date must be after departure."); return; }
+                setFlightSearching(true); setFlightError(""); setFlightResults([]);
+                try {
+                  const response = await fetch("https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/search-flights", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ origin: flightOrigin.trim(), destination: destination.trim(), departureDate: flightDepartureDate, returnDate: flightReturnDate || undefined, adults: travellers === "5+" ? 5 : Number(travellers), currencyCode: "EUR" }) });
+                  const data = await response.json();
+                  if (!response.ok) throw new Error(data.error || "Flight search is unavailable right now.");
+                  if (!Array.isArray(data.offers) || !data.offers.length) throw new Error(data.error || "No matching fares found. Try another date or nearby airport.");
+                  setFlightResults(data.offers);
+                } catch (err) { setFlightError(err instanceof Error ? err.message : "Could not search flights. Please try again."); }
+                finally { setFlightSearching(false); }
+              }}>{flightSearching ? <><Sparkles size={16} className="v2-loading-sparkle"/> Searching fares…</> : <><PlaneTakeoff size={16}/> Find cheapest flights <ArrowUpRight size={16}/></>}</button>
+              {flightError && <p className="v2-form-error" role="alert">{flightError}</p>}
+              {flightResults.length > 0 && <div className="v2-flight-results" aria-live="polite"><div className="v2-flight-results-heading"><strong>{flightResults.length} flight options</strong><span>Sorted by lowest price</span></div>{flightResults.map((offer, index) => <article className="v2-flight-result" key={offer.id}><div className="v2-flight-result-main"><span className="v2-flight-airline">{offer.airline}</span><strong>{offer.departure} <span>→</span> {offer.arrival}</strong><small>{offer.duration} · {offer.stops === 0 ? "Direct" : offer.stops + (offer.stops === 1 ? " stop" : " stops")}</small></div><div className="v2-flight-result-price"><strong>{new Intl.NumberFormat("en-IE", { style: "currency", currency: offer.currency || "EUR", maximumFractionDigits: 0 }).format(Number(offer.price))}</strong><a href={offer.bookingUrl} target="_blank" rel="noreferrer">View fare <ArrowUpRight size={13}/></a></div>{index === 0 && <span className="v2-flight-best">LOWEST FARE</span>}</article>)}</div>}
+              <small className="v2-flight-disclaimer">Live offers depend on provider coverage and availability. Prices may change before booking; the booking provider confirms the final fare.</small>
             </div>}
           </div>
           <div className="v2-builder-top"><div><span className="v2-small-label">VYAJ TRIP BUILDER</span><h3>Where to next?</h3></div><span className="v2-demo-tag">DEMO</span></div>
