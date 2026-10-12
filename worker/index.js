@@ -20,12 +20,13 @@ async function handle(request, env) {
     if(!origin||!destination||origin===destination||!validDate(departureDate)||!Number.isInteger(adults)||adults<1||adults>9||(returnDate&&(!validDate(returnDate)||returnDate<departureDate)))return respond({error:"Check the airports, dates and number of travellers."},400);
     if(!env.AMADEUS_API_KEY||!env.AMADEUS_API_SECRET)return respond({error:"Live flight search is not configured yet. Add the Amadeus API credentials to the Cloudflare Worker."},503);
     try{
-      const tokenResponse=await fetch("https://test.api.amadeus.com/v1/security/oauth2/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({grant_type:"client_credentials",client_id:env.AMADEUS_API_KEY,client_secret:env.AMADEUS_API_SECRET}),signal:AbortSignal.timeout(12000)});
+      const amadeusBase=env.AMADEUS_ENV==="test"?"https://test.api.amadeus.com":"https://api.amadeus.com";
+      const tokenResponse=await fetch(amadeusBase+"/v1/security/oauth2/token",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({grant_type:"client_credentials",client_id:env.AMADEUS_API_KEY,client_secret:env.AMADEUS_API_SECRET}),signal:AbortSignal.timeout(12000)});
       const tokenBody=await tokenResponse.json().catch(()=>({}));
       if(!tokenResponse.ok||!tokenBody.access_token){console.error("Amadeus auth failed",tokenResponse.status);return respond({error:"The flight search provider could not authenticate. Check the Amadeus credentials."},502);}
       const params=new URLSearchParams({originLocationCode:origin,destinationLocationCode:destination,departureDate,adults:String(adults),currencyCode,travelClass,max:"20"});
       if(returnDate)params.set("returnDate",returnDate);
-      const offersResponse=await fetch("https://test.api.amadeus.com/v2/shopping/flight-offers?"+params.toString(),{headers:{Authorization:"Bearer "+tokenBody.access_token,Accept:"application/vnd.amadeus+json"},signal:AbortSignal.timeout(18000)});
+      const offersResponse=await fetch(amadeusBase+"/v2/shopping/flight-offers?"+params.toString(),{headers:{Authorization:"Bearer "+tokenBody.access_token,Accept:"application/vnd.amadeus+json"},signal:AbortSignal.timeout(18000)});
       const offersBody=await offersResponse.json().catch(()=>({}));
       if(!offersResponse.ok){const providerMessage=Array.isArray(offersBody.errors)?offersBody.errors[0]?.detail:"";console.error("Amadeus flight search failed",offersResponse.status,String(providerMessage||"").slice(0,200));return respond({error:offersResponse.status===429?"Flight search is busy right now. Please try again shortly.":"We couldn't retrieve flight offers for those details. Try different dates or airports."},offersResponse.status===429?429:502);}
       const carriers=offersBody.dictionaries?.carriers||{};
