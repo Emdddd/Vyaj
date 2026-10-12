@@ -1,30 +1,30 @@
-# VYAJ AI backend
+# VYAJ Cloudflare Worker
 
-This Cloudflare Worker keeps the Gemini API key server-side and exposes one endpoint: POST /api/plan.
+The Worker serves the VYAJ API at `/api/v1/actions/*`. The trip planner uses Groq server-side through `GROQ_API_KEY`; do not put this secret in frontend variables or commit it.
 
-## Deploy it
+## Deploy
 
-1. Create a Cloudflare account and install Node.js on your computer.
-2. In a terminal, clone your repo and run npm install.
-3. From the repository root, install Wrangler locally: npm install --save-dev wrangler.
-4. Authenticate: npx wrangler login.
-5. From the repository root, add the API key as a Worker secret (paste it only into the terminal prompt): npx wrangler secret put GEMINI_API_KEY
-6. Deploy the Worker: npx wrangler deploy.
-7. Copy the Worker URL printed by Wrangler, usually https://vyaj-ai-api.<your-account>.workers.dev.
-8. In GitHub repository Settings → Secrets and variables → Actions → Variables, create NEXT_PUBLIC_VYAJ_API_URL with the Worker URL, without a trailing slash.
-9. The GitHub Pages build workflow must pass NEXT_PUBLIC_VYAJ_API_URL into the build environment. The workflow file is .github/workflows/nextjs.yml.
-10. After redeployment, open https://vyaj.eu and test the planner.
+From the repository root:
+
+```bash
+npx wrangler login
+npx wrangler secret put GROQ_API_KEY
+npx wrangler deploy
+```
+
+Wrangler reads `wrangler.toml` and deploys `worker/index.js`. Enter the key only at the interactive prompt. The deployed Worker URL should match the GitHub Actions variable `NEXT_PUBLIC_VYAJ_API_URL` (base URL only, no trailing slash or `/api` suffix).
 
 ## Local development
 
-- Copy .dev.vars.example to .dev.vars and put your key in that local file (never commit .dev.vars).
-- Run npx wrangler dev; the API will usually be available at http://localhost:8787.
-- For local Next.js development, set NEXT_PUBLIC_VYAJ_API_URL=http://localhost:8787 before starting the site.
+- Copy `.dev.vars.example` to `.dev.vars` and set `GROQ_API_KEY` locally.
+- Run `npx wrangler dev` to start the Worker locally.
+- Set `NEXT_PUBLIC_VYAJ_API_URL=http://localhost:8787` for the Next.js app during local development.
 
-## Security and product notes
+## Current behavior and limitations
 
-- The API key is only read from Cloudflare Worker secrets; it is never bundled into the browser.
-- The Worker only accepts requests from vyaj.eu, www.vyaj.eu, and localhost development origins.
-- API usage can cost money and is subject to Google quotas. Check AI Studio's usage and billing before public launch.
-- This starter backend is not a complete abuse-prevention system. Add Cloudflare rate limiting or Turnstile and monitoring before promoting the public planner widely.
-- It generates planning suggestions, not verified live facts. Opening hours, ticket prices, routes, and bookings need separate data providers.
+- Implemented endpoint: `POST /api/v1/actions/plan-trip` (legacy alias: `POST /api/plan`).
+- The planner returns AI-generated itinerary suggestions and broad estimates, not live prices, verified opening hours, live routes, or booking confirmation.
+- `join-waitlist` validates the email and attempts a welcome email via Resend using `RESEND_API_KEY`. It does not persist the waitlist; the website's Formspree form is the waitlist registration store.
+- Other registered actions currently return `coming_soon`; they do not authenticate users, save trips, book travel, or persist itinerary edits.
+- CORS origin checks are not authentication and do not prevent abuse by themselves. Configure Cloudflare rate limiting/Turnstile and monitoring before broad promotion.
+- Allowed browser origins are defined in `worker/index.js`. Update that allowlist deliberately if the production domain changes.
