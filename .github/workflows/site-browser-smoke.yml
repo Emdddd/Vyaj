@@ -91,7 +91,7 @@ jobs:
             await desktop.waitForTimeout(1500);
             await desktop.screenshot({ path: 'artifacts/vyaj-desktop.png', fullPage: true });
 
-            const waitlistButton = desktop.getByRole('button', { name: /join the waitlist/i }).last();
+            const waitlistButton = desktop.getByRole('button', { name: /get early access|join the waitlist/i }).last();
             await waitlistButton.click();
             await desktop.getByRole('dialog').waitFor({ state: 'visible', timeout: 5000 });
             await desktop.keyboard.press('Escape');
