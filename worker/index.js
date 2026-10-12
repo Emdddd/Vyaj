@@ -46,29 +46,51 @@ async function handle(request, env) {
     const currencyCode=typeof payload.currencyCode==="string"&&/^[A-Z]{3}$/.test(payload.currencyCode)?payload.currencyCode:"EUR";
     const travelClass=typeof payload.travelClass==="string"&&["ECONOMY","PREMIUM_ECONOMY","BUSINESS","FIRST"].includes(payload.travelClass)?payload.travelClass:"ECONOMY";
     const tripType=returnDate?"1":"2";
-    const validDate=(v)=>/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
+    const validDate=(v)=>/^\\d{4}-\\d{2}-\\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
     if(!origin||!destination||origin===destination||!validDate(departureDate)||!Number.isInteger(adults)||adults<1||adults>9||(returnDate&&(!validDate(returnDate)||returnDate<departureDate)))return respond({error:"Check the airports, dates and number of travellers."},400);
     if(!env.SERPAPI_API_KEY)return respond({error:"Live flight search is not configured yet. Add the SERPAPI_API_KEY secret to the Cloudflare Worker."},503);
     try{
-      const params=new URLSearchParams({engine:"google_flights",api_key:env.SERPAPI_API_KEY,departure_id:origin,arrival_id:destination,outbound_date:departureDate,type:tripType,adults:String(adults),currency:currencyCode,hl:"en",gl:"mt"});
-      if(returnDate)params.set("return_date",returnDate);
       const cabinMap={ECONOMY:"1",PREMIUM_ECONOMY:"2",BUSINESS:"3",FIRST:"4"};
-      params.set("travel_class",cabinMap[travelClass]||"1");
-      const searchResponse=await fetch("https://serpapi.com/search.json?"+params.toString(),{headers:{Accept:"application/json"},signal:AbortSignal.timeout(45000)});
-      const searchBody=await searchResponse.json().catch(()=>({}));
-      if(!searchResponse.ok||searchBody.error){const providerMessage=typeof searchBody.error==="string"?searchBody.error:"";console.error("SerpApi flight search failed",searchResponse.status,providerMessage.slice(0,200));return respond({error:searchResponse.status===429?"Flight search limit reached. Please try again later.":"We couldn't retrieve flight results for those details. Please try different dates or airports."},searchResponse.status===429?429:502);}
-      const flights=[...(Array.isArray(searchBody.best_flights)?searchBody.best_flights:[]),...(Array.isArray(searchBody.other_flights)?searchBody.other_flights:[])];
+      const baseParams=new URLSearchParams({engine:"google_flights",api_key:env.SERPAPI_API_KEY,departure_id:origin,arrival_id:destination,outbound_date:departureDate,type:tripType,adults:String(adults),currency:currencyCode,hl:"en",gl:"mt",travel_class:cabinMap[travelClass]||"1"});
+      if(returnDate)baseParams.set("return_date",returnDate);
+      const requestJson=async(params)=>{const response=await fetch("https://serpapi.com/search.json?"+params.toString(),{headers:{Accept:"application/json"},signal:AbortSignal.timeout(45000)});const body=await response.json().catch(()=>({}));if(!response.ok||body.error)throw new Error(response.status===429?"RATE_LIMIT":"PROVIDER_ERROR");return body;};
+      const searchBody=await requestJson(baseParams);
+      const outbound=[...(Array.isArray(searchBody.best_flights)?searchBody.best_flights:[]),...(Array.isArray(searchBody.other_flights)?searchBody.other_flights:[])];
       const formatTime=(value)=>typeof value==="string"&&value.length>=16?value.slice(11,16):"—";
       const formatDuration=(value)=>{const n=Number(value);if(!Number.isFinite(n))return "—";const h=Math.floor(n/60),m=n%60;return [h?h+"h":"",m?m+"m":""] .filter(Boolean).join(" ")||"0m";};
-      const data=flights.map((itinerary,index)=>{
-        const segments=Array.isArray(itinerary.flights)?itinerary.flights:[],first=segments[0],last=segments[segments.length-1];
-        const price=Number(itinerary.price);
-        const bookingOptions=Array.isArray(itinerary.booking_options)?itinerary.booking_options:[];
-        const bookingUrl=bookingOptions.find((option)=>typeof option?.link==="string"&&/^https?:\/\//i.test(option.link))?.link||"";
-        return {id:String(itinerary.departure_token||index),bookingToken:typeof itinerary.booking_token==="string"?itinerary.booking_token:"",airline:segments.map((segment)=>segment.airline).filter(Boolean).filter((name,i,all)=>all.indexOf(name)===i).join(" · ")||"Airline",price:Number.isFinite(price)?String(price):"",currency:currencyCode,departure:formatTime(first?.departure_airport?.time),arrival:formatTime(last?.arrival_airport?.time),duration:formatDuration(itinerary.total_duration),stops:Math.max(0,segments.length-1),bookingUrl};
-      }).filter((flight)=>flight.price&&flight.departure!=="—"&&flight.arrival!=="—").sort((a,b)=>Number(a.price)-Number(b.price)).slice(0,20);
-      return respond({status:"available",feature:"search-flights",data,provider:"Google Flights via SerpApi"},200);
-    }catch(error){console.error("SerpApi flight search failed",error instanceof Error?error.name+":"+error.message:String(error));return respond({error:"We couldn't connect to the flight search provider. Please try again."},502);}
+      let itineraries=[];
+      if(returnDate){
+        // SerpApi round trips require selecting an outbound itinerary with departure_token,
+        // then requesting its matching return options. Only inspect the six cheapest outbound options.
+        const candidates=outbound.filter(item=>typeof item.departure_token==="string"&&item.departure_token);
+        const top=candidates.sort((x,y)=>(Number(x.price)||Infinity)-(Number(y.price)||Infinity)).slice(0,6);
+        const matched=await Promise.all(top.map(async(item)=>{
+          try{
+            const params=new URLSearchParams({engine:"google_flights",api_key:env.SERPAPI_API_KEY,departure_token:item.departure_token,currency:currencyCode,hl:"en",gl:"mt"});
+            const body=await requestJson(params);
+            const returns=[...(Array.isArray(body.best_flights)?body.best_flights:[]),...(Array.isArray(body.other_flights)?body.other_flights:[])];
+            const chosen=returns.filter(f=>Array.isArray(f.flights)&&f.flights.length).sort((x,y)=>(Number(x.price)||Infinity)-(Number(y.price)||Infinity))[0];
+            if(!chosen)return null;
+            const outboundSegments=Array.isArray(item.flights)?item.flights:[];
+            const returnSegments=Array.isArray(chosen.flights)?chosen.flights:[];
+            const segments=[...outboundSegments,...returnSegments];
+            const price=Number(chosen.price??item.price);
+            if(!Number.isFinite(price)||!segments.length)return null;
+            return {raw:chosen,segments,price,token:typeof chosen.booking_token==="string"?chosen.booking_token:"",outboundSegments,returnSegments};
+          }catch(e){console.error("Round-trip return lookup failed",e instanceof Error?e.message:String(e));return null;}
+        }));
+        itineraries=matched.filter(Boolean);
+      }else{
+        itineraries=outbound.map(item=>({raw:item,segments:Array.isArray(item.flights)?item.flights:[],price:Number(item.price),token:typeof item.booking_token==="string"?item.booking_token:""}));
+      }
+      const data=itineraries.map((item,index)=>{
+        const segments=item.segments||[],first=segments[0],last=segments[segments.length-1],raw=item.raw||{};
+        const bookingOptions=Array.isArray(raw.booking_options)?raw.booking_options:[];
+        const bookingUrl=bookingOptions.map(option=>option?.link||option?.url).find(value=>typeof value==="string"&&/^https?:\\/\\//i.test(value))||"";
+        return {id:String(item.token||raw.departure_token||index),bookingToken:item.token||"",airline:segments.map(segment=>segment.airline).filter(Boolean).filter((name,i,all)=>all.indexOf(name)===i).join(" · ")||"Airline",price:String(item.price),currency:currencyCode,departure:formatTime(first?.departure_airport?.time),arrival:formatTime(last?.arrival_airport?.time),duration:formatDuration(Number(raw.total_duration)),stops:Math.max(0,segments.length-1),bookingUrl};
+      }).filter(flight=>flight.price&&flight.departure!=="—"&&flight.arrival!=="—").sort((a,b)=>Number(a.price)-Number(b.price)).slice(0,20);
+      return respond({status:data.length?"available":"unavailable",feature:"search-flights",data,provider:"Google Flights via SerpApi"},200);
+    }catch(error){const reason=error instanceof Error?error.message:"";console.error("SerpApi flight search failed",reason);return respond({error:reason==="RATE_LIMIT"?"Flight search limit reached. Please try again later.":"We couldn't retrieve complete flight results for those details. Please try different dates or airports."},reason==="RATE_LIMIT"?429:502);}
   } if(action==="join-waitlist"){
     const email=typeof payload.email==="string"?payload.email.trim().toLowerCase():"";
     if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return respond({error:"Enter a valid email address and try again."},400);
