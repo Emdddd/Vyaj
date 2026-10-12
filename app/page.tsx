@@ -166,6 +166,11 @@ export default function Home() {
   const [departureCity, setDepartureCity] = useState("");
   const [flightPanelOpen, setFlightPanelOpen] = useState(false);
   const [flightOrigin, setFlightOrigin] = useState("Malta");
+  const [flightDestination, setFlightDestination] = useState("Paris, France");
+  const [flightOriginCode, setFlightOriginCode] = useState("");
+  const [flightDestinationCode, setFlightDestinationCode] = useState("");
+  const [flightOriginMenuOpen, setFlightOriginMenuOpen] = useState(false);
+  const [flightDestinationMenuOpen, setFlightDestinationMenuOpen] = useState(false);
   const [flightDepartureDate, setFlightDepartureDate] = useState("");
   const [flightReturnDate, setFlightReturnDate] = useState("");
   const [flightSearching, setFlightSearching] = useState(false);
@@ -235,7 +240,7 @@ export default function Home() {
 
   const tripIdea = useMemo(() => demoIdeas[style], [style]);
   useEffect(() => {
-    if (!airportMenuOpen || airportList.length || airportLoading) return;
+    if (!(airportMenuOpen || flightOriginMenuOpen || flightDestinationMenuOpen) || airportList.length || airportLoading) return;
     let cancelled = false;
     setAirportLoading(true);
     setAirportLoadError("");
@@ -259,7 +264,7 @@ export default function Home() {
         if (!cancelled) setAirportLoading(false);
       });
     return () => { cancelled = true; };
-  }, [airportMenuOpen, airportList.length]);
+  }, [airportMenuOpen, flightOriginMenuOpen, flightDestinationMenuOpen, airportList.length]);
 
   const filteredAirports = useMemo(() => {
     const query = airportSearch.trim().toLowerCase();
@@ -269,6 +274,16 @@ export default function Home() {
     });
     return matching.slice(0, 30);
   }, [airportList, airportSearch]);
+
+  const filterAirportOptions = (query: string) => {
+    const normalized = query.trim().toLowerCase();
+    return airportList.filter(airport => {
+      const haystack = [airport.iata, airport.icao, airport.name, airport.city, airport.country].filter(Boolean).join(" ").toLowerCase();
+      return !normalized || haystack.includes(normalized);
+    }).slice(0, 8);
+  };
+  const flightOriginAirports = useMemo(() => filterAirportOptions(flightOriginMenuOpen ? flightOrigin : ""), [airportList, flightOrigin, flightOriginMenuOpen]);
+  const flightDestinationAirports = useMemo(() => filterAirportOptions(flightDestinationMenuOpen ? flightDestination : ""), [airportList, flightDestination, flightDestinationMenuOpen]);
 
   const filteredDestinations = useMemo(() => {
     const query = destination.trim().toLocaleLowerCase();
@@ -657,8 +672,8 @@ export default function Home() {
               <div className="v2-flight-panel-heading"><div><span className="v2-small-label">VYAJ FLIGHT SEARCH</span><h4>Find your way there.</h4></div><Plane size={21}/></div>
               <p className="v2-flight-intro">Compare live flight offers by price, airline, travel time and stops. Choose an option to continue to a booking search.</p>
               <div className="v2-form-grid">
-                <label className="v2-field"><span>Flying from</span><input value={flightOrigin} onChange={event => { setFlightOrigin(event.target.value); setFlightResults([]); setFlightError(""); }} placeholder="City or airport" autoComplete="off" required /></label>
-                <label className="v2-field"><span>Flying to</span><input value={destination} onChange={event => { setDestination(event.target.value); setFlightResults([]); setFlightError(""); }} placeholder="Destination city" autoComplete="off" required /></label>
+                <div className="v2-field v2-airport-field"><label htmlFor="flight-origin-input"><span>Flying from</span></label><input id="flight-origin-input" value={flightOrigin} onFocus={() => setFlightOriginMenuOpen(true)} onBlur={() => window.setTimeout(() => setFlightOriginMenuOpen(false), 160)} onChange={event => { setFlightOrigin(event.target.value); setFlightOriginCode(""); setFlightOriginMenuOpen(true); setFlightResults([]); setFlightError(""); }} placeholder="Search any airport or city" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={flightOriginMenuOpen} aria-controls="flight-origin-options" required />{flightOriginMenuOpen && <div className="v2-destination-suggestions v2-airport-suggestions" id="flight-origin-options" role="listbox" aria-label="Departure airports">{airportLoading && <p className="v2-airport-status">Loading worldwide airports…</p>}{airportLoadError && <p className="v2-airport-status">{airportLoadError}</p>}{!airportLoading && !airportLoadError && flightOriginAirports.map((airport,index) => { const code=airport.iata || ""; const label=[airport.city,airport.country].filter(Boolean).join(", "); return <button type="button" role="option" aria-selected={flightOriginCode===code} className="v2-destination-suggestion" key={code || airport.name || index} onMouseDown={event=>event.preventDefault()} onClick={()=>{setFlightOrigin([label,airport.name].filter(Boolean).join(" · ") + (code ? " ("+code+")" : ""));setFlightOriginCode(code);setFlightOriginMenuOpen(false);setFlightResults([]);setFlightError("");}}><span className="v2-destination-pin"><PlaneTakeoff size={14}/></span><span className="v2-destination-copy"><strong>{airport.name}</strong><small>{label || airport.country || "Airport"}{code ? " · "+code : ""}</small></span></button>;})}{!airportLoading && !airportLoadError && airportList.length>0 && flightOriginAirports.length===0 && <p className="v2-airport-status">No matching airport. Try a city, airport name or IATA code.</p>}</div>}</div>
+                <div className="v2-field v2-airport-field"><label htmlFor="flight-destination-input"><span>Flying to</span></label><input id="flight-destination-input" value={flightDestination} onFocus={() => setFlightDestinationMenuOpen(true)} onBlur={() => window.setTimeout(() => setFlightDestinationMenuOpen(false), 160)} onChange={event => { setFlightDestination(event.target.value); setFlightDestinationCode(""); setFlightDestinationMenuOpen(true); setFlightResults([]); setFlightError(""); }} placeholder="Search any airport or city" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={flightDestinationMenuOpen} aria-controls="flight-destination-options" required />{flightDestinationMenuOpen && <div className="v2-destination-suggestions v2-airport-suggestions" id="flight-destination-options" role="listbox" aria-label="Arrival airports">{airportLoading && <p className="v2-airport-status">Loading worldwide airports…</p>}{airportLoadError && <p className="v2-airport-status">{airportLoadError}</p>}{!airportLoading && !airportLoadError && flightDestinationAirports.map((airport,index) => { const code=airport.iata || ""; const label=[airport.city,airport.country].filter(Boolean).join(", "); return <button type="button" role="option" aria-selected={flightDestinationCode===code} className="v2-destination-suggestion" key={code || airport.name || index} onMouseDown={event=>event.preventDefault()} onClick={()=>{setFlightDestination([label,airport.name].filter(Boolean).join(" · ") + (code ? " ("+code+")" : ""));setFlightDestinationCode(code);setDestination([label,airport.name].filter(Boolean).join(", ") || label);setFlightDestinationMenuOpen(false);setFlightResults([]);setFlightError("");}}><span className="v2-destination-pin"><PlaneTakeoff size={14}/></span><span className="v2-destination-copy"><strong>{airport.name}</strong><small>{label || airport.country || "Airport"}{code ? " · "+code : ""}</small></span></button>;})}{!airportLoading && !airportLoadError && airportList.length>0 && flightDestinationAirports.length===0 && <p className="v2-airport-status">No matching airport. Try a city, airport name or IATA code.</p>}</div>}</div>
               </div>
               <div className="v2-form-grid">
                 <label className="v2-field"><span>Departure date</span><input type="date" value={flightDepartureDate} min={new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightDepartureDate(event.target.value); setFlightResults([]); if (flightReturnDate && event.target.value > flightReturnDate) setFlightReturnDate(""); }} required /></label>
@@ -666,11 +681,11 @@ export default function Home() {
               </div>
               <div className="v2-flight-note"><CalendarDays size={15}/><span>{flightReturnDate ? "Round trip" : "One way"} · {travellers === "5+" ? "5+ travellers" : travellers + (travellers === "1" ? " traveller" : " travellers")} · Economy · EUR</span></div>
               <button className="v2-button v2-button-dark v2-flight-search-button" type="button" disabled={flightSearching} onClick={async () => {
-                if (!flightOrigin.trim() || !destination.trim() || !flightDepartureDate) { setFlightError("Enter your departure city, destination and departure date."); return; }
+                if (!flightOrigin.trim() || !flightDestination.trim() || !flightDepartureDate) { setFlightError("Enter your departure city, destination and departure date."); return; }
                 if (flightReturnDate && flightReturnDate < flightDepartureDate) { setFlightError("Return date must be after departure."); return; }
                 setFlightSearching(true); setFlightError(""); setFlightResults([]);
                 try {
-                  const response = await fetch("https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/search-flights", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ origin: flightOrigin.trim(), destination: destination.trim(), departureDate: flightDepartureDate, returnDate: flightReturnDate || undefined, adults: travellers === "5+" ? 5 : Number(travellers), currencyCode: "EUR" }) });
+                  const response = await fetch("https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/search-flights", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ origin: flightOriginCode || flightOrigin.trim(), destination: flightDestinationCode || flightDestination.trim(), departureDate: flightDepartureDate, returnDate: flightReturnDate || undefined, adults: travellers === "5+" ? 5 : Number(travellers), currencyCode: "EUR" }) });
                   const data = await response.json();
                   if (!response.ok) throw new Error(data.error || "Flight search is unavailable right now.");
                   if (!Array.isArray(data.offers) || !data.offers.length) throw new Error(data.error || "No matching fares found. Try another date or nearby airport.");
