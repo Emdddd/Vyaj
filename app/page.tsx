@@ -761,7 +761,7 @@ export default function Home() {
                 if (!origin || !destination) { setFlightError(t("Choose an airport from the suggestions for both departure and destination.")); return; }
                 setFlightSearching(true);
                 try {
-                  const response = await postAction<Array<{ id: string; airline: string; price: string; currency: string; departure: string; arrival: string; duration: string; stops: number; bookingUrl: string }>>("search-flights", {
+                  const response = await postAction<Array<{ id: string; bookingToken: string; airline: string; price: string; currency: string; departure: string; arrival: string; duration: string; stops: number; bookingUrl: string }>>("search-flights", {
                     origin, destination, departureDate: flightDepartureDate,
                     ...(flightTripType === "roundtrip" ? { returnDate: flightReturnDate } : {}),
                     adults: travellers === "5+" ? 5 : Number(travellers) || 1, currencyCode: "EUR", travelClass: "ECONOMY"
