@@ -703,7 +703,7 @@ export default function Home() {
                 const passengerCount = travellers === "5+" ? "5 passengers" : `${travellers} ${travellers === "1" ? "passenger" : "passengers"}`;
                 const searchText = `${route}${dates}, ${passengerCount}, economy, prices in EUR`;
                 window.location.href = `https://www.google.com/search?${new URLSearchParams({ q: searchText }).toString()}`;
-              }}><PlaneTakeoff size={16}/> Search flights on Google <ArrowUpRight size={16}/></button>
+              }}><PlaneTakeoff size={16}/> Search cheapest flights <ArrowUpRight size={16}/></button>
               {flightError && <p className="v2-form-error" role="alert">{flightError}</p>}
               <small className="v2-flight-disclaimer">You’ll continue to Google Flights to compare current fares and book with the airline or travel provider. Prices and availability are confirmed by the provider.</small>
             </div>}
