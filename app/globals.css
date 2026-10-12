@@ -1210,3 +1210,21 @@ body { -webkit-font-smoothing: antialiased; }
   white-space: normal;
   line-height: 1.45;
 }
+
+
+/* Correct Arabic punctuation and reading flow without flipping the page layout. */
+.v2-lang-ar :is(h1,h2,h3,h4,p,small,label,legend,li) {
+  direction: rtl;
+  unicode-bidi: plaintext;
+  text-align: left;
+}
+.v2-lang-ar .v2-hero h1,
+.v2-lang-ar .v2-discovery-heading h2,
+.v2-lang-ar .v2-section-intro h2,
+.v2-lang-ar .v2-how-heading h2,
+.v2-lang-ar .v2-availability-heading h2,
+.v2-lang-ar .v2-early-copy h2 {
+  line-height: 1.5 !important;
+  overflow-wrap: normal;
+  word-break: normal;
+}
