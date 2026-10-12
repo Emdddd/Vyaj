@@ -224,7 +224,8 @@ export default function Home() {
   useEffect(() => {
     if (!menuOpen) return;
     const closeOnOutsidePress = (event: PointerEvent) => {
-      if (event.target instanceof Node && !headerRef.current?.contains(event.target)) setMenuOpen(false);
+      const header = headerRef.current;
+      if (header && !event.composedPath().includes(header)) setMenuOpen(false);
     };
     document.addEventListener("pointerdown", closeOnOutsidePress);
     return () => document.removeEventListener("pointerdown", closeOnOutsidePress);
