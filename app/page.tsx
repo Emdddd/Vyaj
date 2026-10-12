@@ -196,7 +196,7 @@ export default function Home() {
   const [flightTripType, setFlightTripType] = useState<"roundtrip" | "oneway">("roundtrip");
   const [flightSearching, setFlightSearching] = useState(false);
   const [flightError, setFlightError] = useState("");
-  const [flightResults, setFlightResults] = useState<Array<{ id: string; airline: string; price: string; currency: string; departure: string; arrival: string; duration: string; stops: number; bookingUrl: string }>>([]);
+  const [flightResults, setFlightResults] = useState<Array<{ id: string; bookingToken: string; airline: string; price: string; currency: string; departure: string; arrival: string; duration: string; stops: number; bookingUrl: string }>>([]);
   const [airportList, setAirportList] = useState<Array<{ iata?: string; icao?: string; name?: string; city?: string; country?: string }>>([]);
   const [airportSearch, setAirportSearch] = useState("");
   const [airportMenuOpen, setAirportMenuOpen] = useState(false);
@@ -654,6 +654,31 @@ export default function Home() {
     }, 450);
   }
 
+  async function openFlightBooking(flight: { id: string; bookingToken: string; airline: string; price: string; currency: string; bookingUrl: string }) {
+    setFlightError("");
+    const bookingTab = window.open("about:blank", "_blank");
+    if (!bookingTab) {
+      setFlightError("Your browser blocked the booking window. Allow pop-ups for VYAJ and try again.");
+      return;
+    }
+    bookingTab.document.title = "VYAJ · Opening booking options";
+    bookingTab.document.body.innerHTML = '<p style="font-family:Arial,sans-serif;padding:24px;color:#17394b">Opening the booking page for your selected flight…</p>';
+    try {
+      if (flight.bookingUrl && /^https?:\/\//i.test(flight.bookingUrl)) {
+        bookingTab.location.replace(flight.bookingUrl);
+        return;
+      }
+      if (!flight.bookingToken) throw new Error("The provider did not return a booking token for this flight. Search again or choose another flight.");
+      const response = await postAction<{ options: Array<{ provider: string; price: number | null; url: string }> }>("flight-booking-options", { bookingToken: flight.bookingToken, currencyCode: flight.currency || "EUR" });
+      const option = response.data?.options?.find(item => typeof item.url === "string" && /^https?:\/\//i.test(item.url));
+      if (!option) throw new Error("The provider has no direct booking link for this exact flight right now. Please choose another flight.");
+      bookingTab.location.replace(option.url);
+    } catch (error) {
+      bookingTab.close();
+      setFlightError(error instanceof Error ? error.message : "We couldn't open the booking page for this flight. Please try another option.");
+    }
+  }
+
   return (
     <main className={`v2-site v2-lang-${language}`} lang={language} dir="ltr">
       <header ref={headerRef} className={headerScrolled ? "v2-header v2-header-scrolled" : "v2-header"}>
@@ -754,7 +779,7 @@ export default function Home() {
                 <div className="v2-flight-results-heading"><strong>{t("Live flight results")}</strong><span>{flightResults.length} {t("options")} · EUR</span></div>
                 {flightResults.map((flight) => <article className="v2-flight-result-card" key={flight.id}>
                   <div className="v2-flight-result-main"><div className="v2-flight-airline"><Plane size={16}/><strong>{flight.airline}</strong></div><div className="v2-flight-times"><div><strong>{flight.departure}</strong><small>{origin}</small></div><span className="v2-flight-route-line"><i/></span><div><strong>{flight.arrival}</strong><small>{destination}</small></div></div><div className="v2-flight-meta"><span>{flight.duration}</span><span>{flight.stops === 0 ? t("Direct") : `${flight.stops} ${t("stops")}`}</span></div></div>
-                  <div className="v2-flight-result-price"><a className="v2-flight-price-link" href={flight.bookingUrl || `https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from ${flightOrigin} to ${flightDestination} on ${flightDepartureDate}${flightTripType === "roundtrip" && flightReturnDate ? ` returning ${flightReturnDate}` : ""}`)}`} target="_blank" rel="noopener noreferrer" aria-label={`${t("Continue to booking")} — ${flight.airline}, ${flight.price} ${flight.currency || "EUR"}`}><strong>{new Intl.NumberFormat("en-IE", {style:"currency",currency:flight.currency || "EUR",maximumFractionDigits:0}).format(Number(flight.price))}</strong><ArrowRight size={16}/></a><small>{t("per traveller")}</small><span>{t("Fare from provider")}</span><a href={flight.bookingUrl || `https://www.google.com/travel/flights?q=${encodeURIComponent(`Flights from ${flightOrigin} to ${flightDestination} on ${flightDepartureDate}${flightTripType === "roundtrip" && flightReturnDate ? ` returning ${flightReturnDate}` : ""}`)}`} target="_blank" rel="noopener noreferrer">{t("View booking options")} <ArrowRight size={12}/></a></div>
+                  <div className="v2-flight-result-price"><a className="v2-flight-price-link" href="#flight-booking" onClick={event => { event.preventDefault(); void openFlightBooking(flight); }} aria-label={`${t("Continue to booking")} — ${flight.airline}, ${flight.price} ${flight.currency || "EUR"}`}><strong>{new Intl.NumberFormat("en-IE", {style:"currency",currency:flight.currency || "EUR",maximumFractionDigits:0}).format(Number(flight.price))}</strong><ArrowRight size={16}/></a><small>{t("per traveller")}</small><span>{t("Fare from provider")}</span><a href="#flight-booking" onClick={event => { event.preventDefault(); void openFlightBooking(flight); }}>{t("View booking options")} <ArrowRight size={12}/></a></div>
                 </article>)}
                 <p className="v2-flight-disclaimer">{t("Prices and availability can change until confirmed. Booking and ticket issuance are not yet available directly inside VYAJ.")}</p>
               </div>}
