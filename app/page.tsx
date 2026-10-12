@@ -211,6 +211,7 @@ export default function Home() {
   const [plannerLoading, setPlannerLoading] = useState(false);
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
   const [noticeOpen, setNoticeOpen] = useState(false);
   const [waitlistEmail, setWaitlistEmail] = useState("");
   const [waitlistStatus, setWaitlistStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -218,6 +219,13 @@ export default function Home() {
   const [selectedMood, setSelectedMood] = useState("");
   const [language, setLanguage] = useState<Language>("en");
   const t = (value: string) => pageCopy[language][value] || translations[language][value] || value;
+
+  useEffect(() => {
+    const updateHeader = () => setHeaderScrolled(window.scrollY > 12);
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+    return () => window.removeEventListener("scroll", updateHeader);
+  }, []);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -637,7 +645,7 @@ export default function Home() {
 
   return (
     <main className={`v2-site v2-lang-${language}`} lang={language} dir="ltr">
-      <header className="v2-header">
+      <header className={headerScrolled ? "v2-header v2-header-scrolled" : "v2-header"}>
         <a href="#top" className="v2-brand" aria-label="VYAJ home"><img src="/D0F8F0DA-F8C9-4B07-8ED2-B6B0F1A5D567.png" alt="VYAJ" /></a>
         <button type="button" className="v2-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
         <nav className={menuOpen ? "v2-nav v2-nav-open" : "v2-nav"} aria-label="Main navigation">
