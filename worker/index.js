@@ -86,7 +86,7 @@ async function handle(request, env) {
       const data=itineraries.map((item,index)=>{
         const segments=item.segments||[],first=segments[0],last=segments[segments.length-1],raw=item.raw||{};
         const bookingOptions=Array.isArray(raw.booking_options)?raw.booking_options:[];
-        const bookingUrl=bookingOptions.map(option=>option?.link||option?.url).find(value=>typeof value==="string"&&/^https?:\\/\\//i.test(value))||"";
+        const bookingUrl=bookingOptions.map(option=>option?.link||option?.url).find(value=>typeof value==="string"&&(value.startsWith("https://")||value.startsWith("http://")))||"";
         return {id:String(item.token||raw.departure_token||index),bookingToken:item.token||"",airline:segments.map(segment=>segment.airline).filter(Boolean).filter((name,i,all)=>all.indexOf(name)===i).join(" · ")||"Airline",price:String(item.price),currency:currencyCode,departure:formatTime(first?.departure_airport?.time),arrival:formatTime(last?.arrival_airport?.time),duration:formatDuration(Number(raw.total_duration)),stops:Math.max(0,segments.length-1),bookingUrl};
       }).filter(flight=>flight.price&&flight.departure!=="—"&&flight.arrival!=="—").sort((a,b)=>Number(a.price)-Number(b.price)).slice(0,20);
       return respond({status:data.length?"available":"unavailable",feature:"search-flights",data,provider:"Google Flights via SerpApi"},200);
