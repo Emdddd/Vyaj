@@ -1091,3 +1091,60 @@ body { -webkit-font-smoothing: antialiased; }
 /* Arabic copy uses a clean, familiar system sans-serif. Layout direction stays LTR by design. */
 .v2-lang-ar, .v2-lang-ar button, .v2-lang-ar input, .v2-lang-ar select, .v2-lang-ar textarea { font-family: Tahoma, Arial, sans-serif; }
 .v2-lang-ar h1, .v2-lang-ar h2, .v2-lang-ar h3, .v2-lang-ar h4, .v2-lang-ar p, .v2-lang-ar small, .v2-lang-ar strong, .v2-lang-ar label, .v2-lang-ar a, .v2-lang-ar button, .v2-lang-ar span { font-family: Tahoma, Arial, sans-serif; }
+
+
+/* Arabic typography refinement: preserve the existing LTR page layout, but render Arabic text with proper shaping and comfortable line spacing. */
+.v2-lang-ar,
+.v2-lang-ar button,
+.v2-lang-ar input,
+.v2-lang-ar select,
+.v2-lang-ar textarea,
+.v2-lang-ar h1,
+.v2-lang-ar h2,
+.v2-lang-ar h3,
+.v2-lang-ar h4,
+.v2-lang-ar p,
+.v2-lang-ar small,
+.v2-lang-ar strong,
+.v2-lang-ar label,
+.v2-lang-ar a,
+.v2-lang-ar span,
+.v2-lang-ar li {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+  letter-spacing: normal !important;
+  word-spacing: normal;
+  font-kerning: normal;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+.v2-lang-ar h1,
+.v2-lang-ar h2,
+.v2-lang-ar h3,
+.v2-lang-ar h4 {
+  line-height: 1.35 !important;
+  font-weight: 650;
+  text-wrap: pretty;
+}
+.v2-lang-ar p,
+.v2-lang-ar small,
+.v2-lang-ar label,
+.v2-lang-ar .v2-hero-live-label,
+.v2-lang-ar .v2-card-kicker,
+.v2-lang-ar .v2-eyebrow,
+.v2-lang-ar .v2-discovery-index,
+.v2-lang-ar .v2-discovery-note,
+.v2-lang-ar .v2-hero-foot,
+.v2-lang-ar .v2-hero-lead,
+.v2-lang-ar .v2-hero-mini-destination,
+.v2-lang-ar .v2-steps-timeline p {
+  line-height: 1.9;
+}
+.v2-lang-ar .v2-hero h1 { line-height: 1.32 !important; }
+.v2-lang-ar .v2-discovery-heading h2 { line-height: 1.38 !important; }
+.v2-lang-ar .v2-section-intro h2,
+.v2-lang-ar .v2-how-heading h2,
+.v2-lang-ar .v2-availability-heading h2,
+.v2-lang-ar .v2-early-copy h2 { line-height: 1.38 !important; }
+.v2-lang-ar .v2-hero h1 span,
+.v2-lang-ar .v2-discovery-heading h2 em,
+.v2-lang-ar .v2-section-intro h2 em,
+.v2-lang-ar .v2-how-heading h2 em { letter-spacing: normal !important; }
