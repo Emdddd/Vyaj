@@ -1065,3 +1065,8 @@ body { -webkit-font-smoothing: antialiased; }
 .v2-trip-type-option{border:1px solid #dce8ed;border-radius:6px;padding:8px 12px;background:#fff;color:#587080;font-size:11px;font-weight:700;cursor:pointer}
 .v2-trip-type-option-active{border-color:#26c6da;background:#eafafd;color:#087e94}
 @media(max-width:480px){.v2-planner-tabs{gap:6px}.v2-planner-tab{padding:10px 8px;gap:7px}.v2-planner-tab strong{font-size:11px}.v2-planner-tab small{font-size:9px}}
+
+/* Keep native date controls fully inside their grid cells, including iOS Safari. */
+.v2-flight-date-grid{grid-template-columns:minmax(0,1fr);width:100%;min-width:0;}
+.v2-flight-date-grid>.v2-flight-date-field{display:flex;width:100%;min-width:0;max-width:100%;}
+.v2-flight-date-field input[type="date"]{display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;appearance:auto;-webkit-appearance:auto;}
