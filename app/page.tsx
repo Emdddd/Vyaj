@@ -811,7 +811,7 @@ export default function Home() {
             <div className="v2-result-content">
               <div className="v2-trip-summary">
                 <div className="v2-summary-icon"><MapPin size={19}/></div>
-                <div className="v2-summary-main"><span className="v2-small-label">{t("YOUR VYAJ ITINERARY")}</span><h3>{aiItinerary.tripTitle || aiItinerary.destination || destination}</h3><p>{aiItinerary.destination || destination} <span>·</span> {days} {t("days")} <span>·</span> {travellers} {t("travellers")} <span>·</span> {t(style)}</p></div>
+                <div className="v2-summary-main"><span className="v2-small-label">{t("YOUR VYAJ ITINERARY")}</span><h3>{aiItinerary.tripTitle || destination}</h3><p>{destination} <span>·</span> {days} {t("days")} <span>·</span> {travellers} {t("travellers")} <span>·</span> {t(style)}</p></div>
                 <span className="v2-demo-tag v2-demo-tag-dark">{t("AI PLAN")}</span>
               </div>
               <p className="v2-day-focus">{aiItinerary.overview}</p>
