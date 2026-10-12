@@ -685,12 +685,13 @@ export default function Home() {
                 setFlightError("");
                 if (!flightOrigin.trim() || !flightDestination.trim() || !flightDepartureDate) { setFlightError("Enter your departure city, destination and departure date."); return; }
                 if (flightReturnDate && flightReturnDate < flightDepartureDate) { setFlightError("Return date must be after departure."); return; }
-                const from = flightOriginCode || flightOrigin.trim();
-                const to = flightDestinationCode || flightDestination.trim();
-                const route = `Flights from ${from} to ${to}`;
-                const dates = flightReturnDate ? ` on ${flightDepartureDate} through ${flightReturnDate}` : ` on ${flightDepartureDate}`;
-                const query = new URLSearchParams({ q: route + dates, curr: "EUR" });
-                window.location.href = `https://www.google.com/travel/flights?${query.toString()}`;
+                const from = flightOrigin.trim();
+                const to = flightDestination.trim();
+                const route = `Google Flights from ${from} to ${to}`;
+                const dates = flightReturnDate ? ` departing ${flightDepartureDate} returning ${flightReturnDate}` : ` departing ${flightDepartureDate}`;
+                const passengerCount = travellers === "5+" ? "5 passengers" : `${travellers} ${travellers === "1" ? "passenger" : "passengers"}`;
+                const searchText = `${route}${dates}, ${passengerCount}, economy, prices in EUR`;
+                window.location.href = `https://www.google.com/search?${new URLSearchParams({ q: searchText }).toString()}`;
               }}><PlaneTakeoff size={16}/> Search flights on Google <ArrowUpRight size={16}/></button>
               {flightError && <p className="v2-form-error" role="alert">{flightError}</p>}
               <small className="v2-flight-disclaimer">You’ll continue to Google Flights to compare current fares and book with the airline or travel provider. Prices and availability are confirmed by the provider.</small>
