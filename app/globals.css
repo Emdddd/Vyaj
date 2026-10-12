@@ -1281,3 +1281,19 @@ body { -webkit-font-smoothing: antialiased; }
     border-bottom-color: rgba(221, 230, 237, .9);
   }
 }
+
+
+/* Keep the mobile header in a stable tap layer on iOS while scrolling */
+@media (max-width: 720px) {
+  .v2-site { padding-top: 88px; }
+  .v2-header {
+    position: fixed;
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    left: 14px;
+    right: 14px;
+    width: auto;
+    margin: 0;
+    z-index: 1000;
+    touch-action: manipulation;
+  }
+}
