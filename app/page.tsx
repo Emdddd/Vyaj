@@ -173,6 +173,7 @@ export default function Home() {
   const [flightDestinationMenuOpen, setFlightDestinationMenuOpen] = useState(false);
   const [flightDepartureDate, setFlightDepartureDate] = useState("");
   const [flightReturnDate, setFlightReturnDate] = useState("");
+  const [flightTripType, setFlightTripType] = useState<"roundtrip" | "oneway">("roundtrip");
   const [flightSearching, setFlightSearching] = useState(false);
   const [flightError, setFlightError] = useState("");
   const [flightResults, setFlightResults] = useState<Array<{ id: string; airline: string; price: string; currency: string; departure: string; arrival: string; duration: string; stops: number; bookingUrl: string }>>([]);
@@ -665,10 +666,15 @@ export default function Home() {
           <div className="v2-mini-proof"><span><Check size={15}/></span> No perfect prompt required.</div>
         </div>
         <form className="v2-builder-card" onSubmit={buildTrip}>
-          <div className="v2-flight-entry">
-            <button type="button" className={flightPanelOpen ? "v2-flight-tab v2-flight-tab-active" : "v2-flight-tab"} aria-expanded={flightPanelOpen} aria-controls="v2-flight-search" onClick={() => setFlightPanelOpen(open => !open)}>
-              <PlaneTakeoff size={17} /> Flight <span>Search fares</span><ArrowDown size={15} className={flightPanelOpen ? "v2-flight-chevron v2-flight-chevron-open" : "v2-flight-chevron"} />
+          <div className="v2-planner-tabs" role="tablist" aria-label="Trip planning mode">
+            <button type="button" role="tab" aria-selected={!flightPanelOpen} className={!flightPanelOpen ? "v2-planner-tab v2-planner-tab-active" : "v2-planner-tab"} onClick={() => setFlightPanelOpen(false)}>
+              <Compass size={17} /><span><strong>Plan your trip</strong><small>Build an itinerary</small></span>
             </button>
+            <button type="button" role="tab" aria-selected={flightPanelOpen} className={flightPanelOpen ? "v2-planner-tab v2-planner-tab-active" : "v2-planner-tab"} onClick={() => setFlightPanelOpen(true)}>
+              <PlaneTakeoff size={17} /><span><strong>Flight</strong><small>Search flights</small></span>
+            </button>
+          </div>
+          <div className="v2-flight-entry">
             {flightPanelOpen && <div className="v2-flight-panel" id="v2-flight-search">
               <div className="v2-flight-panel-heading"><div><span className="v2-small-label">VYAJ FLIGHT SEARCH</span><h4>Find your way there.</h4></div><Plane size={21}/></div>
               <p className="v2-flight-intro">Compare live flight offers by price, airline, travel time and stops. Choose an option to continue to a booking search.</p>
@@ -676,9 +682,13 @@ export default function Home() {
                 <div className="v2-field v2-airport-field"><label htmlFor="flight-origin-input"><span>Flying from</span></label><input id="flight-origin-input" value={flightOrigin} onFocus={() => setFlightOriginMenuOpen(true)} onBlur={() => window.setTimeout(() => setFlightOriginMenuOpen(false), 160)} onChange={event => { setFlightOrigin(event.target.value); setFlightOriginCode(""); setFlightOriginMenuOpen(true); setFlightResults([]); setFlightError(""); }} placeholder="Search any airport or city" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={flightOriginMenuOpen} aria-controls="flight-origin-options" required />{flightOriginMenuOpen && <div className="v2-destination-suggestions v2-airport-suggestions" id="flight-origin-options" role="listbox" aria-label="Departure airports">{airportLoading && <p className="v2-airport-status">Loading worldwide airports…</p>}{airportLoadError && <p className="v2-airport-status">{airportLoadError}</p>}{!airportLoading && !airportLoadError && flightOriginAirports.map((airport,index) => { const code=airport.iata || ""; const label=[airport.city,airport.country].filter(Boolean).join(", "); return <button type="button" role="option" aria-selected={flightOriginCode===code} className="v2-destination-suggestion" key={code || airport.name || index} onMouseDown={event=>event.preventDefault()} onClick={()=>{setFlightOrigin([label,airport.name].filter(Boolean).join(" · ") + (code ? " ("+code+")" : ""));setFlightOriginCode(code);setFlightOriginMenuOpen(false);setFlightResults([]);setFlightError("");}}><span className="v2-destination-pin"><PlaneTakeoff size={14}/></span><span className="v2-destination-copy"><strong>{airport.name}</strong><small>{label || airport.country || "Airport"}{code ? " · "+code : ""}</small></span></button>;})}{!airportLoading && !airportLoadError && airportList.length>0 && flightOriginAirports.length===0 && <p className="v2-airport-status">No matching airport. Try a city, airport name or IATA code.</p>}</div>}</div>
                 <div className="v2-field v2-airport-field"><label htmlFor="flight-destination-input"><span>Flying to</span></label><input id="flight-destination-input" value={flightDestination} onFocus={() => setFlightDestinationMenuOpen(true)} onBlur={() => window.setTimeout(() => setFlightDestinationMenuOpen(false), 160)} onChange={event => { setFlightDestination(event.target.value); setFlightDestinationCode(""); setFlightDestinationMenuOpen(true); setFlightResults([]); setFlightError(""); }} placeholder="Search any airport or city" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={flightDestinationMenuOpen} aria-controls="flight-destination-options" required />{flightDestinationMenuOpen && <div className="v2-destination-suggestions v2-airport-suggestions" id="flight-destination-options" role="listbox" aria-label="Arrival airports">{airportLoading && <p className="v2-airport-status">Loading worldwide airports…</p>}{airportLoadError && <p className="v2-airport-status">{airportLoadError}</p>}{!airportLoading && !airportLoadError && flightDestinationAirports.map((airport,index) => { const code=airport.iata || ""; const label=[airport.city,airport.country].filter(Boolean).join(", "); return <button type="button" role="option" aria-selected={flightDestinationCode===code} className="v2-destination-suggestion" key={code || airport.name || index} onMouseDown={event=>event.preventDefault()} onClick={()=>{setFlightDestination([label,airport.name].filter(Boolean).join(" · ") + (code ? " ("+code+")" : ""));setFlightDestinationCode(code);setDestination([label,airport.name].filter(Boolean).join(", ") || label);setFlightDestinationMenuOpen(false);setFlightResults([]);setFlightError("");}}><span className="v2-destination-pin"><PlaneTakeoff size={14}/></span><span className="v2-destination-copy"><strong>{airport.name}</strong><small>{label || airport.country || "Airport"}{code ? " · "+code : ""}</small></span></button>;})}{!airportLoading && !airportLoadError && airportList.length>0 && flightDestinationAirports.length===0 && <p className="v2-airport-status">No matching airport. Try a city, airport name or IATA code.</p>}</div>}</div>
               </div>
+              <div className="v2-flight-trip-type" role="group" aria-label="Trip type">
+                <button type="button" className={flightTripType === "roundtrip" ? "v2-trip-type-option v2-trip-type-option-active" : "v2-trip-type-option"} onClick={() => { setFlightTripType("roundtrip"); setFlightReturnDate(""); }}>Round trip</button>
+                <button type="button" className={flightTripType === "oneway" ? "v2-trip-type-option v2-trip-type-option-active" : "v2-trip-type-option"} onClick={() => { setFlightTripType("oneway"); setFlightReturnDate(""); setFlightResults([]); }}>One way only</button>
+              </div>
               <div className="v2-form-grid">
-                <label className="v2-field"><span>Departure date</span><input type="date" value={flightDepartureDate} min={new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightDepartureDate(event.target.value); setFlightResults([]); if (flightReturnDate && event.target.value > flightReturnDate) setFlightReturnDate(""); }} required /></label>
-                <label className="v2-field"><span>Return date <small>(optional)</small></span><input type="date" value={flightReturnDate} min={flightDepartureDate || new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightReturnDate(event.target.value); setFlightResults([]); }} /></label>
+                <label className="v2-field"><span>Departure date</span><input type="date" value={flightDepartureDate} min={new Date().toLocaleDateString("en-CA")} onChange={event => { const value = event.target.value; setFlightDepartureDate(value); setFlightResults([]); if (flightReturnDate && value > flightReturnDate) setFlightReturnDate(""); if (value) window.setTimeout(() => (document.getElementById("flight-return-date") as HTMLInputElement | null)?.focus(), 80); }} required /></label>
+                {flightTripType === "roundtrip" && <label className="v2-field"><span>Return date</span><input id="flight-return-date" type="date" value={flightReturnDate} min={flightDepartureDate || new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightReturnDate(event.target.value); setFlightResults([]); }} /></label>}
               </div>
               <div className="v2-flight-note"><CalendarDays size={15}/><span>{flightReturnDate ? "Round trip" : "One way"} · {travellers === "5+" ? "5+ travellers" : travellers + (travellers === "1" ? " traveller" : " travellers")} · Economy · EUR</span></div>
               <button className="v2-button v2-button-dark v2-flight-search-button" type="button" onClick={() => {
@@ -688,7 +698,7 @@ export default function Home() {
                 const from = flightOrigin.trim();
                 const to = flightDestination.trim();
                 const route = `Google Flights from ${from} to ${to}`;
-                const dates = flightReturnDate ? ` departing ${flightDepartureDate} returning ${flightReturnDate}` : ` departing ${flightDepartureDate}`;
+                const dates = flightTripType === "roundtrip" && flightReturnDate ? ` departing ${flightDepartureDate} returning ${flightReturnDate}` : ` departing ${flightDepartureDate}`;
                 const passengerCount = travellers === "5+" ? "5 passengers" : `${travellers} ${travellers === "1" ? "passenger" : "passengers"}`;
                 const searchText = `${route}${dates}, ${passengerCount}, economy, prices in EUR`;
                 window.location.href = `https://www.google.com/search?${new URLSearchParams({ q: searchText }).toString()}`;
@@ -697,6 +707,7 @@ export default function Home() {
               <small className="v2-flight-disclaimer">You’ll continue to Google Flights to compare current fares and book with the airline or travel provider. Prices and availability are confirmed by the provider.</small>
             </div>}
           </div>
+          {!flightPanelOpen && <>
           <div className="v2-builder-top"><div><span className="v2-small-label">VYAJ TRIP BUILDER</span><h3>Where to next?</h3></div><span className="v2-demo-tag">DEMO</span></div>
           <div className="v2-field v2-destination-field"><label htmlFor="destination-input"><span>Destination</span></label><div className="v2-destination-input-wrap"><MapPin size={17} aria-hidden="true"/><input id="destination-input" value={destination} onFocus={() => setDestinationFocused(true)} onBlur={() => window.setTimeout(() => setDestinationFocused(false), 140)} onChange={event => { setDestination(event.target.value); setResultReady(false); setAiItinerary(null); setError(""); setDestinationFocused(true); }} placeholder="Search any city or destination" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={destinationFocused && filteredDestinations.length > 0} aria-controls="destination-suggestions" required/><button type="button" className="v2-destination-clear" aria-label="Clear destination" onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(""); setResultReady(false); setAiItinerary(null); setDestinationFocused(true); document.getElementById("destination-input")?.focus(); }}>×</button></div>{destinationFocused && filteredDestinations.length > 0 && <div className="v2-destination-suggestions" id="destination-suggestions" role="listbox" aria-label="Popular destinations">{filteredDestinations.map(item => <button type="button" role="option" aria-selected={destination === item.name} className="v2-destination-suggestion" key={item.name} onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(item.name); setResultReady(false); setError(""); setDestinationFocused(false); }}><span className="v2-destination-pin"><MapPin size={15}/></span><span className="v2-destination-copy"><strong>{item.name}</strong><small>{item.text}</small></span><ArrowUpRight size={14} className="v2-destination-arrow"/></button>)}</div>}<small>Choose a suggestion or type any destination. Suggestions are curated examples, not live search results.</small></div>
           <div className="v2-field v2-airport-field">
@@ -738,6 +749,7 @@ export default function Home() {
           {error && <p className="v2-form-error" role="alert">{error}</p>}
           <button className="v2-button v2-button-dark v2-submit" type="submit" disabled={plannerLoading}>{plannerLoading ? <><Sparkles size={16} className="v2-loading-sparkle"/> Thinking…</> : <>Plan my trip <ArrowUpRight size={17}/></>}</button>
           <p className="v2-form-note"><Sparkles size={13}/> AI-generated starter plan · Estimates only, no bookings</p>
+          </>}
         </form>
       </section>
 
