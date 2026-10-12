@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { postAction, type Itinerary } from "../lib/api";
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, Clock3, Compass, MapPin, Menu, Sparkles, Users, X } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUpRight, CalendarDays, Check, Clock3, Compass, MapPin, Menu, Plane, PlaneTakeoff, Sparkles, Users, X } from "lucide-react";
 
 type TripStyle = "Food & culture" | "Nature & outdoors" | "Slow escape" | "A bit of everything";
 
@@ -164,6 +164,10 @@ function money(value: string) {
 export default function Home() {
   const [destination, setDestination] = useState("Paris, France");
   const [departureCity, setDepartureCity] = useState("");
+  const [flightPanelOpen, setFlightPanelOpen] = useState(false);
+  const [flightOrigin, setFlightOrigin] = useState("Malta");
+  const [flightDepartureDate, setFlightDepartureDate] = useState("");
+  const [flightReturnDate, setFlightReturnDate] = useState("");
   const [airportList, setAirportList] = useState<Array<{ iata?: string; icao?: string; name?: string; city?: string; country?: string }>>([]);
   const [airportSearch, setAirportSearch] = useState("");
   const [airportMenuOpen, setAirportMenuOpen] = useState(false);
@@ -642,6 +646,26 @@ export default function Home() {
           <div className="v2-mini-proof"><span><Check size={15}/></span> No perfect prompt required.</div>
         </div>
         <form className="v2-builder-card" onSubmit={buildTrip}>
+          <div className="v2-flight-entry">
+            <button type="button" className={flightPanelOpen ? "v2-flight-tab v2-flight-tab-active" : "v2-flight-tab"} aria-expanded={flightPanelOpen} aria-controls="v2-flight-search" onClick={() => setFlightPanelOpen(open => !open)}>
+              <PlaneTakeoff size={17} /> Flight <span>Search fares</span><ArrowDown size={15} className={flightPanelOpen ? "v2-flight-chevron v2-flight-chevron-open" : "v2-flight-chevron"} />
+            </button>
+            {flightPanelOpen && <div className="v2-flight-panel" id="v2-flight-search">
+              <div className="v2-flight-panel-heading"><div><span className="v2-small-label">VYAJ FLIGHT SEARCH</span><h4>Find your way there.</h4></div><Plane size={21}/></div>
+              <p className="v2-flight-intro">Search live fares, compare airlines and continue to a booking provider. Your search opens in Google Flights.</p>
+              <div className="v2-form-grid">
+                <label className="v2-field"><span>Flying from</span><input value={flightOrigin} onChange={event => setFlightOrigin(event.target.value)} placeholder="City or airport" autoComplete="off" required /></label>
+                <label className="v2-field"><span>Flying to</span><input value={destination} onChange={event => setDestination(event.target.value)} placeholder="Destination city" autoComplete="off" required /></label>
+              </div>
+              <div className="v2-form-grid">
+                <label className="v2-field"><span>Departure date</span><input type="date" value={flightDepartureDate} min={new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightDepartureDate(event.target.value); if (flightReturnDate && event.target.value > flightReturnDate) setFlightReturnDate(""); }} required /></label>
+                <label className="v2-field"><span>Return date <small>(optional)</small></span><input type="date" value={flightReturnDate} min={flightDepartureDate || new Date().toLocaleDateString("en-CA")} onChange={event => setFlightReturnDate(event.target.value)} /></label>
+              </div>
+              <div className="v2-flight-note"><CalendarDays size={15}/><span>{flightReturnDate ? "Round trip" : "One way"} · {travellers === "5+" ? "5+ travellers" : travellers + (travellers === "1" ? " traveller" : " travellers")} · Economy</span></div>
+              <a className="v2-button v2-button-dark v2-flight-search-button" href={flightOrigin.trim() && destination.trim() && flightDepartureDate ? "https://www.google.com/travel/flights?q=" + encodeURIComponent((flightReturnDate ? "Round trip flights" : "One way flights") + " from " + flightOrigin.trim() + " to " + destination.trim() + " on " + flightDepartureDate + (flightReturnDate ? " returning " + flightReturnDate : "") + " " + (travellers === "5+" ? "5" : travellers) + " passengers economy") + "&curr=EUR&hl=en" : undefined} target="_blank" rel="noreferrer" onClick={event => { if (!flightOrigin.trim() || !destination.trim() || !flightDepartureDate) { event.preventDefault(); setError("Enter your departure city, destination and travel date to search flights."); } }}><PlaneTakeoff size={16}/> Find flights & compare prices <ArrowUpRight size={16}/></a>
+              <small className="v2-flight-disclaimer">Flight prices and airline options are shown by Google Flights and can change. VYAJ doesn’t yet display live fare results inside the app.</small>
+            </div>}
+          </div>
           <div className="v2-builder-top"><div><span className="v2-small-label">VYAJ TRIP BUILDER</span><h3>Where to next?</h3></div><span className="v2-demo-tag">DEMO</span></div>
           <div className="v2-field v2-destination-field"><label htmlFor="destination-input"><span>Destination</span></label><div className="v2-destination-input-wrap"><MapPin size={17} aria-hidden="true"/><input id="destination-input" value={destination} onFocus={() => setDestinationFocused(true)} onBlur={() => window.setTimeout(() => setDestinationFocused(false), 140)} onChange={event => { setDestination(event.target.value); setResultReady(false); setAiItinerary(null); setError(""); setDestinationFocused(true); }} placeholder="Search any city or destination" autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={destinationFocused && filteredDestinations.length > 0} aria-controls="destination-suggestions" required/><button type="button" className="v2-destination-clear" aria-label="Clear destination" onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(""); setResultReady(false); setAiItinerary(null); setDestinationFocused(true); document.getElementById("destination-input")?.focus(); }}>×</button></div>{destinationFocused && filteredDestinations.length > 0 && <div className="v2-destination-suggestions" id="destination-suggestions" role="listbox" aria-label="Popular destinations">{filteredDestinations.map(item => <button type="button" role="option" aria-selected={destination === item.name} className="v2-destination-suggestion" key={item.name} onMouseDown={event => event.preventDefault()} onClick={() => { setDestination(item.name); setResultReady(false); setError(""); setDestinationFocused(false); }}><span className="v2-destination-pin"><MapPin size={15}/></span><span className="v2-destination-copy"><strong>{item.name}</strong><small>{item.text}</small></span><ArrowUpRight size={14} className="v2-destination-arrow"/></button>)}</div>}<small>Choose a suggestion or type any destination. Suggestions are curated examples, not live search results.</small></div>
           <div className="v2-field v2-airport-field">
