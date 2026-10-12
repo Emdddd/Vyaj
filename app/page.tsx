@@ -239,8 +239,9 @@ export default function Home() {
   }
 
   const tripIdea = useMemo(() => demoIdeas[style], [style]);
+  const airportAutocompleteOpen = airportMenuOpen || flightOriginMenuOpen || flightDestinationMenuOpen;
   useEffect(() => {
-    if (!(airportMenuOpen || flightOriginMenuOpen || flightDestinationMenuOpen) || airportList.length || airportLoading) return;
+    if (!airportAutocompleteOpen || airportList.length || airportLoading) return;
     let cancelled = false;
     setAirportLoading(true);
     setAirportLoadError("");
@@ -264,7 +265,7 @@ export default function Home() {
         if (!cancelled) setAirportLoading(false);
       });
     return () => { cancelled = true; };
-  }, [airportMenuOpen, flightOriginMenuOpen, flightDestinationMenuOpen, airportList.length]);
+  }, [airportAutocompleteOpen, airportList.length]);
 
   const filteredAirports = useMemo(() => {
     const query = airportSearch.trim().toLowerCase();
