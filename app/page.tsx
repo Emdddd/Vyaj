@@ -245,14 +245,20 @@ export default function Home() {
         body: new FormData(event.currentTarget)
       });
       if (!response.ok) throw new Error("Waitlist submission failed");
-      const emailResponse = await fetch("https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/join-waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ email: waitlistEmail.trim() }),
-      });
-      const emailResult = await emailResponse.json().catch(() => ({}));
-      if (!emailResponse.ok || emailResult.status !== "available") {
-        throw new Error(emailResult.error || "Welcome email could not be sent");
+      // Formspree is the source of truth for waitlist registration. A welcome-email
+      // provider outage must not tell a user their already-saved registration failed.
+      try {
+        const emailResponse = await fetch("https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/join-waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ email: waitlistEmail.trim() }),
+        });
+        const emailResult = await emailResponse.json().catch(() => ({}));
+        if (!emailResponse.ok || emailResult.status !== "available") {
+          console.warn("Waitlist was saved, but the welcome email could not be sent.", emailResult.error || emailResponse.status);
+        }
+      } catch (emailError) {
+        console.warn("Waitlist was saved, but the welcome email request failed.", emailError);
       }
       setWaitlistStatus("success");
       setWaitlistEmail("");
