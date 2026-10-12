@@ -1309,3 +1309,9 @@ body { -webkit-font-smoothing: antialiased; }
 .v2-flight-result-price strong{font-size:21px;letter-spacing:-.6px;color:#087f94;white-space:nowrap}
 .v2-flight-result-price small,.v2-flight-result-price span{font-size:9px;color:#718493;text-align:right}
 @media(max-width:480px){.v2-flight-result-card{grid-template-columns:minmax(0,1fr);gap:12px}.v2-flight-result-price{border-left:0;border-top:1px solid #edf1f4;padding:12px 0 0;align-items:flex-start}.v2-flight-result-price small,.v2-flight-result-price span{text-align:left}.v2-flight-times strong{font-size:18px}}
+
+
+/* Ensure flight booking links respond to a normal mobile tap. */
+.v2-flight-result-price a,
+.v2-flight-result-price a.v2-flight-price-link{position:relative;z-index:5;display:inline-flex;align-items:center;min-height:44px;padding:8px 4px;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:rgba(38,198,218,.18);cursor:pointer}
+.v2-flight-result-price{position:relative;z-index:2}
