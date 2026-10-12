@@ -656,25 +656,18 @@ export default function Home() {
 
   async function openFlightBooking(flight: { id: string; bookingToken: string; airline: string; price: string; currency: string; bookingUrl: string }) {
     setFlightError("");
-    const bookingTab = window.open("about:blank", "_blank");
-    if (!bookingTab) {
-      setFlightError("Your browser blocked the booking window. Allow pop-ups for VYAJ and try again.");
-      return;
-    }
-    bookingTab.document.title = "VYAJ · Opening booking options";
-    bookingTab.document.body.innerHTML = '<p style="font-family:Arial,sans-serif;padding:24px;color:#17394b">Opening the booking page for your selected flight…</p>';
     try {
       if (flight.bookingUrl && /^https?:\/\//i.test(flight.bookingUrl)) {
-        bookingTab.location.replace(flight.bookingUrl);
+        window.location.assign(flight.bookingUrl);
         return;
       }
       if (!flight.bookingToken) throw new Error("The provider did not return a booking token for this flight. Search again or choose another flight.");
+      setFlightError("Finding the booking page for your selected flight…");
       const response = await postAction<{ options: Array<{ provider: string; price: number | null; url: string }> }>("flight-booking-options", { bookingToken: flight.bookingToken, currencyCode: flight.currency || "EUR" });
       const option = response.data?.options?.find(item => typeof item.url === "string" && /^https?:\/\//i.test(item.url));
       if (!option) throw new Error("The provider has no direct booking link for this exact flight right now. Please choose another flight.");
-      bookingTab.location.replace(option.url);
+      window.location.assign(option.url);
     } catch (error) {
-      bookingTab.close();
       setFlightError(error instanceof Error ? error.message : "We couldn't open the booking page for this flight. Please try another option.");
     }
   }
