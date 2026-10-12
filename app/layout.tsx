@@ -36,7 +36,16 @@ export const metadata: Metadata = {
     description: "Plan your next trip around your time, budget and travel style.",
     images: [socialImage],
   },
-  icons: { icon: "/vyaj-mark.svg" },
+  icons: {
+    icon: [
+      { url: "/vyaj-mark.svg", type: "image/svg+xml" },
+      { url: "/A95ADB58-28CE-4DB2-B9AE-EB9B0E9AF376.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/A95ADB58-28CE-4DB2-B9AE-EB9B0E9AF376.png",
+    apple: [
+      { url: "/A95ADB58-28CE-4DB2-B9AE-EB9B0E9AF376.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
