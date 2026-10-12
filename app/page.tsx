@@ -726,36 +726,39 @@ export default function Home() {
                 {flightTripType === "roundtrip" && <label className="v2-field v2-flight-date-field"><span>{t("Return date")}</span><input id="flight-return-date" type="date" value={flightReturnDate} min={flightDepartureDate || new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightReturnDate(event.target.value); setFlightResults([]); }} required /></label>}
               </div>
               <div className="v2-flight-note"><CalendarDays size={15}/><span>{flightReturnDate ? t("Round trip") : t("One way")} · {travellers === "5+" ? "5+ travellers" : travellers + (travellers === "1" ? " traveller" : " travellers")} · Economy · EUR</span></div>
-              <button className="v2-button v2-button-dark v2-flight-search-button" type="button" onClick={() => {
-                setFlightError("");
+              <button className="v2-button v2-button-dark v2-flight-search-button" type="button" disabled={flightSearching} onClick={async () => {
+                setFlightError(""); setFlightResults([]);
                 if (!flightOrigin.trim() || !flightDestination.trim() || !flightDepartureDate) { setFlightError(t("Enter your departure city, destination and departure date.")); return; }
                 if (flightTripType === "roundtrip" && !flightReturnDate) { setFlightError(t("Choose a return date or select One way only.")); return; }
                 if (flightReturnDate && flightReturnDate < flightDepartureDate) { setFlightError(t("Return date must be after departure.")); return; }
-                const from = flightOrigin.trim();
-                const to = flightDestination.trim();
-                const origin = flightOriginCode || (from.toLowerCase() === "malta" ? "MLA" : "");
-                const destination = flightDestinationCode || (/^paris(?:,|$)/i.test(to) ? "CDG" : "");
-                const passengerCount = travellers === "5+" ? 5 : Number(travellers) || 1;
-                // Google Flights stores a full flight search in its tfs protobuf URL parameter.
-                const varint = (value: number): number[] => { const bytes: number[] = []; do { let byte = value & 127; value = Math.floor(value / 128); if (value) byte |= 128; bytes.push(byte); } while (value); return bytes; };
-                const field = (number: number, bytes: number[]): number[] => [...varint(number * 8 + 2), ...varint(bytes.length), ...bytes];
-                const str = (number: number, value: string): number[] => field(number, Array.from(new TextEncoder().encode(value)));
-                const airport = (code: string): number[] => [...varint(8), ...varint(1), ...str(2, code)];
-                const leg = (date: string, start: string, end: string): number[] => field(3, [...str(2, date), ...field(13, airport(start)), ...field(14, airport(end))]);
-                if (origin && destination) {
-                  const roundTrip = flightTripType === "roundtrip";
-                  const bytes = [8, 0, ...leg(flightDepartureDate, origin, destination), ...(roundTrip ? leg(flightReturnDate, destination, origin) : []), ...Array.from({ length: passengerCount }, () => [64, 1]).flat(), 72, 1, 152, 1, roundTrip ? 1 : 2];
-                  const tfs = btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-                  window.location.href = `https://www.google.com/travel/flights/search?${new URLSearchParams({ tfs, hl: "en", curr: "EUR", gl: "mt", tfu: "EgQIABABIgA" })}`;
-                } else {
-                  // For a city typed without selecting an airport, let Google Flights resolve the city name.
-                  const dates = flightTripType === "roundtrip" ? `on ${flightDepartureDate} returning ${flightReturnDate}` : `on ${flightDepartureDate} one way`;
-                  const q = `Flights from ${from} to ${to} ${dates} ${passengerCount} adults economy`;
-                  window.location.href = `https://www.google.com/travel/flights?${new URLSearchParams({ q, hl: "en", curr: "EUR", gl: "mt" })}`;
-                }
-              }}><PlaneTakeoff size={16}/> {t("Search cheapest flights")} <ArrowUpRight size={16}/></button>
+                const origin = flightOriginCode || (flightOrigin.trim().toLowerCase() === "malta" ? "MLA" : "");
+                const destination = flightDestinationCode || (/^paris(?:,|$)/i.test(flightDestination.trim()) ? "CDG" : "");
+                if (!origin || !destination) { setFlightError(t("Choose an airport from the suggestions for both departure and destination.")); return; }
+                setFlightSearching(true);
+                try {
+                  const response = await postAction<Array<{ id: string; airline: string; price: string; currency: string; departure: string; arrival: string; duration: string; stops: number; bookingUrl: string }>>("search-flights", {
+                    origin, destination, departureDate: flightDepartureDate,
+                    ...(flightTripType === "roundtrip" ? { returnDate: flightReturnDate } : {}),
+                    adults: travellers === "5+" ? 5 : Number(travellers) || 1, currencyCode: "EUR", travelClass: "ECONOMY"
+                  });
+                  if (response.status !== "available" || !response.data) throw new Error(response.message || t("Live flight search is not configured yet."));
+                  setFlightResults(response.data);
+                  if (!response.data.length) setFlightError(t("No flights were found for those dates. Try different dates or airports."));
+                } catch (error) {
+                  setFlightError(error instanceof Error ? error.message : t("We couldn't load flights right now. Please try again."));
+                } finally { setFlightSearching(false); }
+              }}><PlaneTakeoff size={16}/> {flightSearching ? t("Searching live fares…") : t("Search cheapest flights")} <ArrowRight size={16}/></button>
               {flightError && <p className="v2-form-error" role="alert">{flightError}</p>}
-              <small className="v2-flight-disclaimer">You’ll continue to Google Flights to compare current fares and book with the airline or travel provider. Prices and availability are confirmed by the provider.</small>
+              {flightSearching && <div className="v2-flight-loading" role="status"><span className="v2-flight-spinner"/> {t("Checking live flight offers…")}</div>}
+              {!!flightResults.length && <div className="v2-flight-results" aria-live="polite">
+                <div className="v2-flight-results-heading"><strong>{t("Live flight results")}</strong><span>{flightResults.length} {t("options")} · EUR</span></div>
+                {flightResults.map((flight) => <article className="v2-flight-result-card" key={flight.id}>
+                  <div className="v2-flight-result-main"><div className="v2-flight-airline"><Plane size={16}/><strong>{flight.airline}</strong></div><div className="v2-flight-times"><div><strong>{flight.departure}</strong><small>{origin}</small></div><span className="v2-flight-route-line"><i/></span><div><strong>{flight.arrival}</strong><small>{destination}</small></div></div><div className="v2-flight-meta"><span>{flight.duration}</span><span>{flight.stops === 0 ? t("Direct") : `${flight.stops} ${t("stops")}`}</span></div></div>
+                  <div className="v2-flight-result-price"><strong>{new Intl.NumberFormat("en-IE", {style:"currency",currency:flight.currency || "EUR",maximumFractionDigits:0}).format(Number(flight.price))}</strong><small>{t("per traveller")}</small><span>{t("Fare from provider")}</span></div>
+                </article>)}
+                <p className="v2-flight-disclaimer">{t("Prices and availability can change until confirmed. Booking and ticket issuance are not yet available directly inside VYAJ.")}</p>
+              </div>}
+              {!flightResults.length && !flightSearching && <small className="v2-flight-disclaimer">{t("Search real flight offers without leaving VYAJ. Final prices and availability must be reconfirmed before booking.")}</small>}
             </div>}
           </div>
           {!flightPanelOpen && <>
