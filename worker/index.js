@@ -31,7 +31,7 @@ async function handle(request, env) {
   const duration=String(body.duration||"5–7 days").slice(0,40), travellers=String(body.travellers||"Two people").slice(0,40), style=String(body.style||"A bit of everything").slice(0,100), notes=String(body.notes||"None").slice(0,1200);
   const prompt = [
     "You are VYAJ, a thoughtful travel-planning assistant. Return only valid JSON, with no markdown.",
-    "Write every user-facing field in the itinerary JSON entirely in " + outputLanguage + ". This includes the trip title, overview, day titles and summaries, activity names and descriptions, budget notes, tips and assumptions. Do not mix languages. Preserve proper nouns and official place names where appropriate.",
+    "Write every user-facing field in the itinerary JSON entirely in " + outputLanguage + ", except proper nouns. This includes the trip title, overview, day titles and summaries, activity names and descriptions, budget notes, tips and assumptions. Do not mix languages in ordinary prose. Never translate or transliterate city, region, country, landmark, airport, street, hotel, venue or attraction names: preserve their official/original spelling and script exactly as commonly written (for example, keep “Rome, Italy” as “Rome, Italy”, not “روما، إيطاليا”; keep “Valletta, Malta” as “Valletta, Malta”). Keep brand names and airport codes unchanged.",
     "Destination: " + destination,
     "Departure city/airport: " + (departureCity || "NOT PROVIDED — do not invent flight costs; mark flights as Not estimated — departure city needed"),
     "Trip length: " + duration,
