@@ -512,7 +512,7 @@ export default function Home() {
         travellers: travellers === "1" ? "1 traveller" : travellers === "5+" ? "5 or more travellers" : `${travellers} travellers`,
         style,
         language,
-        notes: `Respond entirely in ${language === "ar" ? "Arabic (Modern Standard Arabic; all titles, descriptions, activity names, tips, assumptions and budget notes must be Arabic)" : language === "fr" ? "French (all itinerary content must be French)" : language === "it" ? "Italian (all itinerary content must be Italian)" : "English"}. Do not mix languages. Total budget: ${budget}. Please treat this as a planning target, not a verified quote. Departure city: ${departureCity.trim() || "not provided; do not invent flight estimates"}.`,
+        notes: `Respond entirely in ${language === "ar" ? "Arabic (Modern Standard Arabic; all titles, descriptions, activity names, tips, assumptions and budget notes must be Arabic)" : language === "fr" ? "French (all itinerary content must be French)" : language === "it" ? "Italian (all itinerary content must be Italian)" : language === "de" ? "German (all itinerary content must be German)" : "English"}. Do not mix languages. Total budget: ${budget}. Please treat this as a planning target, not a verified quote. Departure city: ${departureCity.trim() || "not provided; do not invent flight estimates"}.`,
       });
       if (response.status === "available" && response.itinerary) {
         const raw = response.itinerary as unknown as Record<string, unknown>;
