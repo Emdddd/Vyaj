@@ -1027,3 +1027,25 @@ body { -webkit-font-smoothing: antialiased; }
   .v2-footer > span { font-size: 12px; }
   .v2-footer > small { font-size: 11px; }
 }
+
+
+/* Flight search panel inside the trip builder */
+.v2-flight-entry{margin:-7px 0 24px;border:1px solid #cfe8ed;border-radius:6px;overflow:hidden;background:#fbfeff}
+.v2-flight-tab{width:100%;min-height:49px;display:flex;align-items:center;gap:10px;padding:0 15px;border:0;background:#effbfd;color:#087e94;text-align:left;font-size:12px;font-weight:800;transition:background .2s}
+.v2-flight-tab:hover,.v2-flight-tab-active{background:#e2f9fc}
+.v2-flight-tab>span{font-size:10px;font-weight:600;color:#688294;margin-left:2px}
+.v2-flight-chevron{margin-left:auto;transition:transform .2s}
+.v2-flight-chevron-open{transform:rotate(180deg)}
+.v2-flight-panel{padding:22px 18px 18px;border-top:1px solid #d7edf1;animation:v2-flight-reveal .24s ease-out}
+.v2-flight-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:15px;color:#008eac}
+.v2-flight-panel-heading h4{font-size:22px;letter-spacing:-.7px;color:var(--v2-ink);margin:7px 0 0}
+.v2-flight-intro{font-size:11px;line-height:1.75;color:#63798b;margin:10px 0 18px}
+.v2-flight-panel .v2-field{margin-bottom:14px}
+.v2-flight-panel .v2-field input{min-width:0}
+.v2-flight-panel .v2-field small{font-size:10px}
+.v2-flight-note{display:flex;align-items:center;gap:8px;color:#466a7d;font-size:10px;margin:0 0 15px}
+.v2-flight-note svg{color:#008eac;flex-shrink:0}
+.v2-flight-search-button{width:100%;gap:10px;min-height:47px}
+.v2-flight-disclaimer{display:block;margin-top:12px;font-size:10px;line-height:1.65;color:#667d8f}
+@keyframes v2-flight-reveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){.v2-flight-panel{padding:18px 13px 15px}.v2-flight-panel-heading h4{font-size:20px}.v2-flight-tab{min-height:47px}.v2-flight-intro{font-size:11px}.v2-flight-panel .v2-form-grid{grid-template-columns:1fr;gap:0}}
