@@ -24,11 +24,12 @@ async function handle(request, env) {
         for(const key of ["together","departing","returning"]){
           const seller=option&&option[key]&&typeof option[key]==="object"?option[key]:option;
           const bookingRequest=seller.booking_request&&typeof seller.booking_request==="object"?seller.booking_request:{};
-          const directLink=[seller.link,seller.url,option.link,option.url].find(value=>typeof value==="string"&&/^https?:\/\//i.test(value))||"";
+          let directLink=[seller.link,seller.url,option.link,option.url].find(value=>typeof value==="string"&&/^https?:\/\//i.test(value))||"";
           const postUrl=typeof bookingRequest.url==="string"&&/^https?:\/\//i.test(bookingRequest.url)?bookingRequest.url:"";
           const postData=typeof bookingRequest.post_data==="string"?bookingRequest.post_data:"";
-          if(directLink||postUrl){
-            const item={provider:typeof seller.book_with==="string"?seller.book_with:(typeof option.book_with==="string"?option.book_with:"Booking provider"),price:Number(seller.price??option.price)||null,url:directLink,postUrl,postData};
+          if(!directLink&&postUrl&&postData){try{const resolved=await fetch(postUrl,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:postData,redirect:"follow",signal:AbortSignal.timeout(15000)});const finalUrl=resolved.url||"";if(resolved.ok&&finalUrl&&new URL(finalUrl).hostname!==new URL(postUrl).hostname)directLink=finalUrl;}catch(resolveError){console.error("Could not resolve exact booking link",resolveError instanceof Error?resolveError.name:String(resolveError));}}
+          if(directLink){
+            const item={provider:typeof seller.book_with==="string"?seller.book_with:(typeof option.book_with==="string"?option.book_with:"Booking provider"),price:Number(seller.price??option.price)||null,url:directLink};
             if(!options.some(existing=>existing.provider===item.provider&&existing.url===item.url&&existing.postUrl===item.postUrl))options.push(item);
           }
         }
