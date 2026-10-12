@@ -681,22 +681,19 @@ export default function Home() {
                 <label className="v2-field"><span>Return date <small>(optional)</small></span><input type="date" value={flightReturnDate} min={flightDepartureDate || new Date().toLocaleDateString("en-CA")} onChange={event => { setFlightReturnDate(event.target.value); setFlightResults([]); }} /></label>
               </div>
               <div className="v2-flight-note"><CalendarDays size={15}/><span>{flightReturnDate ? "Round trip" : "One way"} · {travellers === "5+" ? "5+ travellers" : travellers + (travellers === "1" ? " traveller" : " travellers")} · Economy · EUR</span></div>
-              <button className="v2-button v2-button-dark v2-flight-search-button" type="button" disabled={flightSearching} onClick={async () => {
+              <button className="v2-button v2-button-dark v2-flight-search-button" type="button" onClick={() => {
+                setFlightError("");
                 if (!flightOrigin.trim() || !flightDestination.trim() || !flightDepartureDate) { setFlightError("Enter your departure city, destination and departure date."); return; }
                 if (flightReturnDate && flightReturnDate < flightDepartureDate) { setFlightError("Return date must be after departure."); return; }
-                setFlightSearching(true); setFlightError(""); setFlightResults([]);
-                try {
-                  const response = await fetch("https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/search-flights", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ origin: flightOriginCode || flightOrigin.trim(), destination: flightDestinationCode || flightDestination.trim(), departureDate: flightDepartureDate, returnDate: flightReturnDate || undefined, adults: travellers === "5+" ? 5 : Number(travellers), currencyCode: "EUR" }) });
-                  const data = await response.json();
-                  if (!response.ok) throw new Error(data.error || "Flight search is unavailable right now.");
-                  if (!Array.isArray(data.offers) || !data.offers.length) throw new Error(data.error || "No matching fares found. Try another date or nearby airport.");
-                  setFlightResults(data.offers);
-                } catch (err) { setFlightError(err instanceof Error ? err.message : "Could not search flights. Please try again."); }
-                finally { setFlightSearching(false); }
-              }}>{flightSearching ? <><Sparkles size={16} className="v2-loading-sparkle"/> Searching fares…</> : <><PlaneTakeoff size={16}/> Find cheapest flights <ArrowUpRight size={16}/></>}</button>
+                const from = flightOriginCode || flightOrigin.trim();
+                const to = flightDestinationCode || flightDestination.trim();
+                const route = `Flights from ${from} to ${to}`;
+                const dates = flightReturnDate ? ` on ${flightDepartureDate} through ${flightReturnDate}` : ` on ${flightDepartureDate}`;
+                const query = new URLSearchParams({ q: route + dates, curr: "EUR" });
+                window.location.href = `https://www.google.com/travel/flights?${query.toString()}`;
+              }}><PlaneTakeoff size={16}/> Search flights on Google <ArrowUpRight size={16}/></button>
               {flightError && <p className="v2-form-error" role="alert">{flightError}</p>}
-              {flightResults.length > 0 && <div className="v2-flight-results" aria-live="polite"><div className="v2-flight-results-heading"><strong>{flightResults.length} flight options</strong><span>Sorted by lowest price</span></div>{flightResults.map((offer, index) => <article className="v2-flight-result" key={offer.id}><div className="v2-flight-result-main"><span className="v2-flight-airline">{offer.airline}</span><strong>{offer.departure} <span>→</span> {offer.arrival}</strong><small>{offer.duration} · {offer.stops === 0 ? "Direct" : offer.stops + (offer.stops === 1 ? " stop" : " stops")}</small></div><div className="v2-flight-result-price"><strong>{new Intl.NumberFormat("en-IE", { style: "currency", currency: offer.currency || "EUR", maximumFractionDigits: 0 }).format(Number(offer.price))}</strong><a href={offer.bookingUrl} target="_blank" rel="noreferrer">View fare <ArrowUpRight size={13}/></a></div>{index === 0 && <span className="v2-flight-best">LOWEST FARE</span>}</article>)}</div>}
-              <small className="v2-flight-disclaimer">Live offers depend on provider coverage and availability. Prices may change before booking; the booking provider confirms the final fare.</small>
+              <small className="v2-flight-disclaimer">You’ll continue to Google Flights to compare current fares and book with the airline or travel provider. Prices and availability are confirmed by the provider.</small>
             </div>}
           </div>
           <div className="v2-builder-top"><div><span className="v2-small-label">VYAJ TRIP BUILDER</span><h3>Where to next?</h3></div><span className="v2-demo-tag">DEMO</span></div>
