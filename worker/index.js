@@ -16,7 +16,7 @@ async function handle(request, env) {
     const adults=Number(payload.adults);
     const currencyCode=typeof payload.currencyCode==="string"&&/^[A-Z]{3}$/.test(payload.currencyCode)?payload.currencyCode:"EUR";
     const travelClass=typeof payload.travelClass==="string"&&["ECONOMY","PREMIUM_ECONOMY","BUSINESS","FIRST"].includes(payload.travelClass)?payload.travelClass:"ECONOMY";
-    const validDate=(v)=>/^\\d{4}-\\d{2}-\\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
+    const validDate=(v)=>/^\d{4}-\d{2}-\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
     if(!origin||!destination||origin===destination||!validDate(departureDate)||!Number.isInteger(adults)||adults<1||adults>9||(returnDate&&(!validDate(returnDate)||returnDate<departureDate)))return respond({error:"Check the airports, dates and number of travellers."},400);
     if(!env.AMADEUS_API_KEY||!env.AMADEUS_API_SECRET)return respond({error:"Live flight search is not configured yet. Add the Amadeus API credentials to the Cloudflare Worker."},503);
     try{
@@ -30,7 +30,7 @@ async function handle(request, env) {
       if(!offersResponse.ok){const providerMessage=Array.isArray(offersBody.errors)?offersBody.errors[0]?.detail:"";console.error("Amadeus flight search failed",offersResponse.status,String(providerMessage||"").slice(0,200));return respond({error:offersResponse.status===429?"Flight search is busy right now. Please try again shortly.":"We couldn't retrieve flight offers for those details. Try different dates or airports."},offersResponse.status===429?429:502);}
       const carriers=offersBody.dictionaries?.carriers||{};
       const formatTime=(value)=>typeof value==="string"&&value.length>=16?value.slice(11,16):"—";
-      const formatDuration=(value)=>{if(typeof value!=="string")return "—";const h=value.match(/(\\d+)H/),m=value.match(/(\\d+)M/);return [h?h[1]+"h":"",m?m[1]+"m":""].filter(Boolean).join(" ")||value;};
+      const formatDuration=(value)=>{if(typeof value!=="string")return "—";const h=value.match(/(\d+)H/),m=value.match(/(\d+)M/);return [h?h[1]+"h":"",m?m[1]+"m":""].filter(Boolean).join(" ")||value;};
       const data=(Array.isArray(offersBody.data)?offersBody.data:[]).map((offer,index)=>{
         const itinerary=offer.itineraries?.[0],segments=itinerary?.segments||[],first=segments[0],last=segments[segments.length-1],carrier=first?.carrierCode||"";
         return {id:String(offer.id||index),airline:carriers[carrier]||carrier||"Airline",price:String(offer.price?.total||""),currency:offer.price?.currency||currencyCode,departure:formatTime(first?.departure?.at),arrival:formatTime(last?.arrival?.at),duration:formatDuration(itinerary?.duration),stops:Math.max(0,segments.length-1),bookingUrl:"",segments:segments.map((segment)=>({airline:carriers[segment.carrierCode]||segment.carrierCode||"Airline",flightNumber:String(segment.number||""),from:segment.departure?.iataCode||"",to:segment.arrival?.iataCode||"",departure:segment.departure?.at||"",arrival:segment.arrival?.at||""}))};
