@@ -978,15 +978,6 @@ export default function Home() {
         <p className="v2-discovery-note"><Sparkles size={14}/> {t("Pick a feeling to start a personalised trip plan.")}</p>
       </section>
 
-      <section className="v2-how v2-section" id="how">
-        <div className="v2-how-heading"><div className="v2-eyebrow"><span>04</span><i/> {t("HOW IT WORKS")}</div><h2>{language === "ar" ? <>من فكرة بسيطة<br/><em>إلى رحلة تستحقها</em></> : <>{t("From “somewhere”")}<br/>{t("to")} <em>{t("let’s go.")}</em></>}</h2><p>{t("Keep the decisions simple. Make the trip feel like yours.")}</p></div>
-        <div className="v2-steps v2-steps-timeline">
-          <article><div className="v2-step-rail"><div className="v2-step-icon"><MapPin size={21}/></div><span className="v2-step-number">01</span></div><div className="v2-step-copy"><span className="v2-step-kicker">{t("STEP 01")}</span><h3>{t("Set the essentials")}</h3><p>{t("Choose your destination, dates and a budget you’re comfortable with.")}</p></div></article>
-          <article><div className="v2-step-rail"><div className="v2-step-icon"><Sparkles size={21}/></div><span className="v2-step-number">02</span></div><div className="v2-step-copy"><span className="v2-step-kicker">{t("STEP 02")}</span><h3>{t("Shape your days")}</h3><p>{t("Explore a sample itinerary shaped around your travel style.")}</p></div></article>
-          <article><div className="v2-step-rail"><div className="v2-step-icon"><Compass size={21}/></div><span className="v2-step-number">03</span></div><div className="v2-step-copy"><span className="v2-step-kicker">{t("STEP 03")}</span><h3>{t("Make it your own")}</h3><p>{t("Adjust your choices and discover a direction that feels right.")}</p></div></article>
-        </div>
-      </section>
-
       <section className="v2-availability" id="availability">
         <div className="v2-availability-inner">
           <div className="v2-eyebrow v2-eyebrow-light"><span>05</span><i/> {t("CLEAR FROM DAY ONE")}</div>
