@@ -355,12 +355,25 @@ export default function Home() {
     return () => document.removeEventListener("pointerdown", closeOnOutsidePress);
   }, [menuOpen]);
 
+  const [headerHidden, setHeaderHidden] = useState(false);
   useEffect(() => {
-    const updateHeader = () => setHeaderScrolled(window.scrollY > 12);
+    let lastScrollY = window.scrollY;
+    const updateHeader = () => {
+      const currentScrollY = window.scrollY;
+      setHeaderScrolled(currentScrollY > 12);
+      if (menuOpen || currentScrollY < 80) {
+        setHeaderHidden(false);
+      } else if (currentScrollY > lastScrollY + 4) {
+        setHeaderHidden(true);
+      } else if (currentScrollY < lastScrollY - 4) {
+        setHeaderHidden(false);
+      }
+      lastScrollY = currentScrollY;
+    };
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
     return () => window.removeEventListener("scroll", updateHeader);
-  }, []);
+  }, [menuOpen]);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -798,7 +811,7 @@ export default function Home() {
 
   return (
     <main className={`v2-site v2-lang-${language}`} lang={language} dir="ltr">
-      <header ref={headerRef} className={headerScrolled ? "v2-header v2-header-scrolled" : "v2-header"}>
+      <header ref={headerRef} className={`v2-header${headerScrolled ? " v2-header-scrolled" : ""}${headerHidden && !menuOpen ? " v2-header-hidden" : ""}`}>
         <a href="#top" className="v2-brand" aria-label={t("VYAJ home")}><img src="/D0F8F0DA-F8C9-4B07-8ED2-B6B0F1A5D567.png" alt="VYAJ" /></a>
         <button type="button" className="v2-menu-toggle" aria-label={menuOpen ? t("Close navigation") : t("Open navigation")} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
         <nav className={menuOpen ? "v2-nav v2-nav-open" : "v2-nav"} aria-label={t("Main navigation")}>
