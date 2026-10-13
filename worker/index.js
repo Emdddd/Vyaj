@@ -67,7 +67,7 @@ async function handle(request, env) {
       }).filter(flight=>flight.price!==""&&flight.departure!=="—"&&flight.arrival!=="—").sort((a,b)=>Number(a.price)-Number(b.price)).slice(0,20);
       return respond({status:data.length?"available":"unavailable",feature:"search-flights",data,provider:"SerpApi / Google Flights"},200);
     }catch(error){console.error("SerpApi flight search failed",error instanceof Error?error.name+":"+error.message:String(error));return respond({error:"We couldn't connect to the flight search provider. Please try again."},502);}
-  }  } if(action==="join-waitlist"){
+  } if(action==="join-waitlist"){
     const email=typeof payload.email==="string"?payload.email.trim().toLowerCase():"";
     if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return respond({error:"Enter a valid email address and try again."},400);
     if(!env.RESEND_API_KEY)return respond({error:"Welcome email service is not configured yet."},503);
