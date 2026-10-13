@@ -1584,3 +1584,36 @@ body { -webkit-font-smoothing: antialiased; }
     transition-duration: .01ms !important;
   }
 }
+
+
+/* First Look palette alignment — match the site's warm, light editorial sections. */
+.v2-site .v2-result-section {
+  background: var(--v2-page, #f7f8f5);
+  color: var(--v2-ink, #07172e);
+}
+.v2-site .v2-result-section .v2-eyebrow-light { color: var(--v2-muted, #657486); }
+.v2-site .v2-result-section .v2-eyebrow-light > span:first-child:not(.v2-status-dot) { color: var(--v2-accent-strong, #087f94); }
+.v2-site .v2-result-section .v2-result-heading > p { color: var(--v2-muted, #657486); }
+.v2-site .v2-result-section .v2-result-heading h2 em { color: var(--v2-accent-strong, #087f94); }
+.v2-site .v2-result-section .v2-preview-days {
+  background: #fff;
+  border-color: var(--v2-line, #e2e9ec);
+  box-shadow: var(--v2-shadow-soft, 0 8px 28px rgba(7,23,46,.055));
+}
+.v2-site .v2-result-section .v2-preview-day { border-bottom-color: #e8edef; }
+.v2-site .v2-result-section .v2-preview-day b { color: var(--v2-ink, #07172e); }
+.v2-site .v2-result-section .v2-preview-day small { color: var(--v2-muted, #657486); }
+.v2-site .v2-result-section .v2-preview-day > span { color: var(--v2-accent-strong, #087f94); }
+.v2-site .v2-result-section .v2-preview-day > i { background: var(--v2-accent, #26c6da); box-shadow: 0 0 0 5px rgba(38,198,218,.13); }
+.v2-site .v2-result-section .v2-preview-aside {
+  background: linear-gradient(145deg, #fff, #f0f8f8);
+  border-color: var(--v2-line, #e2e9ec);
+  box-shadow: var(--v2-shadow-soft, 0 8px 28px rgba(7,23,46,.055));
+}
+.v2-site .v2-result-section .v2-preview-aside h3 { color: var(--v2-ink, #07172e); }
+.v2-site .v2-result-section .v2-preview-aside > p { color: var(--v2-muted, #657486); }
+.v2-site .v2-result-section .v2-preview-orbit { color: var(--v2-accent-strong, #087f94); }
+.v2-site .v2-result-section .v2-preview-orbit:before,
+.v2-site .v2-result-section .v2-preview-orbit span { border-color: rgba(8,127,148,.28); }
+.v2-site .v2-result-section .v2-preview-orbit i { background: var(--v2-accent, #26c6da); }
+.v2-site .v2-result-section .v2-text-button { color: var(--v2-accent-strong, #087f94); border-bottom-color: var(--v2-accent, #26c6da); }
