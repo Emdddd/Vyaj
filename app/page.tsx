@@ -190,6 +190,26 @@ function money(value: string) {
 }
 
 export default function Home() {
+  useEffect(() => {
+    // iOS Safari may still zoom on multi-touch gestures despite viewport settings.
+    const preventMultiTouchZoom = (event: TouchEvent) => {
+      if (event.touches.length > 1) event.preventDefault();
+    };
+    const preventGestureZoom = (event: Event) => event.preventDefault();
+
+    document.addEventListener("touchmove", preventMultiTouchZoom, { passive: false });
+    document.addEventListener("gesturestart", preventGestureZoom, { passive: false });
+    document.addEventListener("gesturechange", preventGestureZoom, { passive: false });
+    document.addEventListener("gestureend", preventGestureZoom, { passive: false });
+
+    return () => {
+      document.removeEventListener("touchmove", preventMultiTouchZoom);
+      document.removeEventListener("gesturestart", preventGestureZoom);
+      document.removeEventListener("gesturechange", preventGestureZoom);
+      document.removeEventListener("gestureend", preventGestureZoom);
+    };
+  }, []);
+
   const [destination, setDestination] = useState("Paris, France");
   const [heroPrompt, setHeroPrompt] = useState("");
   const [heroPlaceholderIndex, setHeroPlaceholderIndex] = useState(0);
