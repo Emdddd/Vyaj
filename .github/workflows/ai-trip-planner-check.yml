@@ -1,0 +1,98 @@
+name: VYAJ AI trip planner check
+
+on:
+  workflow_dispatch:
+    inputs:
+      destination:
+        description: Destination to test
+        required: true
+        default: "Rome, Italy"
+        type: string
+      duration:
+        description: Trip duration
+        required: true
+        default: "3 days"
+        type: string
+      travellers:
+        description: Travellers
+        required: true
+        default: "Two adults"
+        type: string
+      language:
+        description: Itinerary language
+        required: true
+        default: en
+        type: choice
+        options:
+          - en
+          - ar
+          - fr
+          - it
+          - de
+
+permissions:
+  contents: read
+
+jobs:
+  check-ai-trip-planner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Test valid AI itinerary and input validation
+        env:
+          DESTINATION: ${{ inputs.destination }}
+          DURATION: ${{ inputs.duration }}
+          TRAVELLERS: ${{ inputs.travellers }}
+          LANGUAGE: ${{ inputs.language }}
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const endpoint = 'https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/plan-trip';
+          const destination = process.env.DESTINATION.trim();
+          if (!destination) throw new Error('Destination must not be empty.');
+          const payload = {
+            destination,
+            departureCity: 'Malta',
+            duration: process.env.DURATION.trim() || '3 days',
+            travellers: process.env.TRAVELLERS.trim() || 'Two adults',
+            style: 'Food & culture',
+            notes: 'Moderate budget; practical route; include downtime.',
+            language: process.env.LANGUAGE
+          };
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Origin': 'https://vyaj.eu' },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(45000)
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error('AI planner returned HTTP ' + response.status + ': ' + (body.error || 'No error detail'));
+          if (body.status !== 'available' || !body.itinerary) throw new Error('AI planner did not return an available itinerary.');
+          const itinerary = body.itinerary;
+          if (typeof itinerary.tripTitle !== 'string' || !itinerary.tripTitle.trim()) throw new Error('Missing trip title.');
+          if (!Array.isArray(itinerary.days) || itinerary.days.length === 0) throw new Error('Itinerary has no days.');
+          if (!itinerary.estimatedBudget || !itinerary.estimatedBudget.totalEstimate || !itinerary.estimatedBudget.perPerson) throw new Error('Missing total/per-person budget estimate.');
+          const activityCount = itinerary.days.reduce((sum, day) => sum + (Array.isArray(day.activities) ? day.activities.length : 0), 0);
+          if (activityCount === 0) throw new Error('Itinerary has no activities.');
+          console.log(JSON.stringify({
+            test: 'valid itinerary',
+            result: 'PASS',
+            destination: itinerary.destination,
+            title: itinerary.tripTitle,
+            daysReturned: itinerary.days.length,
+            activitiesReturned: activityCount,
+            totalEstimate: itinerary.estimatedBudget.totalEstimate,
+            perPerson: itinerary.estimatedBudget.perPerson,
+            language: payload.language
+          }, null, 2));
+
+          const invalid = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Origin': 'https://vyaj.eu' },
+            body: JSON.stringify({ destination: '   ', language: payload.language }),
+            signal: AbortSignal.timeout(10000)
+          });
+          const invalidBody = await invalid.json().catch(() => ({}));
+          if (invalid.status !== 400) throw new Error('Empty destination should return HTTP 400, got ' + invalid.status + ': ' + (invalidBody.error || ''));
+          console.log(JSON.stringify({ test: 'empty destination validation', result: 'PASS', httpStatus: invalid.status }, null, 2));
+          NODE
