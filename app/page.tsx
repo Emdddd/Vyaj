@@ -806,7 +806,7 @@ export default function Home() {
         <div className="v2-section-intro">
           <div className="v2-eyebrow"><span>01</span><i/> {t("START WITH THE BASICS")}</div>
           <h2>{language === "ar" ? <>خطّط لرحلة<br/><em>تناسبك فعلًا</em></> : <>{t("Build a trip")}<br/><em>{t("that fits.")}</em></>}</h2>
-          <p>{t("Set the essentials. We’ll show you how a more considered itinerary could come together.")}</p>
+          
           <div className="v2-mini-proof"><span><Check size={15}/></span> {t("No perfect prompt required.")}</div>
         </div>
         <form className="v2-builder-card" onSubmit={buildTrip}>
