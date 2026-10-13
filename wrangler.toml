@@ -5,3 +5,8 @@ workers_dev = true
 
 [observability]
 enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "vyaj-production"
+database_id = "d3eba766-ea96-49ff-8705-1d699dad118d"
