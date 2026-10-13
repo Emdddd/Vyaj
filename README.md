@@ -1,26 +1,42 @@
 # VYAJ — Plan less. Travel more.
 
-VYAJ is a premium travel-planning experience built with Next.js, React, and TypeScript. The frontend is exported as a static site for GitHub Pages; product APIs run separately on a Cloudflare Worker so private credentials never enter the browser bundle.
-
-## Current implementation
-
-- Responsive VYAJ landing experience with destination inspiration, FAQs, and waitlist UI.
-- Trip-planner modal with validated required destination, THINKING status, real API request, actual itinerary rendering on confirmed API success, and a separate Coming Soon result for explicit `coming_soon` responses.
-- Central typed API client in `lib/api.ts`, including a request timeout and user-safe network/API errors.
-- Versioned Worker action contracts. The trip planner calls the Groq API server-side; the other registered actions explicitly return `coming_soon` until implemented.
-- API secrets are read only by the Worker, not exposed as `NEXT_PUBLIC_*` values.
+VYAJ is a premium travel-planning web experience built with Next.js, React, and TypeScript. The frontend is exported as a static site to GitHub Pages; APIs run on a Cloudflare Worker.
 
 ## Architecture
 
 ```text
 Browser (GitHub Pages / vyaj.eu)
-  └── lib/api.ts
-       └── NEXT_PUBLIC_VYAJ_API_URL
-            └── Cloudflare Worker (worker/index.js)
-                 └── Groq API (server-side GROQ_API_KEY)
+  ├── Static Next.js export
+  ├── lib/api.ts
+  │    └── Cloudflare Worker (worker/index.js)
+  │          ├── Groq API — AI itinerary generation
+  │          ├── SerpApi — flight search
+  │          ├── Ignav — flight booking-link lookup
+  │          ├── Resend — waitlist welcome email
+  │          └── Cloudflare D1 — account/session/trip storage
+  └── Formspree — waitlist registration
 ```
 
 GitHub Pages only hosts static files. Do not add Next.js server routes expecting them to run on Pages.
+
+## Current implementation status
+
+### Implemented in code; production configuration and end-to-end behavior still need verification
+
+- AI trip planning through `POST /api/v1/actions/plan-trip` using the Groq API server-side.
+- Account signup/login and session handling using the Worker and D1.
+- Saving and listing trips for an authenticated user.
+- Flight search through SerpApi / Google Flights and a separate booking-link lookup through Ignav.
+- Waitlist registration through the Formspree form, with a separate best-effort welcome email through the Worker/Resend.
+- CORS allowlist, request validation/size limits, and upstream timeouts for supported Worker actions.
+
+A code path is not proof that production secrets, database schema, provider quotas, email delivery, and deployed configuration are all correct. Verify these with controlled end-to-end tests before launch.
+
+### Explicitly not implemented yet
+
+Several registered actions intentionally return `coming_soon`. These include collaborative trip actions such as voting, invitations, notifications, destination search, trip adjustments, and other actions without a complete implementation. The UI must not present these as working features.
+
+The planner returns AI-generated suggestions, not verified live prices, opening hours, routes, inventory, or booking confirmations. Flight results and booking links depend on configured third-party services and must be checked in production.
 
 ## Local development
 
@@ -31,87 +47,55 @@ npm install
 npm run dev
 ```
 
-The website runs at `http://localhost:3000`. Without the Worker URL, the planner will show a friendly service-connection message rather than pretending it generated a trip.
+The site runs at `http://localhost:3000`.
 
-## Environment variables and secrets
-
-### Frontend build variable
+### Frontend configuration
 
 Set the GitHub Actions repository variable:
 
-- Name: `NEXT_PUBLIC_VYAJ_API_URL`
-- Value: the base URL of your deployed Cloudflare Worker, for example `https://vyaj-travel-api.kholymad.workers.dev` (use the actual URL shown by Cloudflare; do not guess it).
+- `NEXT_PUBLIC_VYAJ_API_URL`: the actual deployed Worker base URL, without a trailing slash or `/api` suffix.
 
-Path suffixes are added by the API client. Do not include `/api` in the variable.
-
-For local builds, create `.env.local` with:
-
-```bash
-NEXT_PUBLIC_VYAJ_API_URL=https://your-actual-worker-url
-```
+For local development, set `NEXT_PUBLIC_VYAJ_API_URL=http://localhost:8787` in `.env.local` when running `npx wrangler dev`.
 
 This URL is public configuration, not a secret.
 
-### Worker secret
+### Worker secrets and local variables
 
-Set the secret in Cloudflare, never in the frontend or GitHub Pages files:
+The Worker uses server-side credentials. Never put provider API keys in `NEXT_PUBLIC_*` variables or commit real keys.
+
+Local setup:
+
+1. Copy `.dev.vars.example` to `.dev.vars`.
+2. Put real development credentials in `.dev.vars`.
+3. Run `npx wrangler dev`.
+
+Production secrets are configured through Wrangler, for example:
 
 ```bash
 npx wrangler secret put GROQ_API_KEY
+npx wrangler secret put SERPAPI_API_KEY
+npx wrangler secret put IGNAV_API_KEY
+npx wrangler secret put RESEND_API_KEY
 npx wrangler deploy
 ```
 
-Run these commands from the repository root. Wrangler uses `wrangler.toml` and deploys `worker/index.js`. Enter the key only at Wrangler's interactive prompt. Never commit it to the repository.
+Only configure secrets for providers/features actually being used. Enter secrets at Wrangler's interactive prompt. The Worker also requires the D1 database binding configured in `wrangler.toml` and the relevant database tables to exist.
 
-Allowed browser origins are explicitly listed in `worker/index.js`; update that list deliberately if the production domain changes.
+## API contracts
 
-## API contract
+All action endpoints use JSON over HTTPS and `POST`.
 
-All endpoints use JSON over HTTPS and `POST`. The base URL is the Worker URL.
-
-### Implemented
-
-| Endpoint | Request fields | Successful response |
-| --- | --- | --- |
-| `/api/v1/actions/plan-trip` | `destination` (required string), `duration`, `travellers`, `style`, `notes` | `{ status: "available", feature: "plan-trip", itinerary: ... }` |
-
-The older `/api/plan` route remains as a compatibility alias. Requests are size-limited, user inputs are length-limited, and the upstream AI request has a timeout. Itinerary prices and opening hours are estimates, not live-verified data.
-
-### Registered stubs
-
-These endpoints validate that a JSON object was sent (and validate email format for the waitlist) and return an explicit feature state. They do not save data, send invitations, search live inventory, authenticate users, book travel, or perform a vote.
-
-| Endpoint | Contract / state |
+| Endpoint | Current behavior |
 | --- | --- |
-| `/api/v1/actions/decide-for-us` | `{ status: "coming_soon", feature: "decide-for-us" }` |
-| `/api/v1/actions/surprise-me` | `{ status: "coming_soon", feature: "surprise-me" }` |
-| `/api/v1/actions/search-destinations` | `{ status: "coming_soon", feature: "search-destinations" }` |
-| `/api/v1/actions/adjust-itinerary` | `{ status: "coming_soon", feature: "adjust-itinerary" }` |
-| `/api/v1/actions/invite-travelers` | `{ status: "coming_soon", feature: "invite-travelers" }` |
-| `/api/v1/actions/submit-vote` | `{ status: "coming_soon", feature: "submit-vote" }` |
-| `/api/v1/actions/view-notifications` | `{ status: "coming_soon", feature: "view-notifications" }` |
-| `/api/v1/actions/join-waitlist` | Validates email format, then returns `coming_soon`; it does not persist the address. |
-| `/api/v1/actions/view-profile` | `coming_soon`; profile/account UI is not connected to authentication. |
-| `/api/v1/actions/save-trip` | `coming_soon`; no trip is saved. |
-| `/api/v1/actions/share-trip` | `coming_soon`; no share link or invitation is created. |
-| `/api/v1/actions/open-settings` | `coming_soon`; settings are not persisted. |
-| `/api/v1/actions/login` | `coming_soon`; authentication is not implemented. |
-| `/api/v1/actions/signup` | `coming_soon`; account creation is not implemented. |
-| `/api/v1/actions/book-trip` | `coming_soon`; no bookings are made. |
-| `/api/v1/actions/add-activity` | `coming_soon`; itinerary changes are not saved. |
-| `/api/v1/actions/edit-itinerary` | `coming_soon`; itinerary changes are not saved. |
+| `/api/v1/actions/plan-trip` | Generates an AI itinerary when Groq is configured. |
+| `/api/v1/actions/signup`, `/login` | Account operations using D1, if the database and schema are correctly configured. |
+| `/api/v1/actions/save-trip`, `/list-trips` | Authenticated trip persistence in D1, if configured. |
+| `/api/v1/actions/search-flights` | Flight search using SerpApi / Google Flights. |
+| `/api/v1/actions/flight-booking-options` | Looks up provider booking links using Ignav when given a valid booking reference. |
+| `/api/v1/actions/join-waitlist` | Sends a welcome email through Resend; the website separately stores registrations through Formspree. |
+| Other registered actions | Return an explicit `coming_soon` response until implemented. |
 
-### Error response
-
-Errors use non-2xx HTTP status codes and a safe JSON body, for example:
-
-```json
-{ "error": "We couldn't build that itinerary just now. Please try again." }
-```
-
-The client distinguishes network/timeout/server errors from a real `coming_soon` response. A failed request is never converted into a Coming Soon result.
-
-HTTP statuses currently used include `400` invalid request, `403` disallowed origin, `404` unknown endpoint, `405` unsupported method, `413` oversized request, `429` upstream quota/rate response, `502` upstream failure, and `504` timeout.
+The legacy `/api/plan` route remains an alias for `plan-trip`. Do not treat an HTTP 200 response by itself as proof that a feature completed: inspect the JSON `status` and expected data.
 
 ## Build, checks, and deployment
 
@@ -120,26 +104,26 @@ npm run build
 npm run lint
 ```
 
-GitHub Actions builds the static export and deploys it to GitHub Pages on pushes to `main`. Confirm the `Deploy VYAJ to GitHub Pages` workflow succeeds before testing `https://vyaj.eu`. After adding/updating `NEXT_PUBLIC_VYAJ_API_URL`, trigger a new workflow run because the value is embedded at build time.
+GitHub Actions builds and deploys the static export to GitHub Pages on pushes to `main`. The Worker deploy workflow runs when Worker/config files change. Check both workflows before testing `https://vyaj.eu`.
 
-### Deploying the Worker
+Useful checks:
 
-1. Install/authenticate Wrangler: `npx wrangler login`.
-2. Add the Groq secret with `npx wrangler secret put GROQ_API_KEY`.
-3. Deploy with `npx wrangler deploy`.
-4. Copy the real Worker URL printed by Cloudflare.
-5. Add that URL as the GitHub Actions repository variable `NEXT_PUBLIC_VYAJ_API_URL`.
-6. Re-run the GitHub Pages workflow.
+- `VYAJ Worker smoke test`: validates production CORS and attempts a real AI itinerary request.
+- `VYAJ live browser smoke test`: checks selected desktop/mobile UI behavior against the deployed website.
+- `VYAJ backend feature audit`: reports which registered actions are placeholders. It is a manual workflow and should be run after backend changes.
 
-## Known limitations — be explicit
+Automated checks cover only their stated scenarios; they do not replace real-device testing, email inbox checks, database verification, or provider account/billing checks.
 
-- Group collaboration, voting, notifications, destination search, itinerary adjustment, and invitations are API stubs returning `coming_soon`; they are not implemented product operations yet.
-- The waitlist modal submits directly to the configured Formspree form ID (`xgaozoeg`). Code-level submission handling is present, but successful delivery has not been end-to-end verified; confirm it with a controlled test signup before launch.
-- Authentication, user accounts, persistent trips, database storage, invitation delivery, and production-grade rate limiting are not implemented.
-- No live booking, real-time prices, opening hours, or transport availability are connected.
-- The Worker currently has CORS/origin checks, request size/field limits, and an upstream timeout, but CORS is not authentication and is not a substitute for rate limiting. Add an edge rate-limit rule before promoting the AI endpoint to broad public use.
-- Responsive and accessibility checks should be completed on real device/browser sizes; a successful production build alone does not prove visual correctness.
+## Launch blockers and known limitations
+
+- **Rate limiting:** CORS is not authentication and does not stop direct API abuse. Configure Cloudflare rate limiting and suitable bot protection/monitoring before broad public promotion of AI and flight endpoints.
+- **Secrets:** verify required production Worker secrets are present and valid without printing their values in logs.
+- **D1:** verify schema migrations, backups, access control, and production signup/login/save/list flows.
+- **Waitlist:** submit a controlled test address; verify Formspree registration and separately check whether the welcome email arrives. The Worker email request is not the waitlist's storage system.
+- **Flight services:** verify API credentials, quotas, response mapping, currency, and booking links. Search results are not booking confirmations.
+- **Responsive/accessibility:** test on real iPhone Safari and Android browsers as well as desktop. A successful build or Chromium smoke test does not prove iOS behavior. Safari may still permit pinch zoom despite website restrictions.
+- **Privacy and security:** review consent/privacy copy, data retention, password/session handling, abuse protection, and third-party data flows before public launch.
 
 ## Security notes
 
-Never commit API keys, cookies, access tokens, or private credentials. Never put secrets in `NEXT_PUBLIC_*` variables. If a key is accidentally exposed, revoke and rotate it immediately.
+Never commit API keys, cookies, access tokens, or private credentials. If a key is accidentally exposed, revoke and rotate it immediately.
