@@ -198,22 +198,23 @@ function money(value: string) {
 
 export default function Home() {
   useEffect(() => {
-    // iOS Safari may still zoom on multi-touch gestures despite viewport settings.
+    // Block pinch gestures at capture phase, without preventing one-finger page scrolling.
     const preventMultiTouchZoom = (event: TouchEvent) => {
       if (event.touches.length > 1) event.preventDefault();
     };
     const preventGestureZoom = (event: Event) => event.preventDefault();
+    const options: AddEventListenerOptions = { passive: false, capture: true };
 
-    document.addEventListener("touchmove", preventMultiTouchZoom, { passive: false });
-    document.addEventListener("gesturestart", preventGestureZoom, { passive: false });
-    document.addEventListener("gesturechange", preventGestureZoom, { passive: false });
-    document.addEventListener("gestureend", preventGestureZoom, { passive: false });
+    document.addEventListener("touchmove", preventMultiTouchZoom, options);
+    document.addEventListener("gesturestart", preventGestureZoom, options);
+    document.addEventListener("gesturechange", preventGestureZoom, options);
+    document.addEventListener("gestureend", preventGestureZoom, options);
 
     return () => {
-      document.removeEventListener("touchmove", preventMultiTouchZoom);
-      document.removeEventListener("gesturestart", preventGestureZoom);
-      document.removeEventListener("gesturechange", preventGestureZoom);
-      document.removeEventListener("gestureend", preventGestureZoom);
+      document.removeEventListener("touchmove", preventMultiTouchZoom, true);
+      document.removeEventListener("gesturestart", preventGestureZoom, true);
+      document.removeEventListener("gesturechange", preventGestureZoom, true);
+      document.removeEventListener("gestureend", preventGestureZoom, true);
     };
   }, []);
 

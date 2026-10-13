@@ -50,5 +50,16 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return (
+    <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){function stopPinch(e){if(e.touches&&e.touches.length>1)e.preventDefault()}function stopGesture(e){e.preventDefault()}document.addEventListener('touchmove',stopPinch,{passive:false,capture:true});['gesturestart','gesturechange','gestureend'].forEach(function(type){document.addEventListener(type,stopGesture,{passive:false,capture:true})});})();`,
+          }}
+        />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
 }
