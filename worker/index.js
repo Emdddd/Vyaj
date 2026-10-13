@@ -1,3 +1,4 @@
+function escapeHtml(value) { return String(value).replace(/[&<>\x22\x27]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",String.fromCharCode(34):"&quot;",String.fromCharCode(39):"&#39;"}[char])); }
 const corsOrigins = new Set(["https://vyaj.eu","https://www.vyaj.eu","http://localhost:3000","http://127.0.0.1:3000"]);
 export default { fetch(request, env) { return handle(request, env); } };
 async function handle(request, env) {
@@ -97,7 +98,16 @@ async function handle(request, env) {
       const now=new Date();
       const expiresAt=new Date(now.getTime()+30*24*60*60*1000).toISOString();
       await env.DB.prepare("INSERT INTO sessions (token_hash,user_id,expires_at,created_at) VALUES (?,?,?,?)").bind(tokenHash,user.id,expiresAt,now.toISOString()).run();
-      return respond({status:"available",feature:action,data:{token,expiresAt,user:{id:user.id,email:user.email,displayName:user.display_name||""}}},action==="signup"?201:200);
+      let welcomeEmail = action === "signup" ? "not_configured" : undefined;
+      if (action === "signup" && env.RESEND_API_KEY) {
+        try {
+          const html = "<!doctype html><html><body style=\"font-family:Arial,sans-serif;background:#f4f8fb;color:#07172e;padding:32px\"><main style=\"max-width:560px;margin:auto;background:#fff;border-radius:18px;padding:32px\"><p style=\"color:#0d8998;letter-spacing:2px\">WELCOME TO VYAJ</p><h1>Your next trip starts here.</h1><p>Hi " + escapeHtml(displayName) + ",</p><p>Thanks for creating your VYAJ account. You can now keep your travel plans together and return to your itinerary whenever you need it.</p><p>We are glad you are here. Let us make your next journey feel more like you.</p><p>The VYAJ team<br><a href=\"mailto:hello@vyaj.eu\">hello@vyaj.eu</a></p></main></body></html>";
+          const mail = await fetch("https://api.resend.com/emails", {method:"POST",headers:{"Authorization":"Bearer "+env.RESEND_API_KEY,"Content-Type":"application/json"},body:JSON.stringify({from:"VYAJ <hello@vyaj.eu>",to:[email],subject:"Welcome to VYAJ",html,text:"Hi "+displayName+",\n\nThanks for creating your VYAJ account. We are glad you are here.\n\nThe VYAJ team\nhello@vyaj.eu",reply_to:"hello@vyaj.eu"}),signal:AbortSignal.timeout(10000)});
+          const mailBody = await mail.json().catch(()=>({}));
+          if (mail.ok) welcomeEmail = "sent"; else { welcomeEmail = "failed"; console.error("Signup welcome email failed",mail.status,JSON.stringify(mailBody).slice(0,300)); }
+        } catch (mailError) { welcomeEmail = "failed"; console.error("Signup welcome email request failed",mailError instanceof Error?mailError.name:String(mailError)); }
+      }
+      return respond({status:"available",feature:action,data:{token,expiresAt,user:{id:user.id,email:user.email,displayName:user.display_name||""},...(action==="signup"?{welcomeEmail}:{})}},action==="signup"?201:200);
     }catch(error){console.error("Account action failed",action,error instanceof Error?error.message:String(error));return respond({error:"We couldn’t complete your account request. Please try again."},500);}
   }
   if(action==="view-profile" || action==="save-trip" || action==="list-trips"){
