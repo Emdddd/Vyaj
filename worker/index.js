@@ -42,7 +42,7 @@ async function handle(request, env) {
     if(!origin||!destination||origin===destination||!validDate(departureDate)||!Number.isInteger(adults)||adults<1||adults>9||(returnDate&&(!validDate(returnDate)||returnDate<departureDate)))return respond({error:"Check the airports, dates and number of travellers."},400);
     if(!env.IGNAV_API_KEY)return respond({error:"Live flight search is not configured yet. Add the IGNAV_API_KEY secret to the Cloudflare Worker."},503);
     try{
-      const requestBody={origin,destination,departure_date:departureDate,adults,currency:currencyCode,market:"MT",cabin_class:travelClass.toLowerCase().replace("_"," ")};
+      const requestBody={origin,destination,departure_date:departureDate,adults,currency:currencyCode,market:"MT",cabin_class:travelClass.toLowerCase()};
       if(returnDate)requestBody.return_date=returnDate;
       const endpoint=returnDate?"/api/fares/round-trip":"/api/fares/one-way";
       const response=await fetch("https://ignav.com"+endpoint,{method:"POST",headers:{"X-Api-Key":env.IGNAV_API_KEY,"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(requestBody),signal:AbortSignal.timeout(45000)});
