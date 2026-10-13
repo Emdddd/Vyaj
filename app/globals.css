@@ -1777,3 +1777,18 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
     border-radius: var(--v2-radius-md);
   }
 }
+
+
+/* Keep VYAJ logo backplates pure white across the site. */
+.v2-site .v2-brand {
+  background: #fff;
+}
+.v2-site .v2-brand img {
+  background: #fff;
+}
+.v2-site .v2-early-stamp {
+  background: #fff;
+}
+.v2-site .v2-early-stamp img {
+  filter: none;
+}
