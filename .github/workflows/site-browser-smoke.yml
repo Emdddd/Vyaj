@@ -64,6 +64,17 @@ jobs:
             await languagePicker.selectOption('en', { force: true });
             assert(await mobile.locator('.v2-discovery-card').count() === 3, 'Expected three interactive discovery cards');
             assert(await mobile.locator('.v2-discovery-card[aria-pressed="false"]').count() === 3, 'Live site has not deployed the latest interactive discovery-card version');
+            // Exercise the actual hide-on-down / show-on-up header behavior in mobile Chromium.
+            await mobile.evaluate(() => { document.documentElement.style.scrollBehavior = 'auto'; window.scrollTo(0, 0); });
+            await mobile.waitForTimeout(150);
+            await mobile.evaluate(() => window.scrollTo(0, 420));
+            await mobile.waitForFunction(() => document.querySelector('.v2-header')?.classList.contains('v2-header-hidden'), { timeout: 5000 });
+            await mobile.evaluate(() => window.scrollTo(0, 350));
+            await mobile.waitForFunction(() => !document.querySelector('.v2-header')?.classList.contains('v2-header-hidden'), { timeout: 5000 });
+            await mobile.evaluate(() => window.scrollTo(0, 0));
+            await mobile.waitForTimeout(200);
+            console.log('Mobile header hides after sustained downward scroll and returns on upward scroll.');
+
             const mobileMetrics = await mobile.evaluate(() => ({
               viewport: window.innerWidth,
               page: document.documentElement.scrollWidth,
