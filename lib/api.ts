@@ -54,7 +54,7 @@ const REQUEST_TIMEOUT_MS = 60_000;
 export async function postAction<T>(
   action: string,
   payload: unknown,
-  options: { signal?: AbortSignal } = {},
+  options: { signal?: AbortSignal; token?: string } = {},
 ): Promise<ActionResponse<T>> {
   if (!API_BASE) {
     throw new ApiError("The travel service is not connected yet. Please try again later.", undefined, false);
@@ -68,7 +68,7 @@ export async function postAction<T>(
   try {
     const response = await fetch(`${API_BASE}/api/v1/actions/${action}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      headers: { "Content-Type": "application/json", Accept: "application/json", ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}) },
       body: JSON.stringify(payload),
       signal: controller.signal,
     });
