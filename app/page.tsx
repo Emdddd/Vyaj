@@ -663,7 +663,7 @@ export default function Home() {
       }
       if (!flight.bookingToken) throw new Error("The provider did not return a booking token for this flight. Search again or choose another flight.");
       setFlightError("Finding the booking page for your selected flight…");
-      const response = await postAction<{ options: Array<{ provider: string; price: number | null; url: string }> }>("flight-booking-options", { bookingToken: flight.bookingToken, currencyCode: flight.currency || "EUR" });
+      const response = await postAction<{ options: Array<{ provider: string; price: number | null; url: string }> }>("flight-booking-options", { bookingToken: flight.bookingToken, currencyCode: flight.currency || "EUR", origin: flightOriginCode || (flightOrigin.trim().toLowerCase() === "malta" ? "MLA" : ""), destination: flightDestinationCode || (/^paris(?:,|$)/i.test(flightDestination.trim()) ? "CDG" : ""), departureDate: flightDepartureDate, ...(flightTripType === "roundtrip" ? { returnDate: flightReturnDate } : {}), adults: travellers === "5+" ? 5 : Number(travellers) || 1 });
       const option = response.data?.options?.find(item => typeof item.url === "string" && /^https?:\/\//i.test(item.url));
       if (!option) throw new Error("The provider has no direct booking link for this exact flight right now. Please choose another flight.");
       window.location.assign(option.url);
