@@ -34,9 +34,9 @@ async function handle(request, env) {
         const key=provider+"|"+url;if(seen.has(key))return;seen.add(key);
         options.push({provider,price:Number(price)||null,url});
       };
-      const collectLinks=(value,providerHint="Booking provider",priceHint=null,depth=0)=>{
+      const collectLinks=async (value,providerHint="Booking provider",priceHint=null,depth=0)=>{
         if(!value||typeof value!=="object"||depth>5)return;
-        if(Array.isArray(value)){for(const item of value)collectLinks(item,providerHint,priceHint,depth+1);return;}
+        if(Array.isArray(value)){for(const item of value)await collectLinks(item,providerHint,priceHint,depth+1);return;}
         const provider=typeof value.book_with==="string"?value.book_with:providerHint;
         const price=value.price??priceHint;
         addOption(provider,price,value.link);
@@ -57,7 +57,7 @@ async function handle(request, env) {
                 if(resolved.ok&&finalUrl&&finalUrl.startsWith("https://"))addOption(provider,price,finalUrl);
               }catch(resolveError){console.error("Could not resolve exact booking link",resolveError instanceof Error?resolveError.name:String(resolveError));}
             }
-          }else if(child&&typeof child==="object")collectLinks(child,provider,price,depth+1);
+          }else if(child&&typeof child==="object")await collectLinks(child,provider,price,depth+1);
         }
       };
       for(const option of source)await collectLinks(option);
