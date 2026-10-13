@@ -221,20 +221,6 @@ export default function Home() {
   const [heroPrompt, setHeroPrompt] = useState("");
   const [heroPlaceholderIndex, setHeroPlaceholderIndex] = useState(0);
   const [heroPlaceholderLength, setHeroPlaceholderLength] = useState(0);
-  const currentHeroPlaceholder = t(heroPlaceholders[heroPlaceholderIndex]);
-  useEffect(() => {
-    if (heroPrompt.trim()) return;
-    const isComplete = heroPlaceholderLength >= currentHeroPlaceholder.length;
-    const timer = window.setTimeout(() => {
-      if (isComplete) {
-        setHeroPlaceholderIndex((index) => (index + 1) % heroPlaceholders.length);
-        setHeroPlaceholderLength(0);
-      } else {
-        setHeroPlaceholderLength((length) => length + 1);
-      }
-    }, isComplete ? 700 : 38);
-    return () => window.clearTimeout(timer);
-  }, [heroPrompt, heroPlaceholderIndex, heroPlaceholderLength, currentHeroPlaceholder]);
   const [departureCity, setDepartureCity] = useState("");
   const [flightPanelOpen, setFlightPanelOpen] = useState(false);
   const [flightOrigin, setFlightOrigin] = useState("Malta");
@@ -282,6 +268,20 @@ export default function Home() {
   const [selectedMood, setSelectedMood] = useState("");
   const [language, setLanguage] = useState<Language>("en");
   const t = (value: string) => pageCopy[language][value] || translations[language][value] || value;
+  const currentHeroPlaceholder = t(heroPlaceholders[heroPlaceholderIndex]);
+  useEffect(() => {
+    if (heroPrompt.trim()) return;
+    const isComplete = heroPlaceholderLength >= currentHeroPlaceholder.length;
+    const timer = window.setTimeout(() => {
+      if (isComplete) {
+        setHeroPlaceholderIndex((index) => (index + 1) % heroPlaceholders.length);
+        setHeroPlaceholderLength(0);
+      } else {
+        setHeroPlaceholderLength((length) => length + 1);
+      }
+    }, isComplete ? 700 : 38);
+    return () => window.clearTimeout(timer);
+  }, [heroPrompt, heroPlaceholderIndex, heroPlaceholderLength, currentHeroPlaceholder]);
   useEffect(() => {
     try {
       const token = sessionStorage.getItem("vyaj_session_token") || "";
