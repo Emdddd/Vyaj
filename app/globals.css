@@ -1527,3 +1527,60 @@ body { -webkit-font-smoothing: antialiased; }
   .v2-hero-concierge h1 { font-size:40px !important; }
   .v2-concierge-chips button { font-size:8px;padding-inline:8px; }
 }
+
+
+/* Unified VYAJ design tokens — preview branch only. */
+:root {
+  --v2-ink: #07172e;
+  --v2-ink-soft: #263f54;
+  --v2-muted: #657486;
+  --v2-accent: #26c6da;
+  --v2-accent-strong: #087f94;
+  --v2-page: #f7f8f5;
+  --v2-surface: #ffffff;
+  --v2-line: #e2e9ec;
+  --v2-radius-sm: 8px;
+  --v2-radius-md: 12px;
+  --v2-radius-lg: 16px;
+  --v2-shadow-soft: 0 8px 28px rgba(7,23,46,.055);
+}
+.v2-site {
+  background: var(--v2-page);
+  color: var(--v2-ink);
+}
+.v2-site :is(input,select,textarea) {
+  accent-color: var(--v2-accent-strong);
+}
+.v2-site :is(input,select,textarea):focus-visible {
+  outline: 2px solid var(--v2-accent-strong);
+  outline-offset: 3px;
+}
+.v2-site :is(.v2-builder-card,.v2-discovery-card,.v2-availability-card,.v2-early-card,.v2-account-card) {
+  border-color: var(--v2-line);
+}
+.v2-site :is(.v2-builder-card,.v2-availability-card,.v2-early-card) {
+  box-shadow: var(--v2-shadow-soft);
+}
+.v2-site :is(.v2-button,.v2-nav-cta,.v2-nav-signup) {
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease, transform .18s ease, box-shadow .18s ease;
+}
+.v2-site :is(.v2-button,.v2-nav-cta,.v2-nav-signup):focus-visible,
+.v2-site a:focus-visible,
+.v2-site button:focus-visible {
+  outline: 2px solid var(--v2-accent-strong);
+  outline-offset: 3px;
+}
+.v2-site :is(.v2-button,.v2-nav-cta,.v2-nav-signup):active {
+  transform: translateY(1px);
+}
+.v2-site :is(.v2-section-intro p,.v2-hero-lead,.v2-discovery-heading p,.v2-early-copy p) {
+  color: var(--v2-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .v2-site *, .v2-site *::before, .v2-site *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}
