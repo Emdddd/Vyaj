@@ -1315,3 +1315,6 @@ body { -webkit-font-smoothing: antialiased; }
 .v2-flight-result-price a,
 .v2-flight-result-price a.v2-flight-price-link{position:relative;z-index:5;display:inline-flex;align-items:center;min-height:44px;padding:8px 4px;pointer-events:auto;touch-action:manipulation;-webkit-tap-highlight-color:rgba(38,198,218,.18);cursor:pointer}
 .v2-flight-result-price{position:relative;z-index:2}
+
+.v2-nav-account{appearance:none;background:transparent;border:0;padding:12px 0;color:#263f54;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer}.v2-nav-account:hover{color:#008eaf}.v2-nav-signup{appearance:none;background:#26c6da;color:#06192c;border-color:#26c6da;cursor:pointer;white-space:nowrap}.v2-nav-signup:hover{background:#6ce5ef;border-color:#6ce5ef}
+@media(max-width:900px){.v2-nav{gap:18px}}
