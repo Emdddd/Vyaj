@@ -1,6 +1,6 @@
 # VYAJ Cloudflare Worker
 
-The Worker serves the VYAJ API at `/api/v1/actions/*`. The trip planner uses Groq server-side through `GROQ_API_KEY`; do not put this secret in frontend variables or commit it.
+The Worker serves VYAJ APIs at `/api/v1/actions/*`. The frontend is a static GitHub Pages export; API credentials must remain server-side.
 
 ## Deploy
 
@@ -9,22 +9,40 @@ From the repository root:
 ```bash
 npx wrangler login
 npx wrangler secret put GROQ_API_KEY
+npx wrangler secret put SERPAPI_API_KEY
+npx wrangler secret put IGNAV_API_KEY
+npx wrangler secret put RESEND_API_KEY
 npx wrangler deploy
 ```
 
-Wrangler reads `wrangler.toml` and deploys `worker/index.js`. Enter the key only at the interactive prompt. The deployed Worker URL should match the GitHub Actions variable `NEXT_PUBLIC_VYAJ_API_URL` (base URL only, no trailing slash or `/api` suffix).
+Only configure credentials for services you intend to use. Enter secrets interactively and never commit them. The deployed Worker base URL must match the GitHub Actions variable `NEXT_PUBLIC_VYAJ_API_URL` (no trailing slash and no `/api` suffix).
 
 ## Local development
 
-- Copy `.dev.vars.example` to `.dev.vars` and set `GROQ_API_KEY` locally.
-- Run `npx wrangler dev` to start the Worker locally.
-- Set `NEXT_PUBLIC_VYAJ_API_URL=http://localhost:8787` for the Next.js app during local development.
+1. Copy `.dev.vars.example` to `.dev.vars`.
+2. Add development credentials to `.dev.vars`; do not commit that file.
+3. Run `npx wrangler dev`.
+4. Set `NEXT_PUBLIC_VYAJ_API_URL=http://localhost:8787` in the frontend's local environment.
 
-## Current behavior and limitations
+The D1 binding is declared in `wrangler.toml`. Account and trip operations require the matching production database schema to exist.
 
-- Implemented endpoint: `POST /api/v1/actions/plan-trip` (legacy alias: `POST /api/plan`).
-- The planner returns AI-generated itinerary suggestions and broad estimates, not live prices, verified opening hours, live routes, or booking confirmation.
-- `join-waitlist` validates the email and attempts a welcome email via Resend using `RESEND_API_KEY`. It does not persist the waitlist; the website's Formspree form is the waitlist registration store.
-- Other registered actions currently return `coming_soon`; they do not authenticate users, save trips, book travel, or persist itinerary edits.
-- CORS origin checks are not authentication and do not prevent abuse by themselves. Configure Cloudflare rate limiting/Turnstile and monitoring before broad promotion.
-- Allowed browser origins are defined in `worker/index.js`. Update that allowlist deliberately if the production domain changes.
+## Current endpoint behavior
+
+- `POST /api/v1/actions/plan-trip` (and legacy alias `POST /api/plan`): AI-generated itinerary via Groq.
+- `POST /api/v1/actions/search-flights`: flight search via SerpApi / Google Flights.
+- `POST /api/v1/actions/flight-booking-options`: booking-link lookup via Ignav when a valid booking reference is supplied.
+- `POST /api/v1/actions/signup` and `/login`: account operations using D1, subject to correct schema/configuration.
+- `POST /api/v1/actions/save-trip` and `/list-trips`: authenticated trip persistence using D1, subject to correct schema/configuration.
+- `POST /api/v1/actions/join-waitlist`: validates an email and sends a welcome message via Resend. The website stores the waitlist registration separately through Formspree.
+- Other registered actions currently return `coming_soon`; they do not perform the advertised operation.
+
+A successful code path is not proof of correct production configuration. Run controlled end-to-end tests for D1, each provider integration, email delivery, and authentication before launch.
+
+## Security and launch checks
+
+- CORS origin checks are not authentication and do not stop non-browser clients from calling public endpoints.
+- Configure Cloudflare rate limiting and bot protection before broad promotion, especially for AI and flight-search endpoints.
+- Keep all provider credentials in Worker secrets. Never use `NEXT_PUBLIC_*` for private keys.
+- Verify D1 schema, backup/recovery, password hashing, session expiration/revocation, and authorization on every user-owned trip operation.
+- Do not log credentials, session tokens, or unnecessary personal data.
+- Itinerary prices/opening hours are estimates unless independently verified. A flight search or booking link is not a booking confirmation.
