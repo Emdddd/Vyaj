@@ -17,7 +17,7 @@ async function handle(request, env) {
       const params=new URLSearchParams({engine:"google_flights",api_key:env.SERPAPI_API_KEY,booking_token:bookingToken,currency:currencyCode,hl:"en",gl:"mt"});
       const bookingResponse=await fetch("https://serpapi.com/search.json?"+params.toString(),{headers:{Accept:"application/json"},signal:AbortSignal.timeout(45000)});
       const bookingBody=await bookingResponse.json().catch(()=>({}));
-      if(!bookingResponse.ok||bookingBody.error){console.error("SerpApi booking options failed",bookingResponse.status,String(bookingBody.error||"").slice(0,200));return respond({error:"We couldn't retrieve booking links for this exact flight. Please try another flight."},bookingResponse.status===429?429:502);}
+      if(!bookingResponse.ok||bookingBody.error){const providerError=typeof bookingBody.error==="string"?bookingBody.error:"";console.error("SerpApi booking options failed",bookingResponse.status,providerError.slice(0,200));return respond({error:"Booking provider error ("+bookingResponse.status+"): "+(providerError.slice(0,180)||"No booking details returned")},bookingResponse.status===429?429:502);}
       const source=Array.isArray(bookingBody.booking_options)?bookingBody.booking_options:[];
       const options=[];
       for(const option of source){
