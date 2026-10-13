@@ -54,7 +54,7 @@ jobs:
             assert(await mobile.locator('.v2-hero h1').count() === 1, 'Hero headline element is missing');
             assert((await mobile.locator('.v2-hero h1').innerText()).trim().length > 0, 'Hero headline is empty');
             const languagePicker = mobile.locator('.v2-language-picker select');
-            for (const [locale, expected] of [['ar', /اكتشف رحلة/], ['fr', /Trouvez le voyage/], ['it', /Trova il viaggio/], ['en', /Discover the trip/], ['de', /Entdecke die Reise/]]) {
+            for (const [locale, expected] of [['ar', /رحلتك القادمة/], ['fr', /Trouvez le voyage/], ['it', /Trova il viaggio/], ['en', /Discover the trip/], ['de', /Entdecke die Reise/]]) {
               await languagePicker.selectOption(locale, { force: true });
               await mobile.waitForFunction(expectedLocale => document.documentElement.lang === expectedLocale, locale);
               assert(await mobile.locator('main.v2-site').getAttribute('dir') === 'ltr', `Layout direction changed for ${locale}`);
