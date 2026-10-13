@@ -1077,7 +1077,7 @@ export default function Home() {
 
       <section className="v2-availability" id="availability">
         <div className="v2-availability-inner">
-          <div className="v2-eyebrow v2-eyebrow-light"><span>05</span><i/> {t("CLEAR FROM DAY ONE")}</div>
+          <div className="v2-eyebrow v2-eyebrow-light"><span>04</span><i/> {t("CLEAR FROM DAY ONE")}</div>
           <div className="v2-availability-heading"><h2>{t("Useful now.")}<br/><em>{t("More to come.")}</em></h2><p>{t("We’d rather be clear about what’s ready than promise features that aren’t connected yet.")}</p></div>
           <div className="v2-feature-status">
             <div className="v2-status-row"><span className="v2-status-icon v2-status-ready"><Check size={17}/></span><div><strong>{t("Interactive trip preview")}</strong><small>{t("Works in this demo using your choices.")}</small></div><span className="v2-status-label">{t("AVAILABLE")}</span></div>
