@@ -183,6 +183,7 @@ function money(value: string) {
 
 export default function Home() {
   const [destination, setDestination] = useState("Paris, France");
+  const [heroPrompt, setHeroPrompt] = useState("");
   const [departureCity, setDepartureCity] = useState("");
   const [flightPanelOpen, setFlightPanelOpen] = useState(false);
   const [flightOrigin, setFlightOrigin] = useState("Malta");
@@ -775,25 +776,27 @@ export default function Home() {
         </nav>
       </header>
 
-      <section className="v2-hero" id="top">
+      <section className="v2-hero v2-hero-concierge" id="top">
         <div className="v2-hero-image" aria-hidden="true" />
         <div className="v2-hero-overlay" aria-hidden="true" />
         <div className="v2-hero-grain" aria-hidden="true" />
         <div className="v2-hero-content">
-          <div className="v2-eyebrow v2-eyebrow-light"><span className="v2-status-dot" /> {t("YOUR WORLD IS WAITING")}</div>
-          <h1>{t("Find the trip")}<br/>{t("you didn’t know")}<br/><span>{t("you needed.")}</span></h1>
-          <p className="v2-hero-lead">{t("Tell VYAJ what you’re craving. Discover a trip that feels like you — then turn it into a plan.")}</p>
-          <div className="v2-hero-actions">
-            <a className="v2-button v2-button-bright" href="#discover">{t("Discover my next trip")} <ArrowUpRight size={17}/></a>
-            <a className="v2-hero-secondary" href="#trip-builder">{t("I know where I’m going")} <ArrowDown size={15}/></a>
-          </div>
-          <div className="v2-hero-foot"><span><Sparkles size={14}/> {t("Inspiration first. Your plan next.")}</span><span className="v2-hero-proof"><span className="v2-proof-line"/> {t("Made around you")}</span></div>
-        </div>
-        <div className="v2-hero-card" aria-label="A preview of the VYAJ trip planning experience">
-          <div className="v2-hero-card-top"><span className="v2-card-kicker">{t("YOUR NEXT POSSIBILITY")}</span><span className="v2-hero-live-dot" /> <span className="v2-hero-live-label">{t("READY TO DISCOVER")}</span></div>
-          <div className="v2-hero-mini-destination"><div className="v2-hero-mini-icon"><Compass size={18}/></div><div><strong>{t("Not just a destination.")}</strong><span>{t("A feeling, turned into a journey.")}</span></div></div>
-          <div className="v2-hero-mini-route"><span /><span /><span /></div>
-          <div className="v2-hero-mini-stats"><div><span>01</span><small>{t("Discover")}</small></div><div><span>02</span><small>{t("Personalise")}</small></div><div><span>03</span><small>{t("Go")}</small></div></div>
+          <div className="v2-eyebrow v2-eyebrow-light"><span className="v2-status-dot" /> {t("YOUR NEXT CHAPTER")}</div>
+          <h1>{t("Your next trip,")}<br/><span>{t("figured out.")}</span></h1>
+          <p className="v2-hero-lead">{t("Tell us what you love. We’ll help you find where to go.")}</p>
+          <form className="v2-concierge-prompt" onSubmit={(event) => { event.preventDefault(); const idea = heroPrompt.trim(); if (idea) { setDestination(idea); setResultReady(false); setAiItinerary(null); document.getElementById("trip-builder")?.scrollIntoView({ behavior: "smooth", block: "start" }); } else { document.getElementById("trip-builder")?.scrollIntoView({ behavior: "smooth", block: "start" }); } }}>
+            <label className="v2-concierge-label" htmlFor="v2-hero-prompt">{t("WHAT ARE YOU IN THE MOOD FOR?")}</label>
+            <div className="v2-concierge-input-row">
+              <input id="v2-hero-prompt" value={heroPrompt} onChange={(event) => setHeroPrompt(event.target.value)} placeholder={t("A quiet escape by the sea…")} aria-label={t("Describe your ideal trip")} />
+              <button type="submit" aria-label={t("Start planning")}><ArrowUpRight size={20}/></button>
+            </div>
+            <div className="v2-concierge-chips">
+              <button type="button" onClick={() => { setHeroPrompt("A quiet escape by the sea"); setStyle("Slow escape"); }}> {t("By the sea")} </button>
+              <button type="button" onClick={() => { setHeroPrompt("Food, culture and local streets"); setStyle("Food & culture"); }}> {t("Food & culture")} </button>
+              <button type="button" onClick={() => { setHeroPrompt("Nature and beautiful views"); setStyle("Nature & outdoors"); }}> {t("Nature & views")} </button>
+            </div>
+          </form>
+          <a className="v2-hero-secondary v2-concierge-secondary" href="#trip-builder">{t("I already have a destination")} <ArrowDown size={15}/></a>
         </div>
       </section>
 
