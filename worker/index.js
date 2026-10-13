@@ -1,13 +1,13 @@
 const corsOrigins = new Set(["https://vyaj.eu","https://www.vyaj.eu","http://localhost:3000","http://127.0.0.1:3000"]);
-addEventListener("fetch", event => event.respondWith(handle(event.request, {GROQ_API_KEY:globalThis.GROQ_API_KEY, SERPAPI_API_KEY:globalThis.SERPAPI_API_KEY, RESEND_API_KEY:globalThis.RESEND_API_KEY})));
+addEventListener("fetch", event => event.respondWith(handle(event.request, {DB:globalThis.DB, GROQ_API_KEY:globalThis.GROQ_API_KEY, SERPAPI_API_KEY:globalThis.SERPAPI_API_KEY, RESEND_API_KEY:globalThis.RESEND_API_KEY, IGNAV_API_KEY:globalThis.IGNAV_API_KEY})));
 async function handle(request, env) {
   const origin = request.headers.get("Origin");
   const headers = {"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Vary":"Origin"};
-  if (origin && corsOrigins.has(origin)) { headers["Access-Control-Allow-Origin"]=origin; headers["Access-Control-Allow-Methods"]="POST, OPTIONS"; headers["Access-Control-Allow-Headers"]="Content-Type"; headers["Access-Control-Max-Age"]="86400"; }
+  if (origin && corsOrigins.has(origin)) { headers["Access-Control-Allow-Origin"]=origin; headers["Access-Control-Allow-Methods"]="POST, OPTIONS"; headers["Access-Control-Allow-Headers"]="Content-Type, Authorization"; headers["Access-Control-Max-Age"]="86400"; }
   const respond=(data,status=200)=>new Response(JSON.stringify(data),{status,headers});
   if(request.method==="OPTIONS") return new Response(null,{status:origin&&!corsOrigins.has(origin)?403:204,headers});
   const url=new URL(request.url);
-  const actionPaths={"/api/v1/actions/plan-trip":"plan-trip","/api/v1/actions/search-flights":"search-flights","/api/v1/actions/flight-booking-options":"flight-booking-options","/api/plan":"plan-trip","/api/v1/actions/decide-for-us":"decide-for-us","/api/v1/actions/surprise-me":"surprise-me","/api/v1/actions/search-destinations":"search-destinations","/api/v1/actions/adjust-itinerary":"adjust-itinerary","/api/v1/actions/invite-travelers":"invite-travelers","/api/v1/actions/submit-vote":"submit-vote","/api/v1/actions/view-notifications":"view-notifications","/api/v1/actions/join-waitlist":"join-waitlist","/api/v1/actions/view-profile":"view-profile","/api/v1/actions/save-trip":"save-trip","/api/v1/actions/share-trip":"share-trip","/api/v1/actions/open-settings":"open-settings","/api/v1/actions/login":"login","/api/v1/actions/signup":"signup","/api/v1/actions/book-trip":"book-trip","/api/v1/actions/add-activity":"add-activity","/api/v1/actions/edit-itinerary":"edit-itinerary"}; const action=actionPaths[url.pathname]; if(!action)return respond({error:"Not found."},404);
+  const actionPaths={"/api/v1/actions/plan-trip":"plan-trip","/api/v1/actions/search-flights":"search-flights","/api/v1/actions/flight-booking-options":"flight-booking-options","/api/plan":"plan-trip","/api/v1/actions/decide-for-us":"decide-for-us","/api/v1/actions/surprise-me":"surprise-me","/api/v1/actions/search-destinations":"search-destinations","/api/v1/actions/adjust-itinerary":"adjust-itinerary","/api/v1/actions/invite-travelers":"invite-travelers","/api/v1/actions/submit-vote":"submit-vote","/api/v1/actions/view-notifications":"view-notifications","/api/v1/actions/join-waitlist":"join-waitlist","/api/v1/actions/view-profile":"view-profile","/api/v1/actions/save-trip":"save-trip","/api/v1/actions/share-trip":"share-trip","/api/v1/actions/open-settings":"open-settings","/api/v1/actions/login":"login","/api/v1/actions/signup":"signup","/api/v1/actions/list-trips":"list-trips","/api/v1/actions/book-trip":"book-trip","/api/v1/actions/add-activity":"add-activity","/api/v1/actions/edit-itinerary":"edit-itinerary"}; const action=actionPaths[url.pathname]; if(!action)return respond({error:"Not found."},404);
   if(request.method!=="POST") return respond({error:"Use POST for this action."},405); if(action!=="plan-trip"){let payload;try{payload=await request.json()}catch{return respond({error:"Please send valid action details."},400)} if(!payload||typeof payload!=="object"||Array.isArray(payload))return respond({error:"Please send valid action details."},400); if(action==="flight-booking-options"){
     const ignavId=typeof payload.bookingToken==="string"&&payload.bookingToken.length<=50000?payload.bookingToken:"";
     if(!ignavId)return respond({error:"This flight has no booking reference. Please search again or choose another flight."},400);
@@ -67,6 +67,63 @@ async function handle(request, env) {
       }).filter(flight=>flight.price!==""&&flight.departure!=="—"&&flight.arrival!=="—").sort((a,b)=>Number(a.price)-Number(b.price)).slice(0,20);
       return respond({status:data.length?"available":"unavailable",feature:"search-flights",data,provider:"SerpApi / Google Flights"},200);
     }catch(error){console.error("SerpApi flight search failed",error instanceof Error?error.name+":"+error.message:String(error));return respond({error:"We couldn't connect to the flight search provider. Please try again."},502);}
+  } if(action==="signup" || action==="login"){
+    if(!env.DB)return respond({error:"Account storage is not connected. Please try again later."},503);
+    const email=typeof payload.email==="string"?payload.email.trim().toLowerCase():"";
+    const password=typeof payload.password==="string"?payload.password:"";
+    const displayName=typeof payload.displayName==="string"?payload.displayName.trim().slice(0,80):"";
+    if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return respond({error:"Enter a valid email address."},400);
+    if(password.length<10||password.length>200)return respond({error:"Password must be between 10 and 200 characters."},400);
+    try{
+      let user;
+      if(action==="signup"){
+        if(displayName.length<1)return respond({error:"Enter your name to create an account."},400);
+        const salt=crypto.getRandomValues(new Uint8Array(16));
+        const passwordHash=await hashPassword(password,salt);
+        const id=crypto.randomUUID();
+        const now=new Date().toISOString();
+        try{await env.DB.prepare("INSERT INTO users (id,email,password_hash,display_name,created_at,updated_at) VALUES (?,?,?,?,?,?)").bind(id,email,bytesToBase64(salt)+"$"+passwordHash,displayName,now,now).run();}
+        catch(error){if(String(error?.message||error).toLowerCase().includes("unique"))return respond({error:"An account with this email already exists. Please log in."},409);throw error;}
+        user={id,email,display_name:displayName};
+      }else{
+        const row=await env.DB.prepare("SELECT id,email,password_hash,display_name FROM users WHERE email=? LIMIT 1").bind(email).first();
+        if(!row)return respond({error:"Email or password is incorrect."},401);
+        const parts=String(row.password_hash||"").split("$");
+        if(parts.length!==2||!await verifyPassword(password,parts[0],parts[1]))return respond({error:"Email or password is incorrect."},401);
+        user=row;
+      }
+      const token=bytesToBase64Url(crypto.getRandomValues(new Uint8Array(32)));
+      const tokenHash=await sha256Hex(token);
+      const now=new Date();
+      const expiresAt=new Date(now.getTime()+30*24*60*60*1000).toISOString();
+      await env.DB.prepare("INSERT INTO sessions (token_hash,user_id,expires_at,created_at) VALUES (?,?,?,?)").bind(tokenHash,user.id,expiresAt,now.toISOString()).run();
+      return respond({status:"available",feature:action,data:{token,expiresAt,user:{id:user.id,email:user.email,displayName:user.display_name||""}}},action==="signup"?201:200);
+    }catch(error){console.error("Account action failed",action,error instanceof Error?error.message:String(error));return respond({error:"We couldn’t complete your account request. Please try again."},500);}
+  }
+  if(action==="view-profile" || action==="save-trip" || action==="list-trips"){
+    if(!env.DB)return respond({error:"Account storage is not connected. Please try again later."},503);
+    const user=await authenticatedUser(request,env.DB);
+    if(!user)return respond({error:"Please log in again to continue."},401);
+    if(action==="view-profile")return respond({status:"available",feature:action,data:{user:{id:user.id,email:user.email,displayName:user.display_name||""}}});
+    if(action==="list-trips"){
+      try{const rows=await env.DB.prepare("SELECT id,title,destination,trip_data,created_at,updated_at FROM trips WHERE user_id=? ORDER BY updated_at DESC LIMIT 100").bind(user.id).all();return respond({status:"available",feature:action,data:{trips:(rows.results||[]).map(row=>({id:row.id,title:row.title,destination:row.destination,trip:parseJson(row.trip_data),createdAt:row.created_at,updatedAt:row.updated_at}))}});}
+      catch(error){console.error("List trips failed",error instanceof Error?error.message:String(error));return respond({error:"We couldn’t load your saved trips."},500);}
+    }
+    const trip=payload.trip&&typeof payload.trip==="object"?payload.trip:payload.itinerary&&typeof payload.itinerary==="object"?payload.itinerary:null;
+    if(!trip)return respond({error:"Include a trip or itinerary to save."},400);
+    let serialized;try{serialized=JSON.stringify(trip);}catch{return respond({error:"This trip could not be saved."},400);}
+    if(serialized.length>150000)return respond({error:"This trip is too large to save. Please shorten it and try again."},413);
+    const title=String(trip.tripTitle||trip.title||payload.title||trip.destination||"My trip").trim().slice(0,180)||"My trip";
+    const destination=String(trip.destination||payload.destination||"").trim().slice(0,180);
+    const id=typeof payload.id==="string"&&/^[0-9a-f-]{36}$/i.test(payload.id)?payload.id:crypto.randomUUID();
+    const now=new Date().toISOString();
+    try{
+      const existing=await env.DB.prepare("SELECT id FROM trips WHERE id=? AND user_id=?").bind(id,user.id).first();
+      if(existing)await env.DB.prepare("UPDATE trips SET title=?,destination=?,trip_data=?,updated_at=? WHERE id=? AND user_id=?").bind(title,destination,serialized,now,id,user.id).run();
+      else await env.DB.prepare("INSERT INTO trips (id,user_id,title,destination,trip_data,created_at,updated_at) VALUES (?,?,?,?,?,?,?)").bind(id,user.id,title,destination,serialized,now,now).run();
+      return respond({status:"available",feature:action,data:{trip:{id,title,destination,trip,createdAt:existing?undefined:now,updatedAt:now}}},existing?200:201);
+    }catch(error){console.error("Save trip failed",error instanceof Error?error.message:String(error));return respond({error:"We couldn’t save this trip. Please try again."},500);}
+  }
   } if(action==="join-waitlist"){
     const email=typeof payload.email==="string"?payload.email.trim().toLowerCase():"";
     if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return respond({error:"Enter a valid email address and try again."},400);
@@ -118,3 +175,11 @@ async function handle(request, env) {
     return respond({status:"available",feature:"plan-trip",itinerary});
   }catch(error){console.error("Trip planning failed",error instanceof Error?error.name+": "+error.message:String(error));return respond({error:"We couldn't build that itinerary just now. Please try again."},502);}
 }
+function bytesToBase64(bytes){let binary="";for(const byte of bytes)binary+=String.fromCharCode(byte);return btoa(binary);}
+function bytesToBase64Url(bytes){return bytesToBase64(bytes).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/g,"");}
+function base64ToBytes(value){const binary=atob(value);return Uint8Array.from(binary,c=>c.charCodeAt(0));}
+async function hashPassword(password,salt){const key=await crypto.subtle.importKey("raw",new TextEncoder().encode(password),"PBKDF2",false,["deriveBits"]);const bits=await crypto.subtle.deriveBits({name:"PBKDF2",salt,iterations:210000,hash:"SHA-256"},key,256);return bytesToBase64(new Uint8Array(bits));}
+async function verifyPassword(password,salt,expected){try{const actual=await hashPassword(password,base64ToBytes(salt));const a=base64ToBytes(actual),b=base64ToBytes(expected);if(a.length!==b.length)return false;let diff=0;for(let i=0;i<a.length;i++)diff|=a[i]^b[i];return diff===0;}catch{return false;}}
+async function sha256Hex(value){const bytes=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));return Array.from(new Uint8Array(bytes),b=>b.toString(16).padStart(2,"0")).join("");}
+async function authenticatedUser(request,db){const header=request.headers.get("Authorization")||"";const match=header.match(/^Bearer\s+([A-Za-z0-9_-]{30,100})$/i);if(!match)return null;const tokenHash=await sha256Hex(match[1]);const row=await db.prepare("SELECT u.id,u.email,u.display_name,s.token_hash FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>? LIMIT 1").bind(tokenHash,new Date().toISOString()).first();return row?{id:row.id,email:row.email,display_name:row.display_name}:null;}
+function parseJson(value){try{return JSON.parse(value);}catch{return null;}}
