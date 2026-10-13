@@ -1708,8 +1708,6 @@ body { -webkit-font-smoothing: antialiased; }
 }
 
 
-/* Mobile interaction fixes: preserve vertical scrolling while disabling pinch gestures. */
+/* Preserve vertical panning and prevent horizontal overscroll on touch devices.
+   iOS Safari may still permit accessibility zoom; see the viewport setup in layout.tsx. */
 html, body { touch-action: pan-y; overscroll-behavior-x: none; }
-@media (max-width: 760px) {
-  .v2-header { -webkit-backdrop-filter: none; backdrop-filter: none; }
-}
