@@ -392,7 +392,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #00c9df;outline-offset:3p
 .v2-discovery-card-image,.v2-discovery-shade{position:absolute;inset:0;z-index:-1}
 .v2-discovery-card-image{background-size:cover;background-position:center;transform:scale(1.015);transition:transform .8s var(--v2-ease),filter .5s}
 .v2-discovery-card:hover .v2-discovery-card-image{transform:scale(1.075)}
-.v2-discovery-coast .v2-discovery-card-image{background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/La_D%C3%A9fense_%40_Ile_de_Puteaux_%40_Seine_river_%40_Paris_%2824025871581%29.jpg?width=1600')}
+.v2-discovery-coast .v2-discovery-card-image{background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Towers_over_a_park%2C_La_D%C3%A9fense%2C_Paris.jpg?width=1600')}
 .v2-discovery-wild .v2-discovery-card-image{background-image:url('https://commons.wikimedia.org/wiki/Special:FilePath/Valletta.jpg?width=1200')}
 .v2-discovery-culture .v2-discovery-card-image{background-image:url('https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=900&q=85')}
 .v2-discovery-shade{background:linear-gradient(180deg,rgba(4,17,32,.45),transparent 32%,rgba(4,17,32,.10) 48%,rgba(4,17,32,.88) 100%);z-index:0}
