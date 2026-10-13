@@ -1,5 +1,5 @@
 const corsOrigins = new Set(["https://vyaj.eu","https://www.vyaj.eu","http://localhost:3000","http://127.0.0.1:3000"]);
-addEventListener("fetch", event => event.respondWith(handle(event.request, {DB:globalThis.DB, GROQ_API_KEY:globalThis.GROQ_API_KEY, SERPAPI_API_KEY:globalThis.SERPAPI_API_KEY, RESEND_API_KEY:globalThis.RESEND_API_KEY, IGNAV_API_KEY:globalThis.IGNAV_API_KEY})));
+export default { fetch(request, env) { return handle(request, env); } };
 async function handle(request, env) {
   const origin = request.headers.get("Origin");
   const headers = {"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","Vary":"Origin"};
