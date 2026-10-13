@@ -10,27 +10,42 @@ async function handle(request, env) {
   const url=new URL(request.url);
   const actionPaths={"/api/v1/actions/plan-trip":"plan-trip","/api/v1/actions/search-flights":"search-flights","/api/v1/actions/flight-booking-options":"flight-booking-options","/api/plan":"plan-trip","/api/v1/actions/decide-for-us":"decide-for-us","/api/v1/actions/surprise-me":"surprise-me","/api/v1/actions/search-destinations":"search-destinations","/api/v1/actions/adjust-itinerary":"adjust-itinerary","/api/v1/actions/invite-travelers":"invite-travelers","/api/v1/actions/submit-vote":"submit-vote","/api/v1/actions/view-notifications":"view-notifications","/api/v1/actions/join-waitlist":"join-waitlist","/api/v1/actions/view-profile":"view-profile","/api/v1/actions/save-trip":"save-trip","/api/v1/actions/share-trip":"share-trip","/api/v1/actions/open-settings":"open-settings","/api/v1/actions/login":"login","/api/v1/actions/signup":"signup","/api/v1/actions/list-trips":"list-trips","/api/v1/actions/book-trip":"book-trip","/api/v1/actions/add-activity":"add-activity","/api/v1/actions/edit-itinerary":"edit-itinerary"}; const action=actionPaths[url.pathname]; if(!action)return respond({error:"Not found."},404);
   if(request.method!=="POST") return respond({error:"Use POST for this action."},405); if(action!=="plan-trip"){let payload;try{payload=await request.json()}catch{return respond({error:"Please send valid action details."},400)} if(!payload||typeof payload!=="object"||Array.isArray(payload))return respond({error:"Please send valid action details."},400); if(action==="flight-booking-options"){
-    const ignavId=typeof payload.bookingToken==="string"&&payload.bookingToken.length<=50000?payload.bookingToken:"";
-    if(!ignavId)return respond({error:"This flight has no booking reference. Please search again or choose another flight."},400);
-    if(!env.IGNAV_API_KEY)return respond({error:"Live booking links are not configured. Add the IGNAV_API_KEY secret to the Cloudflare Worker."},503);
+    const bookingToken=typeof payload.bookingToken==="string"&&payload.bookingToken.length<=50000?payload.bookingToken:"";
+    if(!bookingToken)return respond({error:"This flight has no booking reference. Please search again or choose another flight."},400);
+    if(!env.SERPAPI_API_KEY)return respond({error:"Live flight booking options are not configured. Add the SERPAPI_API_KEY secret to the Cloudflare Worker."},503);
     try{
-      const response=await fetch("https://ignav.com/api/fares/booking-links",{method:"POST",headers:{"X-Api-Key":env.IGNAV_API_KEY,"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify({ignav_id:ignavId}),signal:AbortSignal.timeout(30000)});
+      const params=new URLSearchParams({engine:"google_flights",booking_token:bookingToken,gl:"mt",hl:"en",currency:"EUR",api_key:env.SERPAPI_API_KEY});
+      const response=await fetch("https://serpapi.com/search.json?"+params.toString(),{method:"GET",headers:{"Accept":"application/json"},signal:AbortSignal.timeout(45000)});
       const body=await response.json().catch(()=>({}));
-      if(!response.ok){console.error("Ignav booking-links failed",response.status,body?.error?.code||body?.error||"");return respond({error:response.status===401||response.status===403?"The flight provider API key was rejected. Check the IGNAV_API_KEY secret.":response.status===402?"The free API allowance may be exhausted. Check your Ignav account billing.":"We couldn't retrieve booking links for this flight. Please try again."},response.status===429?429:502);}
+      if(!response.ok||body?.error){
+        const providerError=typeof body?.error==="string"?body.error:"";
+        console.error("SerpApi booking options failed",response.status,providerError.slice(0,180));
+        return respond({error:response.status===401||response.status===403?"SerpApi rejected the API key. Check the SERPAPI_API_KEY secret.":response.status===429?"Flight booking options are temporarily rate limited. Please try again shortly.":"We couldn't retrieve booking options for this flight. Please try again."},response.status===429?429:502);
+      }
       const options=[];
       const seen=new Set();
-      for(const bookingOption of Array.isArray(body.booking_options)?body.booking_options:[]){
-        for(const link of Array.isArray(bookingOption?.links)?bookingOption.links:[]){
-          const rawUrl=typeof link?.url==="string"?link.url:"";
-          const url=rawUrl?( /^https?:\/\//i.test(rawUrl)?rawUrl:"https://"+rawUrl.replace(/^\/+/, "")):"";
-          if(!url||seen.has(url))continue;
-          seen.add(url);
-          const price=link?.price&&Number.isFinite(Number(link.price.amount))?Number(link.price.amount):null;
-          options.push({provider:typeof link.provider_name==="string"?link.provider_name:"Booking provider",price,url,priceCurrency:link?.price?.currency||body?.itinerary?.price?.currency||"EUR",specificity:link?.specificity||"unknown",legs:Array.isArray(bookingOption?.legs)?bookingOption.legs:[]});
+      const addOption=(option,fallbackProvider)=>{
+        if(!option||typeof option!=="object")return;
+        const candidates=[option.booking_url,option.url,option.link,option.clickout_link,option.booking_request?.url,option.together?.booking_url,option.together?.url];
+        for(const raw of candidates){
+          if(typeof raw!=="string")continue;
+          let parsed;try{parsed=new URL(raw);}catch{continue;}
+          if(parsed.protocol!=="https:"&&parsed.protocol!=="http:")continue;
+          if(seen.has(parsed.href))continue;
+          seen.add(parsed.href);
+          const rawPrice=option.price?.amount??option.price??option.total_price;
+          const price=Number(rawPrice);
+          options.push({provider:typeof option.book_with==="string"?option.book_with:typeof option.provider==="string"?option.provider:typeof option.name==="string"?option.name:fallbackProvider,price:Number.isFinite(price)?price:null,url:parsed.href});
+          break;
         }
+      };
+      for(const option of Array.isArray(body.booking_options)?body.booking_options:[]){
+        addOption(option,"Flight booking provider");
+        for(const nested of Array.isArray(option?.options)?option.options:[])addOption(nested,option?.book_with||"Flight booking provider");
+        for(const nested of Array.isArray(option?.separate)?option.separate:[])addOption(nested,option?.book_with||"Flight booking provider");
       }
-      return respond({status:options.length?"available":"unavailable",feature:"flight-booking-options",data:{options}},200);
-    }catch(error){console.error("Ignav booking-links request failed",error instanceof Error?error.name+":"+error.message:String(error));return respond({error:"We couldn't connect to the flight booking provider. Please try again."},502);}
+      return respond({status:options.length?"available":"unavailable",feature:"flight-booking-options",data:{options,selectedFlights:Array.isArray(body.selected_flights)?body.selected_flights:[]}},200);
+    }catch(error){console.error("SerpApi booking options request failed",error instanceof Error?error.name+":"+error.message:String(error));return respond({error:"We couldn't connect to the flight booking provider. Please try again."},502);}
   }
   if(action==="search-flights"){
     const code=(v)=>typeof v==="string"&&/^[A-Z]{3}$/.test(v)?v:"";
@@ -64,7 +79,8 @@ async function handle(request, env) {
         const arrival=formatTime(last?.arrival_airport?.time);
         const stops=Math.max(0,segments.length-1);
         const id=segments.map(segment=>segment?.flight_number||segment?.departure_airport?.id||"").join("-")||String(index);
-        return {id,bookingToken:"",airline:airlines.join(" · ")||"Airline",price:Number.isFinite(price)?String(price):"",currency:currencyCode,departure,arrival,duration:formatDuration(item?.total_duration),stops,bookingUrl};
+        const bookingToken=typeof item?.booking_token==="string"?item.booking_token:"";
+        return {id,bookingToken,airline:airlines.join(" · ")||"Airline",price:Number.isFinite(price)?String(price):"",currency:currencyCode,departure,arrival,duration:formatDuration(item?.total_duration),stops,bookingUrl:bookingToken?"":bookingUrl};
       }).filter(flight=>flight.price!==""&&flight.departure!=="—"&&flight.arrival!=="—").sort((a,b)=>Number(a.price)-Number(b.price)).slice(0,20);
       return respond({status:data.length?"available":"unavailable",feature:"search-flights",data,provider:"SerpApi / Google Flights"},200);
     }catch(error){console.error("SerpApi flight search failed",error instanceof Error?error.name+":"+error.message:String(error));return respond({error:"We couldn't connect to the flight search provider. Please try again."},502);}
