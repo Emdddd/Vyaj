@@ -55,7 +55,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){function stopPinch(e){if(e.touches&&e.touches.length>1)e.preventDefault()}function stopGesture(e){e.preventDefault()}document.addEventListener('touchmove',stopPinch,{passive:false,capture:true});['gesturestart','gesturechange','gestureend'].forEach(function(type){document.addEventListener(type,stopGesture,{passive:false,capture:true})});})();`,
+            __html: `(function(){var opts={passive:false,capture:true};function stopMultiTouch(e){if(e.touches&&e.touches.length>1){e.preventDefault();e.stopImmediatePropagation();}}function stopGesture(e){e.preventDefault();e.stopImmediatePropagation();}['touchstart','touchmove'].forEach(function(type){document.addEventListener(type,stopMultiTouch,opts);window.addEventListener(type,stopMultiTouch,opts)});['gesturestart','gesturechange','gestureend'].forEach(function(type){document.addEventListener(type,stopGesture,opts);window.addEventListener(type,stopGesture,opts)});})();`,
           }}
         />
       </head>
