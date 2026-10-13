@@ -124,7 +124,7 @@ async function handle(request, env) {
       return respond({status:"available",feature:action,data:{trip:{id,title,destination,trip,createdAt:existing?undefined:now,updatedAt:now}}},existing?200:201);
     }catch(error){console.error("Save trip failed",error instanceof Error?error.message:String(error));return respond({error:"We couldn’t save this trip. Please try again."},500);}
   }
-  } if(action==="join-waitlist"){
+  if(action==="join-waitlist"){
     const email=typeof payload.email==="string"?payload.email.trim().toLowerCase():"";
     if(email.length>254||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return respond({error:"Enter a valid email address and try again."},400);
     if(!env.RESEND_API_KEY)return respond({error:"Welcome email service is not configured yet."},503);
