@@ -60,3 +60,41 @@ jobs:
           const errors = results.filter(r => r.state === 'ERROR' || r.state === 'NETWORK_ERROR').length;
           console.log('SUMMARY: ' + placeholders + ' placeholder actions; ' + errors + ' errors.');
           NODE
+      - name: Safely validate flight endpoint input handling
+        run: |
+          node <<'NODE'
+          const base = 'https://vyaj-travel-api.kholymad.workers.dev/api/v1/actions/';
+          const checks = [
+            {
+              action: 'search-flights',
+              payload: { origin: 'INVALID', destination: 'LHR', departureDate: 'not-a-date', adults: 1 },
+              expectedStatus: 400,
+              expectedMessage: 'Check the airports, dates and number of travellers.'
+            },
+            {
+              action: 'flight-booking-options',
+              payload: { audit: true },
+              expectedStatus: 400,
+              expectedMessage: 'This flight has no booking reference. Please search again or choose another flight.'
+            }
+          ];
+          let failed = false;
+          for (const check of checks) {
+            try {
+              const response = await fetch(base + check.action, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Origin': 'https://vyaj.eu' },
+                body: JSON.stringify(check.payload),
+                signal: AbortSignal.timeout(8000)
+              });
+              const body = await response.json().catch(() => ({}));
+              const passed = response.status === check.expectedStatus && body.error === check.expectedMessage;
+              console.log(JSON.stringify({ action: check.action, status: response.status, passed, message: body.error || body.message || null }));
+              if (!passed) failed = true;
+            } catch (error) {
+              failed = true;
+              console.log(JSON.stringify({ action: check.action, passed: false, message: error instanceof Error ? error.message : 'Request failed' }));
+            }
+          }
+          if (failed) process.exitCode = 1;
+          NODE
