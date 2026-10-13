@@ -1653,3 +1653,49 @@ body { -webkit-font-smoothing: antialiased; }
   border-color: var(--v2-line, #e2e9ec);
   color: var(--v2-muted, #657486);
 }
+
+
+/* Header palette alignment — match the warm, light VYAJ canvas. */
+.v2-site .v2-header {
+  background: rgba(247,248,245,.96);
+  border-bottom-color: rgba(226,233,236,.88);
+  box-shadow: none;
+  -webkit-backdrop-filter: blur(24px) saturate(118%);
+  backdrop-filter: blur(24px) saturate(118%);
+}
+.v2-site .v2-header.v2-header-scrolled {
+  background: rgba(247,248,245,.91);
+  border-bottom-color: rgba(226,233,236,.96);
+  box-shadow: 0 5px 20px rgba(7,23,46,.045);
+}
+.v2-site .v2-nav > a:not(.v2-nav-cta),
+.v2-site .v2-nav-account { color: var(--v2-ink-soft, #263f54); }
+.v2-site .v2-nav > a:not(.v2-nav-cta):hover,
+.v2-site .v2-nav-account:hover { color: var(--v2-accent-strong, #087f94); }
+.v2-site .v2-nav-cta {
+  background: rgba(255,255,255,.78);
+  border-color: var(--v2-line, #e2e9ec);
+  color: var(--v2-ink, #07172e);
+}
+.v2-site .v2-nav-cta:hover {
+  background: #eaf8f8;
+  border-color: #c8ecee;
+}
+@media (max-width: 720px) {
+  .v2-site .v2-header,
+  .v2-site .v2-header.v2-header-scrolled {
+    background: rgba(247,248,245,.96);
+    border-bottom-color: rgba(226,233,236,.9);
+  }
+  .v2-site .v2-menu-toggle {
+    background: #fff;
+    border-color: var(--v2-line, #e2e9ec);
+    color: var(--v2-ink, #07172e);
+    box-shadow: none;
+  }
+  .v2-site .v2-nav {
+    background: rgba(247,248,245,.985);
+    border-color: var(--v2-line, #e2e9ec);
+    box-shadow: 0 14px 30px rgba(7,23,46,.09);
+  }
+}
