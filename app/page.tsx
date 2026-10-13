@@ -768,7 +768,6 @@ export default function Home() {
         <button type="button" className="v2-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
         <nav className={menuOpen ? "v2-nav v2-nav-open" : "v2-nav"} aria-label="Main navigation">
           
-          <a href="#how" onClick={() => setMenuOpen(false)}>{t("How it works")}</a>
           <a href="#availability" onClick={() => setMenuOpen(false)}>{t("What’s available")}</a>
           <a href="#early-access" onClick={() => setMenuOpen(false)}>{t("Early access")}</a>
           {accountToken ? <>
