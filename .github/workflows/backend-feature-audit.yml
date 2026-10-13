@@ -1,6 +1,11 @@
 name: VYAJ backend feature audit
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/backend-feature-audit.yml"
+      - "worker/index.js"
   workflow_dispatch:
 
 permissions:
