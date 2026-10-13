@@ -24,7 +24,7 @@ Only configure credentials for services you intend to use. Enter secrets interac
 3. Run `npx wrangler dev`.
 4. Set `NEXT_PUBLIC_VYAJ_API_URL=http://localhost:8787` in the frontend's local environment.
 
-The D1 binding is declared in `wrangler.toml`. Account and trip operations require the matching production database schema to exist.
+The D1 binding and migrations directory are declared in `wrangler.toml`. The initial schema is in `migrations/0001_initial_schema.sql` and creates the users, sessions, and trips tables plus lookup indexes. Inspect the target database, then apply pending migrations with `npx wrangler d1 migrations apply vyaj-production --remote`. Do not assume production has been migrated just because the file exists in Git.
 
 ## Current endpoint behavior
 
