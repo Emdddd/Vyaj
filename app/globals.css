@@ -1318,3 +1318,96 @@ body { -webkit-font-smoothing: antialiased; }
 
 .v2-nav-account{appearance:none;background:transparent;border:0;padding:12px 0;color:#263f54;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer}.v2-nav-account:hover{color:#008eaf}.v2-nav-signup{appearance:none;background:#26c6da;color:#06192c;border-color:#26c6da;cursor:pointer;white-space:nowrap}.v2-nav-signup:hover{background:#6ce5ef;border-color:#6ce5ef}
 @media(max-width:900px){.v2-nav{gap:18px}}
+
+
+/* VYAJ mobile hero refresh — calm editorial layout, fewer competing elements. */
+@media (max-width: 720px) {
+  .v2-hero {
+    min-height: 0 !important;
+    display: block !important;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background: #f7f8f5 !important;
+    color: #07172e !important;
+    padding: 48px 22px 264px !important;
+  }
+  .v2-hero-image {
+    inset: auto 18px 18px !important;
+    height: 220px !important;
+    z-index: 0 !important;
+    border-radius: 14px !important;
+    background-position: center 54% !important;
+    transform: none !important;
+    animation: none !important;
+    filter: saturate(.88);
+  }
+  .v2-hero-overlay {
+    inset: auto 18px 18px !important;
+    height: 220px !important;
+    z-index: 1 !important;
+    border-radius: 14px !important;
+    background: linear-gradient(180deg, rgba(7,23,46,0) 15%, rgba(7,23,46,.08) 55%, rgba(7,23,46,.38) 100%) !important;
+  }
+  .v2-hero-grain { display: none !important; }
+  .v2-hero-content {
+    position: relative !important;
+    z-index: 2 !important;
+    width: 100% !important;
+    max-width: 560px !important;
+  }
+  .v2-hero .v2-eyebrow-light { color: #718092 !important; }
+  .v2-hero .v2-status-dot { box-shadow: none !important; }
+  .v2-hero h1 {
+    color: #091a31 !important;
+    font-size: clamp(43px, 10.5vw, 52px) !important;
+    line-height: 1.08 !important;
+    letter-spacing: -.052em !important;
+    font-weight: 570 !important;
+    margin: 22px 0 17px !important;
+    text-wrap: balance;
+  }
+  .v2-hero h1 span {
+    background: none !important;
+    color: #168da5 !important;
+    -webkit-text-fill-color: #168da5 !important;
+  }
+  .v2-hero-lead {
+    max-width: 420px !important;
+    margin: 0 0 23px !important;
+    color: #5e6d7e !important;
+    font-size: 15px !important;
+    line-height: 1.75 !important;
+  }
+  .v2-hero-actions {
+    display: flex !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  .v2-hero-actions .v2-button-bright {
+    width: 100% !important;
+    min-height: 52px !important;
+    justify-content: space-between !important;
+    padding: 0 18px !important;
+    border-radius: 8px !important;
+    background: #26c6da !important;
+    color: #07172e !important;
+    font-size: 13px !important;
+  }
+  .v2-hero-secondary {
+    min-height: 40px;
+    padding: 9px 0 !important;
+    border-bottom: 0 !important;
+    color: #516579 !important;
+    font-size: 12px !important;
+  }
+  .v2-hero-foot,
+  .v2-hero-card { display: none !important; }
+}
+@media (max-width: 380px) {
+  .v2-hero { padding: 40px 19px 250px !important; }
+  .v2-hero-image,
+  .v2-hero-overlay { inset-inline: 15px !important; height: 205px !important; }
+  .v2-hero h1 { font-size: 42px !important; }
+}
