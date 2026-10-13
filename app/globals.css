@@ -1538,7 +1538,7 @@ body { -webkit-font-smoothing: antialiased; }
   --v2-accent-strong: #087f94;
   --v2-page: #f7f8f5;
   --v2-surface: #ffffff;
-  --v2-line: #e2e9ec;
+  --v2-line: #e4e9e7;
   --v2-radius-sm: 8px;
   --v2-radius-md: 12px;
   --v2-radius-lg: 16px;
@@ -1597,7 +1597,7 @@ body { -webkit-font-smoothing: antialiased; }
 .v2-site .v2-result-section .v2-result-heading h2 em { color: var(--v2-accent-strong, #087f94); }
 .v2-site .v2-result-section .v2-preview-days {
   background: #fff;
-  border-color: var(--v2-line, #e2e9ec);
+  border-color: var(--v2-line, #e4e9e7);
   box-shadow: var(--v2-shadow-soft, 0 8px 28px rgba(7,23,46,.055));
 }
 .v2-site .v2-result-section .v2-preview-day { border-bottom-color: #e8edef; }
@@ -1607,7 +1607,7 @@ body { -webkit-font-smoothing: antialiased; }
 .v2-site .v2-result-section .v2-preview-day > i { background: var(--v2-accent, #26c6da); box-shadow: 0 0 0 5px rgba(38,198,218,.13); }
 .v2-site .v2-result-section .v2-preview-aside {
   background: linear-gradient(145deg, #fff, #f0f8f8);
-  border-color: var(--v2-line, #e2e9ec);
+  border-color: var(--v2-line, #e4e9e7);
   box-shadow: var(--v2-shadow-soft, 0 8px 28px rgba(7,23,46,.055));
 }
 .v2-site .v2-result-section .v2-preview-aside h3 { color: var(--v2-ink, #07172e); }
@@ -1629,13 +1629,13 @@ body { -webkit-font-smoothing: antialiased; }
 .v2-site .v2-availability-heading h2 { color: var(--v2-ink, #07172e); }
 .v2-site .v2-availability-heading h2 em { color: var(--v2-accent-strong, #087f94); }
 .v2-site .v2-availability-heading > p { color: var(--v2-muted, #657486); }
-.v2-site .v2-feature-status { border-top-color: var(--v2-line, #e2e9ec); }
-.v2-site .v2-status-row { border-bottom-color: var(--v2-line, #e2e9ec); }
+.v2-site .v2-feature-status { border-top-color: var(--v2-line, #e4e9e7); }
+.v2-site .v2-status-row { border-bottom-color: var(--v2-line, #e4e9e7); }
 .v2-site .v2-status-row strong { color: var(--v2-ink, #07172e); }
 .v2-site .v2-status-row small { color: var(--v2-muted, #657486); }
 .v2-site .v2-status-icon {
   background: #fff;
-  border-color: var(--v2-line, #e2e9ec);
+  border-color: var(--v2-line, #e4e9e7);
   color: var(--v2-muted, #657486);
 }
 .v2-site .v2-status-icon.v2-status-ready {
@@ -1650,7 +1650,7 @@ body { -webkit-font-smoothing: antialiased; }
 }
 .v2-site .v2-status-label.v2-status-soon {
   background: #f2f4f4;
-  border-color: var(--v2-line, #e2e9ec);
+  border-color: var(--v2-line, #e4e9e7);
   color: var(--v2-muted, #657486);
 }
 
@@ -1674,7 +1674,7 @@ body { -webkit-font-smoothing: antialiased; }
 .v2-site .v2-nav-account:hover { color: var(--v2-accent-strong, #087f94); }
 .v2-site .v2-nav-cta {
   background: rgba(255,255,255,.78);
-  border-color: var(--v2-line, #e2e9ec);
+  border-color: var(--v2-line, #e4e9e7);
   color: var(--v2-ink, #07172e);
 }
 .v2-site .v2-nav-cta:hover {
@@ -1689,13 +1689,13 @@ body { -webkit-font-smoothing: antialiased; }
   }
   .v2-site .v2-menu-toggle {
     background: #fff;
-    border-color: var(--v2-line, #e2e9ec);
+    border-color: var(--v2-line, #e4e9e7);
     color: var(--v2-ink, #07172e);
     box-shadow: none;
   }
   .v2-site .v2-nav {
     background: rgba(247,248,245,.985);
-    border-color: var(--v2-line, #e2e9ec);
+    border-color: var(--v2-line, #e4e9e7);
     box-shadow: 0 14px 30px rgba(7,23,46,.09);
   }
 }
@@ -1714,3 +1714,66 @@ html, body { touch-action: pan-y; overscroll-behavior-x: none; }
 
 /* VYAJ iOS pinch zoom lock: preserve vertical page scrolling while disabling multi-touch zoom gestures where the browser honors touch-action. */
 html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !important; }
+
+
+/* VYAJ consistency pass — unify light surfaces, borders, controls and card geometry. */
+:root {
+  --v2-page: #f7f8f5;
+  --v2-surface: #ffffff;
+  --v2-line: #e4e9e7;
+  --v2-ink: #07172e;
+  --v2-ink-soft: #263f54;
+  --v2-muted: #657486;
+  --v2-accent: #26c6da;
+  --v2-accent-strong: #087f94;
+}
+.v2-site,
+.v2-site .v2-hero,
+.v2-site .v2-result-section,
+.v2-site .v2-discovery,
+.v2-site .v2-availability,
+.v2-site .v2-early-access,
+.v2-site .v2-footer {
+  background-color: var(--v2-page);
+  color: var(--v2-ink);
+}
+.v2-site :is(.v2-builder-card,.v2-flight-panel,.v2-flight-result-card,.v2-result-content,.v2-day-card,.v2-preview-days,.v2-preview-aside,.v2-result-aside,.v2-concierge-prompt,.v2-notice,.v2-destination-suggestion,.v2-airport-suggestions) {
+  background-color: var(--v2-surface);
+  border-color: var(--v2-line);
+  color: var(--v2-ink);
+}
+.v2-site :is(.v2-builder-card,.v2-flight-panel,.v2-flight-result-card,.v2-result-content,.v2-day-card,.v2-preview-days,.v2-preview-aside,.v2-result-aside,.v2-notice) {
+  border-radius: var(--v2-radius-md);
+}
+.v2-site :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+  background-color: var(--v2-surface);
+  border-color: var(--v2-line);
+  color: var(--v2-ink);
+  border-radius: var(--v2-radius-sm);
+}
+.v2-site :is(.v2-button,.v2-nav-cta,.v2-nav-signup,.v2-menu-toggle) {
+  border-radius: var(--v2-radius-sm);
+}
+.v2-site :is(.v2-day-card,.v2-flight-result-card,.v2-destination-suggestion,.v2-airport-suggestions) {
+  box-shadow: 0 4px 18px rgba(7,23,46,.035);
+}
+.v2-site :is(.v2-flight-intro,.v2-flight-note,.v2-flight-disclaimer,.v2-form-note,.v2-result-disclaimer,.v2-status-row small,.v2-footer > small) {
+  color: var(--v2-muted);
+}
+.v2-site .v2-discovery-card {
+  border-color: rgba(255,255,255,.34);
+  border-radius: var(--v2-radius-md);
+}
+.v2-site .v2-early-image {
+  border-radius: 12px 56px 12px 12px;
+}
+.v2-site .v2-header,
+.v2-site .v2-header.v2-header-scrolled {
+  background: rgba(247,248,245,.94);
+  border-bottom-color: var(--v2-line);
+}
+@media (max-width: 720px) {
+  .v2-site :is(.v2-builder-card,.v2-flight-panel,.v2-result-content,.v2-day-card,.v2-preview-days,.v2-preview-aside,.v2-result-aside,.v2-notice) {
+    border-radius: var(--v2-radius-md);
+  }
+}
