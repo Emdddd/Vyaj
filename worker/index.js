@@ -1,4 +1,4 @@
-function escapeHtml(value) { return String(value).replace(/[&<>\x22\x27]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",String.fromCharCode(34):"&quot;",String.fromCharCode(39):"&#39;"}[char])); }
+function escapeHtml(value) { return String(value).replace(/[&<>"\x27]/g, char => char === "&" ? "&amp;" : char === "<" ? "&lt;" : char === ">" ? "&gt;" : char === String.fromCharCode(34) ? "&quot;" : "&#39;"); }
 const corsOrigins = new Set(["https://vyaj.eu","https://www.vyaj.eu","http://localhost:3000","http://127.0.0.1:3000"]);
 export default { fetch(request, env) { return handle(request, env); } };
 async function handle(request, env) {
