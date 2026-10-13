@@ -39,7 +39,7 @@ async function handle(request, env) {
     const adults=Number(payload.adults);
     const currencyCode=typeof payload.currencyCode==="string"&&/^[A-Z]{3}$/.test(payload.currencyCode)?payload.currencyCode:"EUR";
     const travelClass=typeof payload.travelClass==="string"&&["ECONOMY","PREMIUM_ECONOMY","BUSINESS","FIRST"].includes(payload.travelClass)?payload.travelClass:"ECONOMY";
-    const validDate=(v)=>typeof v==="string"&&/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
+    const validDate=(v)=>{if(typeof v!=="string"||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v))return false;const parsed=new Date(v+"T00:00:00Z");return !Number.isNaN(parsed.getTime())&&parsed.toISOString().slice(0,10)===v;};
     if(!origin||!destination||origin===destination||!validDate(departureDate)||!Number.isInteger(adults)||adults<1||adults>9||(returnDate&&(!validDate(returnDate)||returnDate<departureDate)))return respond({error:"Check the airports, dates and number of travellers."},400);
     if(!env.SERPAPI_API_KEY)return respond({error:"Live flight search is not configured yet. Add the SERPAPI_API_KEY secret to the Cloudflare Worker."},503);
     try{
