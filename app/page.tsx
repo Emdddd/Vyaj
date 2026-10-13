@@ -8,6 +8,14 @@ type TripStyle = "Food & culture" | "Nature & outdoors" | "Slow escape" | "A bit
 
 const styles: TripStyle[] = ["Food & culture", "Nature & outdoors", "Slow escape", "A bit of everything"];
 
+const heroPlaceholders = [
+  "A quiet escape by the sea…",
+  "A weekend full of food and culture…",
+  "Somewhere green, calm and beautiful…",
+  "A little adventure off the beaten path…",
+  "A romantic city break for two…",
+];
+
 type Language = "en" | "ar" | "fr" | "it" | "de";
 const pageCopy: Record<Language, Record<string, string>> = {
 en: {},
@@ -185,13 +193,6 @@ export default function Home() {
   const [destination, setDestination] = useState("Paris, France");
   const [heroPrompt, setHeroPrompt] = useState("");
   const [heroPlaceholderIndex, setHeroPlaceholderIndex] = useState(0);
-  const heroPlaceholders = [
-    "A quiet escape by the sea…",
-    "A weekend full of food and culture…",
-    "Somewhere green, calm and beautiful…",
-    "A little adventure off the beaten path…",
-    "A romantic city break for two…",
-  ];
   useEffect(() => {
     if (heroPrompt.trim()) return;
     const timer = window.setInterval(() => {
