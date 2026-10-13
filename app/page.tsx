@@ -208,6 +208,16 @@ export default function Home() {
   const [style, setStyle] = useState<TripStyle>("Food & culture");
   const [resultReady, setResultReady] = useState(false);
   const [aiItinerary, setAiItinerary] = useState<Itinerary | null>(null);
+  const [accountToken, setAccountToken] = useState("");
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [accountMode, setAccountMode] = useState<"signup" | "login">("signup");
+  const [accountEmail, setAccountEmail] = useState("");
+  const [accountPassword, setAccountPassword] = useState("");
+  const [accountName, setAccountName] = useState("");
+  const [accountError, setAccountError] = useState("");
+  const [accountBusy, setAccountBusy] = useState(false);
+  const [savedMessage, setSavedMessage] = useState("");
+  const [savedTrips, setSavedTrips] = useState<Array<{id:string;title:string;destination:string;trip:Itinerary;updatedAt:string}>>([]);
   const [plannerLoading, setPlannerLoading] = useState(false);
   const [error, setError] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -220,6 +230,46 @@ export default function Home() {
   const [selectedMood, setSelectedMood] = useState("");
   const [language, setLanguage] = useState<Language>("en");
   const t = (value: string) => pageCopy[language][value] || translations[language][value] || value;
+  useEffect(() => {
+    try { setAccountToken(sessionStorage.getItem("vyaj_session_token") || ""); } catch {}
+  }, []);
+
+  async function loadSavedTrips(token: string) {
+    const response = await postAction<{trips:Array<{id:string;title:string;destination:string;trip:Itinerary;updatedAt:string}>}>("list-trips", {}, {token});
+    setSavedTrips(response.data?.trips || []);
+  }
+
+  async function saveCurrentTrip(token: string) {
+    if (!aiItinerary) return;
+    const response = await postAction<{trip:{id:string;title:string;destination:string;trip:Itinerary;updatedAt:string}}>("save-trip", {trip:aiItinerary}, {token});
+    setSavedMessage(t("Trip saved to your account."));
+    await loadSavedTrips(token);
+  }
+
+  async function submitAccount(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (accountBusy) return;
+    setAccountBusy(true); setAccountError("");
+    try {
+      const response = await postAction<{token:string;expiresAt:string;user:{id:string;email:string;displayName:string}}>(accountMode, {email:accountEmail.trim(),password:accountPassword,...(accountMode === "signup" ? {displayName:accountName.trim()} : {})});
+      const token = response.data?.token;
+      if (!token) throw new Error("Account response did not include a session.");
+      sessionStorage.setItem("vyaj_session_token", token);
+      setAccountToken(token); setAccountOpen(false); setAccountPassword("");
+      await loadSavedTrips(token);
+      if (aiItinerary) await saveCurrentTrip(token);
+    } catch (err) { setAccountError(err instanceof Error ? err.message : "We couldn’t complete your account request."); }
+    finally { setAccountBusy(false); }
+  }
+
+  async function handleSaveTrip() {
+    setSavedMessage("");
+    if (!aiItinerary) return;
+    if (!accountToken) { setAccountMode("signup"); setAccountError(""); setAccountOpen(true); return; }
+    try { await saveCurrentTrip(accountToken); }
+    catch (err) { if (err instanceof Error && /log in again|401/i.test(err.message)) { sessionStorage.removeItem("vyaj_session_token"); setAccountToken(""); setAccountOpen(true); setAccountError(t("Please log in again to continue.")); } else setSavedMessage(err instanceof Error ? err.message : t("Could not save this trip.")); }
+  }
+
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -838,6 +888,8 @@ export default function Home() {
                 <div className="v2-summary-main"><span className="v2-small-label">{t("YOUR VYAJ ITINERARY")}</span><h3>{aiItinerary.tripTitle || destination}</h3><p>{destination} <span>·</span> {days} {t("days")} <span>·</span> {travellers} {t("travellers")} <span>·</span> {t(style)}</p></div>
                 <span className="v2-demo-tag v2-demo-tag-dark">{t("AI PLAN")}</span>
               </div>
+              <div style={{display:"flex",gap:10,flexWrap:"wrap",alignItems:"center",margin:"0 0 22px"}}><button type="button" className="v2-button v2-button-dark" onClick={handleSaveTrip}><Check size={16}/>{t("Save this trip")}</button>{accountToken && <button type="button" className="v2-button v2-button-outline" onClick={() => { loadSavedTrips(accountToken).catch(err => setSavedMessage(err instanceof Error ? err.message : t("Could not load saved trips."))); }}>{t("My saved trips")} ({savedTrips.length})</button>}{savedMessage && <span role="status" style={{fontSize:13}}>{savedMessage}</span>}</div>
+              {savedTrips.length > 0 && <div style={{display:"grid",gap:8,marginBottom:20}}>{savedTrips.slice(0,5).map(item => <button key={item.id} type="button" className="v2-button v2-button-outline" style={{justifyContent:"space-between",textAlign:"left"}} onClick={() => { setAiItinerary(item.trip); setResultReady(true); setSavedMessage(t("Loaded saved trip.")); }}><span>{item.title} · {item.destination}</span><span>{t("Open")}</span></button>)}</div>
               <p className="v2-day-focus">{aiItinerary.overview}</p>
               <div className="v2-result-grid">
                 <div className="v2-days-list">{aiItinerary.days.map(day => <article className="v2-day-card" key={day.day}>
@@ -921,6 +973,8 @@ export default function Home() {
         <div><a href="#trip-builder">{t("Try the demo")}</a><a href="mailto:hello@vyaj.eu">{t("Contact")}</a></div>
         <small>© {new Date().getFullYear()} VYAJ. Made for the journeys ahead.</small>
       </footer>
+
+      {accountOpen && <div className="v2-notice-backdrop" role="presentation" onClick={() => setAccountOpen(false)}><div className="v2-notice" role="dialog" aria-modal="true" aria-labelledby="v2-account-title" onClick={event => event.stopPropagation()}><button type="button" className="v2-notice-close" aria-label={t("Close")} onClick={() => setAccountOpen(false)}><X size={18}/></button><div className="v2-notice-icon"><Users size={21}/></div><span className="v2-small-label">VYAJ / ACCOUNT</span><h2 id="v2-account-title">{accountMode === "signup" ? t("Create your account") : t("Welcome back")}</h2><p>{t("Save your itinerary securely and return to it later.")}</p><form className="v2-waitlist-form" onSubmit={submitAccount}>{accountMode === "signup" && <><label htmlFor="account-name">{t("Your name")}</label><input id="account-name" autoComplete="name" value={accountName} onChange={event => setAccountName(event.target.value)} required maxLength={80}/></>}<label htmlFor="account-email">{t("Email address")}</label><input id="account-email" type="email" autoComplete="email" value={accountEmail} onChange={event => setAccountEmail(event.target.value)} required maxLength={254}/><label htmlFor="account-password">{t("Password")}</label><input id="account-password" type="password" autoComplete={accountMode === "signup" ? "new-password" : "current-password"} value={accountPassword} onChange={event => setAccountPassword(event.target.value)} required minLength={10} maxLength={200}/>{accountError && <p className="v2-waitlist-message v2-waitlist-error" role="alert">{accountError}</p>}<button className="v2-button v2-button-dark" type="submit" disabled={accountBusy}>{accountBusy ? t("Please wait…") : accountMode === "signup" ? t("Create account & save") : t("Log in & save")} <ArrowUpRight size={16}/></button><small>{t("Use at least 10 characters for your password.")}</small></form><button type="button" className="v2-text-button" onClick={() => {setAccountMode(accountMode === "signup" ? "login" : "signup");setAccountError("");}}>{accountMode === "signup" ? t("Already have an account? Log in") : t("New to VYAJ? Create an account")}</button></div></div>}
 
       {noticeOpen && <div className="v2-notice-backdrop" role="presentation" onClick={() => setNoticeOpen(false)}><div className="v2-notice" role="dialog" aria-modal="true" aria-labelledby="v2-notice-title" aria-describedby="v2-notice-description" onClick={event => event.stopPropagation()}><button type="button" className="v2-notice-close" aria-label={t("Close")} onClick={() => setNoticeOpen(false)}><X size={18}/></button><div className="v2-notice-icon"><Sparkles size={21}/></div><span className="v2-small-label">{t("VYAJ / EARLY ACCESS")}</span><h2 id="v2-notice-title">{t("Be first to try VYAJ.")}</h2><p id="v2-notice-description">{t("Add your email for early-access invitations and launch updates. It’s free, and you can unsubscribe at any time.")}</p>{waitlistStatus === "success" ? <div className="v2-waitlist-message v2-waitlist-success" role="status"><Check size={17}/> {t("You’re on the list. We’ll keep you updated.")}</div> : <form className="v2-waitlist-form" onSubmit={submitWaitlist}><label htmlFor="waitlist-email">{t("Email address")}</label><input id="waitlist-email" name="email" type="email" autoComplete="email" placeholder={t("you@example.com")} value={waitlistEmail} onChange={event => { setWaitlistEmail(event.target.value); if (waitlistStatus === "error") setWaitlistStatus("idle"); }} required/><input type="hidden" name="_subject" value="New VYAJ waitlist signup"/><button className="v2-button v2-button-dark" type="submit" disabled={waitlistStatus === "submitting"}>{waitlistStatus === "submitting" ? t("Joining…") : t("Get early access")} <ArrowUpRight size={16}/></button>{waitlistStatus === "error" && <p className="v2-waitlist-message v2-waitlist-error" role="alert">{t("Something went wrong. Please try again.")}</p>}<small>{t("By joining, you agree to receive VYAJ launch updates by email.")}</small></form>}<button type="button" className="v2-button v2-button-outline" onClick={() => setNoticeOpen(false)}>{t("Close")}</button></div></div>}
       </main>
