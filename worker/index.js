@@ -14,7 +14,14 @@ async function handle(request, env) {
     if(!bookingToken)return respond({error:"This flight has no booking token. Please search again or choose another flight."},400);
     if(!env.SERPAPI_API_KEY)return respond({error:"Live booking options are not configured."},503);
     try{
-      const params=new URLSearchParams({engine:"google_flights",api_key:env.SERPAPI_API_KEY,booking_token:bookingToken,currency:currencyCode,hl:"en",gl:"mt"});
+      const origin=typeof payload.origin==="string"&&/^[A-Z]{3}$/.test(payload.origin)?payload.origin:"";
+      const destination=typeof payload.destination==="string"&&/^[A-Z]{3}$/.test(payload.destination)?payload.destination:"";
+      const departureDate=typeof payload.departureDate==="string"?payload.departureDate:"";
+      const returnDate=typeof payload.returnDate==="string"?payload.returnDate:"";
+      const adults=Number.isInteger(Number(payload.adults))&&Number(payload.adults)>=1&&Number(payload.adults)<=9?String(Number(payload.adults)):"1";
+      if(!origin||!destination||!departureDate)return respond({error:"Missing flight route or departure date. Please search again."},400);
+      const params=new URLSearchParams({engine:"google_flights",api_key:env.SERPAPI_API_KEY,booking_token:bookingToken,departure_id:origin,arrival_id:destination,outbound_date:departureDate,type:returnDate?"1":"2",adults,currency:currencyCode,hl:"en",gl:"mt",travel_class:"1"});
+      if(returnDate)params.set("return_date",returnDate);
       const bookingResponse=await fetch("https://serpapi.com/search.json?"+params.toString(),{headers:{Accept:"application/json"},signal:AbortSignal.timeout(45000)});
       const bookingBody=await bookingResponse.json().catch(()=>({}));
       if(!bookingResponse.ok||bookingBody.error){const providerError=typeof bookingBody.error==="string"?bookingBody.error:"";console.error("SerpApi booking options failed",bookingResponse.status,providerError.slice(0,200));return respond({error:"Booking provider error ("+bookingResponse.status+"): "+(providerError.slice(0,180)||"No booking details returned")},bookingResponse.status===429?429:502);}
