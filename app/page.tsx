@@ -359,34 +359,43 @@ export default function Home() {
   const [headerHidden, setHeaderHidden] = useState(false);
   useEffect(() => {
     let lastScrollY = window.scrollY;
-    let accumulatedDelta = 0;
+    let directionStartY = lastScrollY;
     let previousDirection = 0;
+    let isHidden = false;
+
     const updateHeader = () => {
       const currentScrollY = window.scrollY;
       const delta = currentScrollY - lastScrollY;
       setHeaderScrolled(currentScrollY > 12);
 
       if (menuOpen || currentScrollY < 80) {
-        accumulatedDelta = 0;
+        directionStartY = currentScrollY;
         previousDirection = 0;
-        setHeaderHidden(false);
+        if (isHidden) {
+          isHidden = false;
+          setHeaderHidden(false);
+        }
       } else if (Math.abs(delta) >= 1) {
         const direction = Math.sign(delta);
-        accumulatedDelta = direction === previousDirection ? accumulatedDelta + delta : delta;
-        previousDirection = direction;
+        if (direction !== previousDirection) {
+          directionStartY = lastScrollY;
+          previousDirection = direction;
+        }
 
-        // Require a deliberate scroll in one direction before moving the header.
-        // This prevents iOS scroll bounce and tiny finger movements from making it flicker.
-        if (accumulatedDelta > 14) {
+        const distanceInDirection = currentScrollY - directionStartY;
+        // Use a longer dead-zone to ignore small iOS scroll-bounce movements.
+        if (direction === 1 && distanceInDirection >= 32 && !isHidden) {
+          isHidden = true;
           setHeaderHidden(true);
-          accumulatedDelta = 0;
-        } else if (accumulatedDelta < -12) {
+        } else if (direction === -1 && distanceInDirection <= -24 && isHidden) {
+          isHidden = false;
           setHeaderHidden(false);
-          accumulatedDelta = 0;
         }
       }
+
       lastScrollY = currentScrollY;
     };
+
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
     return () => window.removeEventListener("scroll", updateHeader);
