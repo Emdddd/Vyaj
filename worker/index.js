@@ -20,7 +20,8 @@ async function handle(request, env) {
       const seen=new Set();
       for(const bookingOption of Array.isArray(body.booking_options)?body.booking_options:[]){
         for(const link of Array.isArray(bookingOption?.links)?bookingOption.links:[]){
-          const url=typeof link?.url==="string"&&/^https?:\/\//i.test(link.url)?link.url:"";
+          const rawUrl=typeof link?.url==="string"?link.url:"";
+          const url=rawUrl?( /^https?:\/\//i.test(rawUrl)?rawUrl:"https://"+rawUrl.replace(/^\/+/, "")):"";
           if(!url||seen.has(url))continue;
           seen.add(url);
           const price=link?.price&&Number.isFinite(Number(link.price.amount))?Number(link.price.amount):null;
@@ -38,7 +39,7 @@ async function handle(request, env) {
     const adults=Number(payload.adults);
     const currencyCode=typeof payload.currencyCode==="string"&&/^[A-Z]{3}$/.test(payload.currencyCode)?payload.currencyCode:"EUR";
     const travelClass=typeof payload.travelClass==="string"&&["ECONOMY","PREMIUM_ECONOMY","BUSINESS","FIRST"].includes(payload.travelClass)?payload.travelClass:"ECONOMY";
-    const validDate=(v)=>typeof v==="string"&&/^\\d{4}-\\d{2}-\\d{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
+    const validDate=(v)=>typeof v==="string"&&/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(v)&&!Number.isNaN(Date.parse(v+"T00:00:00Z"));
     if(!origin||!destination||origin===destination||!validDate(departureDate)||!Number.isInteger(adults)||adults<1||adults>9||(returnDate&&(!validDate(returnDate)||returnDate<departureDate)))return respond({error:"Check the airports, dates and number of travellers."},400);
     if(!env.IGNAV_API_KEY)return respond({error:"Live flight search is not configured yet. Add the IGNAV_API_KEY secret to the Cloudflare Worker."},503);
     try{
