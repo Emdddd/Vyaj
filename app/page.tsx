@@ -8,6 +8,14 @@ type TripStyle = "Food & culture" | "Nature & outdoors" | "Slow escape" | "A bit
 
 const styles: TripStyle[] = ["Food & culture", "Nature & outdoors", "Slow escape", "A bit of everything"];
 
+const heroPlaceholders = [
+  "A quiet escape by the sea…",
+  "A weekend full of food and culture…",
+  "Somewhere green, calm and beautiful…",
+  "A little adventure off the beaten path…",
+  "A romantic city break for two…",
+];
+
 type Language = "en" | "ar" | "fr" | "it" | "de";
 const pageCopy: Record<Language, Record<string, string>> = {
 en: {},
@@ -184,6 +192,14 @@ function money(value: string) {
 export default function Home() {
   const [destination, setDestination] = useState("Paris, France");
   const [heroPrompt, setHeroPrompt] = useState("");
+  const [heroPlaceholderIndex, setHeroPlaceholderIndex] = useState(0);
+  useEffect(() => {
+    if (heroPrompt.trim()) return;
+    const timer = window.setInterval(() => {
+      setHeroPlaceholderIndex((index) => (index + 1) % heroPlaceholders.length);
+    }, 3200);
+    return () => window.clearInterval(timer);
+  }, [heroPrompt, heroPlaceholders.length]);
   const [departureCity, setDepartureCity] = useState("");
   const [flightPanelOpen, setFlightPanelOpen] = useState(false);
   const [flightOrigin, setFlightOrigin] = useState("Malta");
@@ -787,7 +803,7 @@ export default function Home() {
           <form className="v2-concierge-prompt" onSubmit={(event) => { event.preventDefault(); const idea = heroPrompt.trim(); if (idea) { setDestination(idea); setResultReady(false); setAiItinerary(null); document.getElementById("trip-builder")?.scrollIntoView({ behavior: "smooth", block: "start" }); } else { document.getElementById("trip-builder")?.scrollIntoView({ behavior: "smooth", block: "start" }); } }}>
             <label className="v2-concierge-label" htmlFor="v2-hero-prompt">{t("WHAT ARE YOU IN THE MOOD FOR?")}</label>
             <div className="v2-concierge-input-row">
-              <input id="v2-hero-prompt" value={heroPrompt} onChange={(event) => setHeroPrompt(event.target.value)} placeholder={t("A quiet escape by the sea…")} aria-label={t("Describe your ideal trip")} />
+              <input id="v2-hero-prompt" value={heroPrompt} onChange={(event) => setHeroPrompt(event.target.value)} placeholder={t(heroPlaceholders[heroPlaceholderIndex])} aria-label={t("Describe your ideal trip")} />
               <button type="submit" aria-label={t("Start planning")}><ArrowUpRight size={20}/></button>
             </div>
             <div className="v2-concierge-chips">
