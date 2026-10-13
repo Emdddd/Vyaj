@@ -231,7 +231,24 @@ export default function Home() {
   const [language, setLanguage] = useState<Language>("en");
   const t = (value: string) => pageCopy[language][value] || translations[language][value] || value;
   useEffect(() => {
-    try { setAccountToken(sessionStorage.getItem("vyaj_session_token") || ""); } catch {}
+    try {
+      const token = sessionStorage.getItem("vyaj_session_token") || "";
+      const email = sessionStorage.getItem("vyaj_account_email") || "";
+      const displayName = sessionStorage.getItem("vyaj_account_name") || "";
+      setAccountToken(token);
+      if (email) setAccountEmail(email);
+      if (displayName) setAccountName(displayName);
+      if (token) {
+        postAction<{trips:Array<{id:string;title:string;destination:string;trip:Itinerary;updatedAt:string}>}>("list-trips", {}, {token})
+          .then(response => setSavedTrips(response.data?.trips || []))
+          .catch(() => {
+            sessionStorage.removeItem("vyaj_session_token");
+            sessionStorage.removeItem("vyaj_account_email");
+            sessionStorage.removeItem("vyaj_account_name");
+            setAccountToken("");
+          });
+      }
+    } catch {}
   }, []);
 
   async function loadSavedTrips(token: string) {
@@ -255,7 +272,12 @@ export default function Home() {
       const token = response.data?.token;
       if (!token) throw new Error("Account response did not include a session.");
       sessionStorage.setItem("vyaj_session_token", token);
-      setAccountToken(token); setAccountOpen(false); setAccountPassword("");
+      sessionStorage.setItem("vyaj_account_email", response.data?.user?.email || accountEmail.trim());
+      sessionStorage.setItem("vyaj_account_name", response.data?.user?.displayName || accountName.trim());
+      setAccountToken(token);
+      setAccountEmail(response.data?.user?.email || accountEmail.trim());
+      setAccountName(response.data?.user?.displayName || accountName.trim());
+      setAccountOpen(false); setAccountPassword("");
       await loadSavedTrips(token);
       if (aiItinerary) await saveCurrentTrip(token);
     } catch (err) { setAccountError(err instanceof Error ? err.message : "We couldn’t complete your account request."); }
@@ -732,8 +754,22 @@ export default function Home() {
           <a href="#how" onClick={() => setMenuOpen(false)}>{t("How it works")}</a>
           <a href="#availability" onClick={() => setMenuOpen(false)}>{t("What’s available")}</a>
           <a href="#early-access" onClick={() => setMenuOpen(false)}>{t("Early access")}</a>
-          <button type="button" className="v2-nav-account" onClick={() => { setAccountMode("login"); setAccountError(""); setAccountPassword(""); setAccountOpen(true); setMenuOpen(false); }}>{t("Log in")}</button>
-          <button type="button" className="v2-nav-cta v2-nav-signup" onClick={() => { setAccountMode("signup"); setAccountError(""); setAccountPassword(""); setAccountOpen(true); setMenuOpen(false); }}>{t("Sign up")}</button>
+          {accountToken ? <>
+            <div className="v2-nav-account" aria-label="Signed in account" style={{display:"flex",flexDirection:"column",alignItems:"flex-start",gap:2,cursor:"default"}}>
+              <strong>{accountName || t("My account")}</strong>
+              <small style={{fontSize:12,opacity:.75}}>{accountEmail}</small>
+            </div>
+            <button type="button" className="v2-nav-cta v2-nav-signup" onClick={() => {
+              sessionStorage.removeItem("vyaj_session_token");
+              sessionStorage.removeItem("vyaj_account_email");
+              sessionStorage.removeItem("vyaj_account_name");
+              setAccountToken(""); setAccountEmail(""); setAccountName(""); setSavedTrips([]);
+              setAccountError(""); setAccountPassword(""); setMenuOpen(false);
+            }}>{t("Log out")}</button>
+          </> : <>
+            <button type="button" className="v2-nav-account" onClick={() => { setAccountMode("login"); setAccountError(""); setAccountPassword(""); setAccountOpen(true); setMenuOpen(false); }}>{t("Log in")}</button>
+            <button type="button" className="v2-nav-cta v2-nav-signup" onClick={() => { setAccountMode("signup"); setAccountError(""); setAccountPassword(""); setAccountOpen(true); setMenuOpen(false); }}>{t("Sign up")}</button>
+          </>}
           <a href="#trip-builder" className="v2-nav-cta" onClick={() => setMenuOpen(false)}>{t("Build my trip")} <ArrowUpRight size={15}/></a>
           <label className="v2-language-picker"><span>{t("Language")}</span><select aria-label={t("Language")} value={language} onChange={event => setLanguage(event.target.value as Language)}><option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option><option value="it">Italiano</option><option value="de">Deutsch</option></select></label>
         </nav>
