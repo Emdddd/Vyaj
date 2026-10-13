@@ -1711,3 +1711,6 @@ body { -webkit-font-smoothing: antialiased; }
 /* Preserve vertical panning and prevent horizontal overscroll on touch devices.
    iOS Safari may still permit accessibility zoom; see the viewport setup in layout.tsx. */
 html, body { touch-action: pan-y; overscroll-behavior-x: none; }
+
+/* VYAJ iOS pinch zoom lock: preserve vertical page scrolling while disabling multi-touch zoom gestures where the browser honors touch-action. */
+html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !important; }
