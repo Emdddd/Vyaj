@@ -1,36 +1,34 @@
--- VYAJ account and trip persistence schema.
+-- Baseline schema for VYAJ account and trip persistence.
+-- Production currently has these tables already; this migration records the schema
+-- for fresh environments. Verify the target database before applying migrations.
 -- Apply with: npx wrangler d1 migrations apply vyaj-production --remote
--- Review the target database before applying to production.
 
 CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY NOT NULL,
-  email TEXT NOT NULL COLLATE NOCASE UNIQUE,
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE COLLATE NOCASE,
   password_hash TEXT NOT NULL,
-  display_name TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL
+  display_name TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS sessions (
-  token_hash TEXT PRIMARY KEY NOT NULL,
-  user_id TEXT NOT NULL,
+  token_hash TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   expires_at TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
-CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
+CREATE INDEX IF NOT EXISTS sessions_user_id_idx ON sessions(user_id);
 
 CREATE TABLE IF NOT EXISTS trips (
-  id TEXT PRIMARY KEY NOT NULL,
-  user_id TEXT NOT NULL,
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
-  destination TEXT NOT NULL DEFAULT '',
+  destination TEXT NOT NULL,
   trip_data TEXT NOT NULL,
-  created_at TEXT NOT NULL,
-  updated_at TEXT NOT NULL,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_trips_user_updated ON trips(user_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS trips_user_id_updated_idx ON trips(user_id, updated_at DESC);
