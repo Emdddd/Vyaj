@@ -732,6 +732,8 @@ export default function Home() {
           <a href="#how" onClick={() => setMenuOpen(false)}>{t("How it works")}</a>
           <a href="#availability" onClick={() => setMenuOpen(false)}>{t("What’s available")}</a>
           <a href="#early-access" onClick={() => setMenuOpen(false)}>{t("Early access")}</a>
+          <button type="button" className="v2-nav-account" onClick={() => { setAccountMode("login"); setAccountError(""); setAccountPassword(""); setAccountOpen(true); setMenuOpen(false); }}>{t("Log in")}</button>
+          <button type="button" className="v2-nav-cta v2-nav-signup" onClick={() => { setAccountMode("signup"); setAccountError(""); setAccountPassword(""); setAccountOpen(true); setMenuOpen(false); }}>{t("Sign up")}</button>
           <a href="#trip-builder" className="v2-nav-cta" onClick={() => setMenuOpen(false)}>{t("Build my trip")} <ArrowUpRight size={15}/></a>
           <label className="v2-language-picker"><span>{t("Language")}</span><select aria-label={t("Language")} value={language} onChange={event => setLanguage(event.target.value as Language)}><option value="en">English</option><option value="ar">العربية</option><option value="fr">Français</option><option value="it">Italiano</option><option value="de">Deutsch</option></select></label>
         </nav>
