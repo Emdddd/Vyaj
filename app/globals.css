@@ -1699,3 +1699,10 @@ body { -webkit-font-smoothing: antialiased; }
     box-shadow: 0 14px 30px rgba(7,23,46,.09);
   }
 }
+
+
+/* Match “Find your kind of comfort” to the site's warm page canvas. */
+.v2-site .v2-discovery {
+  background: var(--v2-page, #f7f8f5);
+  color: var(--v2-ink, #07172e);
+}
