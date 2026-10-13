@@ -1617,3 +1617,39 @@ body { -webkit-font-smoothing: antialiased; }
 .v2-site .v2-result-section .v2-preview-orbit span { border-color: rgba(8,127,148,.28); }
 .v2-site .v2-result-section .v2-preview-orbit i { background: var(--v2-accent, #26c6da); }
 .v2-site .v2-result-section .v2-text-button { color: var(--v2-accent-strong, #087f94); border-bottom-color: var(--v2-accent, #26c6da); }
+
+
+/* Clear from day one — bring the availability section into the same light editorial system. */
+.v2-site .v2-availability {
+  background: var(--v2-page, #f7f8f5);
+  color: var(--v2-ink, #07172e);
+}
+.v2-site .v2-availability .v2-eyebrow-light { color: var(--v2-muted, #657486); }
+.v2-site .v2-availability .v2-eyebrow-light > span:first-child:not(.v2-status-dot) { color: var(--v2-accent-strong, #087f94); }
+.v2-site .v2-availability-heading h2 { color: var(--v2-ink, #07172e); }
+.v2-site .v2-availability-heading h2 em { color: var(--v2-accent-strong, #087f94); }
+.v2-site .v2-availability-heading > p { color: var(--v2-muted, #657486); }
+.v2-site .v2-feature-status { border-top-color: var(--v2-line, #e2e9ec); }
+.v2-site .v2-status-row { border-bottom-color: var(--v2-line, #e2e9ec); }
+.v2-site .v2-status-row strong { color: var(--v2-ink, #07172e); }
+.v2-site .v2-status-row small { color: var(--v2-muted, #657486); }
+.v2-site .v2-status-icon {
+  background: #fff;
+  border-color: var(--v2-line, #e2e9ec);
+  color: var(--v2-muted, #657486);
+}
+.v2-site .v2-status-icon.v2-status-ready {
+  background: #e8f8f8;
+  border-color: #c8ecee;
+  color: var(--v2-accent-strong, #087f94);
+}
+.v2-site .v2-status-label {
+  background: #fff;
+  border-color: #c8ecee;
+  color: var(--v2-accent-strong, #087f94);
+}
+.v2-site .v2-status-label.v2-status-soon {
+  background: #f2f4f4;
+  border-color: var(--v2-line, #e2e9ec);
+  color: var(--v2-muted, #657486);
+}
