@@ -220,13 +220,7 @@ export default function Home() {
   const [destination, setDestination] = useState("Paris, France");
   const [heroPrompt, setHeroPrompt] = useState("");
   const [heroPlaceholderIndex, setHeroPlaceholderIndex] = useState(0);
-  useEffect(() => {
-    if (heroPrompt.trim()) return;
-    const timer = window.setInterval(() => {
-      setHeroPlaceholderIndex((index) => (index + 1) % heroPlaceholders.length);
-    }, 3200);
-    return () => window.clearInterval(timer);
-  }, [heroPrompt, heroPlaceholders.length]);
+  const [heroPlaceholderLength, setHeroPlaceholderLength] = useState(0);
   const [departureCity, setDepartureCity] = useState("");
   const [flightPanelOpen, setFlightPanelOpen] = useState(false);
   const [flightOrigin, setFlightOrigin] = useState("Malta");
@@ -274,6 +268,20 @@ export default function Home() {
   const [selectedMood, setSelectedMood] = useState("");
   const [language, setLanguage] = useState<Language>("en");
   const t = (value: string) => pageCopy[language][value] || translations[language][value] || value;
+  const currentHeroPlaceholder = t(heroPlaceholders[heroPlaceholderIndex]);
+  useEffect(() => {
+    if (heroPrompt.trim()) return;
+    const isComplete = heroPlaceholderLength >= currentHeroPlaceholder.length;
+    const timer = window.setTimeout(() => {
+      if (isComplete) {
+        setHeroPlaceholderIndex((index) => (index + 1) % heroPlaceholders.length);
+        setHeroPlaceholderLength(0);
+      } else {
+        setHeroPlaceholderLength((length) => length + 1);
+      }
+    }, isComplete ? 700 : 38);
+    return () => window.clearTimeout(timer);
+  }, [heroPrompt, heroPlaceholderIndex, heroPlaceholderLength, currentHeroPlaceholder]);
   useEffect(() => {
     try {
       const token = sessionStorage.getItem("vyaj_session_token") || "";
@@ -347,12 +355,25 @@ export default function Home() {
     return () => document.removeEventListener("pointerdown", closeOnOutsidePress);
   }, [menuOpen]);
 
+  const [headerHidden, setHeaderHidden] = useState(false);
   useEffect(() => {
-    const updateHeader = () => setHeaderScrolled(window.scrollY > 12);
+    let lastScrollY = window.scrollY;
+    const updateHeader = () => {
+      const currentScrollY = window.scrollY;
+      setHeaderScrolled(currentScrollY > 12);
+      if (menuOpen || currentScrollY < 80) {
+        setHeaderHidden(false);
+      } else if (currentScrollY > lastScrollY + 4) {
+        setHeaderHidden(true);
+      } else if (currentScrollY < lastScrollY - 4) {
+        setHeaderHidden(false);
+      }
+      lastScrollY = currentScrollY;
+    };
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
     return () => window.removeEventListener("scroll", updateHeader);
-  }, []);
+  }, [menuOpen]);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -790,7 +811,7 @@ export default function Home() {
 
   return (
     <main className={`v2-site v2-lang-${language}`} lang={language} dir="ltr">
-      <header ref={headerRef} className={headerScrolled ? "v2-header v2-header-scrolled" : "v2-header"}>
+      <header ref={headerRef} className={`v2-header${headerScrolled ? " v2-header-scrolled" : ""}${headerHidden && !menuOpen ? " v2-header-hidden" : ""}`}>
         <a href="#top" className="v2-brand" aria-label={t("VYAJ home")}><img src="/D0F8F0DA-F8C9-4B07-8ED2-B6B0F1A5D567.png" alt="VYAJ" /></a>
         <button type="button" className="v2-menu-toggle" aria-label={menuOpen ? t("Close navigation") : t("Open navigation")} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
         <nav className={menuOpen ? "v2-nav v2-nav-open" : "v2-nav"} aria-label={t("Main navigation")}>
@@ -829,7 +850,7 @@ export default function Home() {
           <form className="v2-concierge-prompt" onSubmit={(event) => { event.preventDefault(); const idea = heroPrompt.trim(); if (idea) { setDestination(idea); setResultReady(false); setAiItinerary(null); document.getElementById("trip-builder")?.scrollIntoView({ behavior: "smooth", block: "start" }); } else { document.getElementById("trip-builder")?.scrollIntoView({ behavior: "smooth", block: "start" }); } }}>
             <label className="v2-concierge-label" htmlFor="v2-hero-prompt">{t("WHAT ARE YOU IN THE MOOD FOR?")}</label>
             <div className="v2-concierge-input-row">
-              <input id="v2-hero-prompt" value={heroPrompt} onChange={(event) => setHeroPrompt(event.target.value)} placeholder={t(heroPlaceholders[heroPlaceholderIndex])} aria-label={t("Describe your ideal trip")} />
+              <input id="v2-hero-prompt" value={heroPrompt} onChange={(event) => setHeroPrompt(event.target.value)} placeholder={currentHeroPlaceholder.slice(0, heroPlaceholderLength)} aria-label={t("Describe your ideal trip")} />
               <button type="submit" aria-label={t("Start planning")}><ArrowUpRight size={20}/></button>
             </div>
             <div className="v2-concierge-chips">
