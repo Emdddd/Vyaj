@@ -27,20 +27,40 @@ async function handle(request, env) {
       if(!bookingResponse.ok||bookingBody.error){const providerError=typeof bookingBody.error==="string"?bookingBody.error:"";console.error("SerpApi booking options failed",bookingResponse.status,providerError.slice(0,200));return respond({error:"Booking provider error ("+bookingResponse.status+"): "+(providerError.slice(0,180)||"No booking details returned")},bookingResponse.status===429?429:502);}
       const source=Array.isArray(bookingBody.booking_options)?bookingBody.booking_options:[];
       const options=[];
-      for(const option of source){
-        for(const key of ["together","departing","returning"]){
-          const seller=option&&option[key]&&typeof option[key]==="object"?option[key]:option;
-          const bookingRequest=seller.booking_request&&typeof seller.booking_request==="object"?seller.booking_request:{};
-          let directLink=[seller.link,seller.url,option.link,option.url].find(value=>typeof value==="string"&&/^https?:\/\//i.test(value))||"";
-          const postUrl=typeof bookingRequest.url==="string"&&/^https?:\/\//i.test(bookingRequest.url)?bookingRequest.url:"";
-          const postData=typeof bookingRequest.post_data==="string"?bookingRequest.post_data:"";
-          if(!directLink&&postUrl&&postData){try{const resolved=await fetch(postUrl,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:postData,redirect:"follow",signal:AbortSignal.timeout(15000)});const finalUrl=resolved.url||"";if(resolved.ok&&finalUrl&&new URL(finalUrl).hostname!==new URL(postUrl).hostname)directLink=finalUrl;}catch(resolveError){console.error("Could not resolve exact booking link",resolveError instanceof Error?resolveError.name:String(resolveError));}}
-          if(directLink){
-            const item={provider:typeof seller.book_with==="string"?seller.book_with:(typeof option.book_with==="string"?option.book_with:"Booking provider"),price:Number(seller.price??option.price)||null,url:directLink};
-            if(!options.some(existing=>existing.provider===item.provider&&existing.url===item.url&&existing.postUrl===item.postUrl))options.push(item);
-          }
+      const seen=new Set();
+      const addOption=(provider,price,url)=>{
+        if(typeof url!=="string"||!(url.startsWith("https://")||url.startsWith("http://")))return;
+        try{const parsed=new URL(url);if(!["http:","https:"].includes(parsed.protocol))return;}catch{return;}
+        const key=provider+"|"+url;if(seen.has(key))return;seen.add(key);
+        options.push({provider,price:Number(price)||null,url});
+      };
+      const collectLinks=(value,providerHint="Booking provider",priceHint=null,depth=0)=>{
+        if(!value||typeof value!=="object"||depth>5)return;
+        if(Array.isArray(value)){for(const item of value)collectLinks(item,providerHint,priceHint,depth+1);return;}
+        const provider=typeof value.book_with==="string"?value.book_with:providerHint;
+        const price=value.price??priceHint;
+        addOption(provider,price,value.link);
+        addOption(provider,price,value.url);
+        for(const [key,child] of Object.entries(value)){
+          if(key==="booking_request"&&child&&typeof child==="object"){
+            const postUrl=typeof child.url==="string"?child.url:"";
+            const postData=typeof child.post_data==="string"?child.post_data:"";
+            if(postUrl.startsWith("https://")&&postData){
+              try{
+                // SerpApi supplies post_data as base64-encoded opaque booking payload.
+                // Send the decoded bytes as-is rather than form-encoding or editing the payload.
+                const binary=atob(postData);
+                const bytes=new Uint8Array(binary.length);
+                for(let n=0;n<binary.length;n++)bytes[n]=binary.charCodeAt(n);
+                const resolved=await fetch(postUrl,{method:"POST",body:bytes,redirect:"follow",signal:AbortSignal.timeout(15000)});
+                const finalUrl=resolved.url||"";
+                if(resolved.ok&&finalUrl&&finalUrl.startsWith("https://"))addOption(provider,price,finalUrl);
+              }catch(resolveError){console.error("Could not resolve exact booking link",resolveError instanceof Error?resolveError.name:String(resolveError));}
+            }
+          }else if(child&&typeof child==="object")collectLinks(child,provider,price,depth+1);
         }
-      }
+      };
+      for(const option of source)await collectLinks(option);
       return respond({status:options.length?"available":"unavailable",feature:"flight-booking-options",data:{options}},200);
     }catch(error){console.error("SerpApi booking options failed",error instanceof Error?error.name+":"+error.message:String(error));return respond({error:"We couldn't connect to the booking provider. Please try again."},502);}
   }
