@@ -2194,3 +2194,13 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 @media(prefers-reduced-motion:reduce){
   .vyaj-rides-menu nav{transition:none}
 }
+
+
+/* Tiny final adjustment: bring the RIDES label closer to the VYAJ logo. */
+@media(max-width:600px){
+  .vyaj-rides-brand{gap:0}
+  .vyaj-rides-brand-label{padding-left:1px}
+}
+@media(max-width:380px){
+  .vyaj-rides-brand-label{padding-left:0}
+}
