@@ -2173,3 +2173,24 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
   .vyaj-rides-brand{gap:1px}
   .vyaj-rides-brand-label{padding-left:2px;letter-spacing:.12em}
 }
+
+
+/* Match the main site's smooth top-right expanding navigation animation on Rides. */
+.vyaj-rides-menu nav{
+  transform-origin:top right;
+  clip-path:inset(0 0 100% 100% round 0 0 15px 15px);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:clip-path .42s cubic-bezier(.2,.8,.2,1),opacity .25s ease,visibility 0s linear .42s;
+}
+.vyaj-rides-menu[open] nav{
+  clip-path:inset(0 0 0 0 round 15px);
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transition:clip-path .42s cubic-bezier(.2,.8,.2,1),opacity .25s ease,visibility 0s;
+}
+@media(prefers-reduced-motion:reduce){
+  .vyaj-rides-menu nav{transition:none}
+}
