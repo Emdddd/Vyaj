@@ -1784,7 +1784,7 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 
 /* VYAJ Rides — premium full-bleed launch page based on the approved reference. */
 .vyaj-rides-page{min-height:100svh;position:relative;overflow:hidden;padding:0 0 54px;background:#f8f9f8;color:#07172e;isolation:isolate}
-.vyaj-rides-page:before{content:"";position:absolute;z-index:-1;inset:0 0 auto;height:min(1120px,100vh);pointer-events:none;background:linear-gradient(180deg,rgba(248,250,250,.76) 0%,rgba(248,250,250,.38) 27%,rgba(248,250,250,0) 54%,#f8f9f8 100%),url('/IMG_7721.jpeg') center 22%/cover no-repeat;opacity:.28}
+.vyaj-rides-page:before{content:"";position:absolute;z-index:-1;inset:0 0 auto;height:680px;pointer-events:none;background:radial-gradient(ellipse at 50% 35%,rgba(224,241,246,.48),transparent 68%),linear-gradient(180deg,#f8f9f8 0%,rgba(248,249,248,.92) 75%,#f8f9f8 100%)}
 .vyaj-rides-content{width:min(100%,1080px);margin:0 auto;display:flex;flex-direction:column;align-items:stretch;gap:0;position:relative}
 .vyaj-rides-header{height:108px;display:flex;align-items:center;justify-content:space-between;padding:0 34px;position:relative;z-index:5}
 .vyaj-rides-brand{display:inline-flex;align-items:center;justify-content:flex-start;gap:16px;margin:0}
@@ -1803,8 +1803,8 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 .vyaj-rides-heading{margin:0;color:#07172e;font-size:clamp(70px,9vw,112px);font-weight:800;letter-spacing:-.085em;line-height:.86}
 .vyaj-rides-heading span{color:#0aa9d2}
 .vyaj-rides-kicker{margin:20px 0 0;color:#718292;font-size:clamp(17px,2vw,22px);line-height:1.45;letter-spacing:-.025em}
-.vyaj-rides-visual{height:clamp(430px,57vw,660px);position:relative;overflow:hidden;background:#e6edf0;isolation:isolate;margin-top:0}
-.vyaj-rides-visual:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(248,249,248,.16) 0%,transparent 20%,transparent 65%,rgba(248,249,248,.92) 100%)}
+.vyaj-rides-visual{height:clamp(430px,57vw,660px);position:relative;overflow:hidden;border-radius:22px;background:#e6edf0;isolation:isolate;margin-top:0}
+.vyaj-rides-visual:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(248,249,248,.5) 0%,rgba(248,249,248,.06) 15%,transparent 52%,rgba(248,249,248,.55) 100%)}
 .vyaj-rides-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 56%;z-index:-1}
 .vyaj-rides-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:start;margin:-30px 40px 38px;position:relative;z-index:2}
 .vyaj-rides-value{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;position:relative;padding:0 8px}
@@ -1822,18 +1822,18 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 @media(min-width:1000px){.vyaj-rides-page:before{height:1000px}.vyaj-rides-intro{padding-top:60px}.vyaj-rides-visual{border-radius:24px;margin:0 28px}.vyaj-rides-values{margin-top:-34px}}
 @media(max-width:600px){
  .vyaj-rides-page{padding-bottom:38px}
- .vyaj-rides-page:before{height:940px;background-position:center top;background-size:auto 940px;opacity:.25}
+ .vyaj-rides-page:before{height:760px;opacity:1}
  .vyaj-rides-header{height:104px;padding:0 30px 0 28px}
  .vyaj-rides-brand{gap:12px}
  .vyaj-rides-logo{width:clamp(125px,31vw,158px);max-height:52px}
  .vyaj-rides-brand-label{font-size:12px;letter-spacing:.18em;padding-left:13px}
  .vyaj-rides-menu summary{width:54px;height:54px}
- .vyaj-rides-intro{padding:52px 38px 0}
- .vyaj-rides-heading{font-size:clamp(66px,13.5vw,96px);letter-spacing:-.09em;line-height:.86}
- .vyaj-rides-kicker{font-size:clamp(16px,4vw,20px);margin-top:18px;white-space:normal}
- .vyaj-rides-visual{height:clamp(500px,94vw,670px);margin-top:0}
- .vyaj-rides-photo{object-position:53% center}
- .vyaj-rides-visual:after{background:linear-gradient(180deg,rgba(248,249,248,.04) 0%,transparent 62%,rgba(248,249,248,.92) 100%)}
+ .vyaj-rides-intro{padding:42px 38px 0}
+ .vyaj-rides-heading{font-size:clamp(58px,12vw,78px);letter-spacing:-.085em;line-height:.9}
+ .vyaj-rides-kicker{font-size:clamp(15px,3.8vw,18px);margin-top:14px;white-space:normal}
+ .vyaj-rides-visual{height:auto;aspect-ratio:1.5;margin:18px 20px 0;border-radius:22px}
+ .vyaj-rides-photo{object-position:center center}
+ .vyaj-rides-visual:after{background:linear-gradient(180deg,rgba(248,249,248,.52) 0%,rgba(248,249,248,.04) 16%,transparent 72%,rgba(248,249,248,.42) 100%)}
  .vyaj-rides-values{margin:-28px 24px 34px}
  .vyaj-rides-value{padding:0 4px}
  .vyaj-rides-value+.vyaj-rides-value:before{top:24px;height:65px}
@@ -1849,7 +1849,7 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 @media(max-width:380px){
  .vyaj-rides-header{padding-left:20px;padding-right:20px}
  .vyaj-rides-intro{padding-left:26px;padding-right:26px}
- .vyaj-rides-heading{font-size:64px}
+ .vyaj-rides-heading{font-size:58px}
  .vyaj-rides-launch-card{margin:0 16px;gap:9px;padding:12px}
  .vyaj-rides-caption-icon{width:52px;height:52px;border-radius:14px}
  .vyaj-rides-caption-title{font-size:16px}
