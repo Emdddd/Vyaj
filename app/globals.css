@@ -2210,3 +2210,12 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 @media(max-width:600px){
   .vyaj-rides-brand-label{padding-left:0}
 }
+
+
+/* Restore a clear, balanced gap between the divider and the RIDES label. */
+@media(max-width:600px){
+  .vyaj-rides-brand-label{padding-left:7px}
+}
+@media(max-width:380px){
+  .vyaj-rides-brand-label{padding-left:6px}
+}
