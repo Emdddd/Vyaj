@@ -1789,7 +1789,7 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 .vyaj-rides-brand{display:inline-flex;align-self:center;align-items:center;justify-content:center;gap:10px;margin-bottom:44px}
 .vyaj-rides-logo{display:block;width:clamp(112px,18vw,154px);height:auto;max-height:52px;object-fit:contain;margin:0}
 .vyaj-rides-brand-label{font-size:10px;font-weight:700;letter-spacing:.16em;color:#087f8c;border-left:1px solid #d7e5e5;padding-left:10px}
-.vyaj-rides-intro{margin-bottom:28px}
+.vyaj-rides-intro{margin-bottom:28px;text-align:center}.vyaj-rides-heading,.vyaj-rides-kicker{margin-left:auto;margin-right:auto}
 .vyaj-rides-heading{margin:0;color:var(--v2-ink,#07172e);font-size:clamp(38px,7.3vw,68px);font-weight:650;letter-spacing:-.065em;line-height:1.02}
 .vyaj-rides-heading span{color:#087f8c}
 .vyaj-rides-kicker{margin:18px 0 0;color:#687d87;font-size:clamp(13px,1.8vw,15px);line-height:1.6;letter-spacing:.005em}
