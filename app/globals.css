@@ -1920,3 +1920,61 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
   .v2-nav-open .v2-language-picker select{max-width:130px;min-height:34px}
   .v2-nav-account[aria-label="Signed in account"]{grid-column:1/-1}
 }
+
+
+/* Final compact polish for the VYAJ Rides mobile landing page. */
+.vyaj-rides-header{height:88px;padding-left:28px;padding-right:28px}
+.vyaj-rides-logo{width:clamp(118px,16vw,168px);max-height:50px}
+.vyaj-rides-brand{gap:12px}
+.vyaj-rides-brand-label{font-size:11px;padding-left:12px}
+.vyaj-rides-menu summary{width:46px;height:46px}
+.vyaj-rides-menu summary svg{width:20px;height:20px}
+.vyaj-rides-visual{border-radius:22px}
+.vyaj-rides-launch-card{gap:12px;margin:0 34px;padding:12px 16px;border-radius:22px}
+.vyaj-rides-caption-icon{width:54px;height:54px;border-radius:15px}
+.vyaj-rides-caption-icon svg{width:24px;height:24px}
+.vyaj-rides-caption-title{font-size:18px}
+.vyaj-rides-caption-subtitle{font-size:12px}
+.vyaj-rides-coming-soon{padding:12px 18px;font-size:12px}
+.vyaj-rides-motion-road{height:64px;margin:20px 34px 0;position:relative;overflow:hidden;display:flex;align-items:center;border-bottom:1px solid #cbdde2}
+.vyaj-rides-motion-road:before{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#26c6da 18%,#0d8998 48%,#a4dfe6 75%,transparent);opacity:.8}
+.vyaj-rides-road-glow{position:absolute;left:0;right:0;top:50%;height:30px;transform:translateY(-50%);background:linear-gradient(90deg,transparent,#26c6da12 22%,#0d899814 52%,#26c6da12 78%,transparent);filter:blur(8px)}
+.vyaj-rides-moving-car{position:absolute;left:0;top:50%;transform:translateY(-58%);color:#0d9fb8;filter:drop-shadow(0 4px 7px #26c6da45);animation:vyaj-car-glide 5.5s ease-in-out infinite alternate}
+@keyframes vyaj-car-glide{from{left:2%;color:#26c6da}to{left:calc(100% - 38px);color:#087f8c}}
+@media(max-width:600px){
+ .vyaj-rides-header{height:78px;padding:0 24px}
+ .vyaj-rides-logo{width:clamp(108px,28vw,138px);max-height:44px}
+ .vyaj-rides-brand{gap:10px}
+ .vyaj-rides-brand-label{font-size:10px;letter-spacing:.16em;padding-left:10px}
+ .vyaj-rides-menu summary{width:42px;height:42px}
+ .vyaj-rides-menu summary svg{width:18px;height:18px}
+ .vyaj-rides-intro{padding-top:36px}
+ .vyaj-rides-heading{font-size:clamp(54px,11.5vw,72px)}
+ .vyaj-rides-kicker{font-size:15px;margin-top:12px}
+ .vyaj-rides-visual{aspect-ratio:1.48;margin:16px 20px 0;border-radius:18px}
+ .vyaj-rides-values{margin:-22px 22px 26px}
+ .vyaj-rides-value-icon{width:46px;height:46px;margin-bottom:7px}
+ .vyaj-rides-value-icon svg{width:23px;height:23px}
+ .vyaj-rides-value strong{font-size:13px}
+ .vyaj-rides-value small{font-size:8px;letter-spacing:.16em}
+ .vyaj-rides-value+.vyaj-rides-value:before{top:20px;height:54px}
+ .vyaj-rides-launch-card{margin:0 20px;padding:10px 12px;gap:9px;border-radius:19px}
+ .vyaj-rides-caption-icon{width:46px;height:46px;border-radius:13px}
+ .vyaj-rides-caption-icon svg{width:21px;height:21px}
+ .vyaj-rides-caption-title{font-size:16px}
+ .vyaj-rides-caption-subtitle{font-size:10px}
+ .vyaj-rides-coming-soon{padding:10px 12px;font-size:11px}
+ .vyaj-rides-motion-road{height:54px;margin:16px 24px 0}
+ .vyaj-rides-moving-car{width:30px;height:30px}
+}
+@media(max-width:380px){
+ .vyaj-rides-header{padding:0 18px}
+ .vyaj-rides-logo{width:105px}
+ .vyaj-rides-launch-card{margin:0 14px;padding:9px;gap:8px}
+ .vyaj-rides-caption-icon{width:42px;height:42px}
+ .vyaj-rides-caption-title{font-size:14px}
+ .vyaj-rides-caption-subtitle{font-size:9px}
+ .vyaj-rides-coming-soon{padding:9px 9px;font-size:10px}
+ .vyaj-rides-motion-road{margin-left:18px;margin-right:18px}
+}
+@media(prefers-reduced-motion:reduce){.vyaj-rides-moving-car{animation:none;left:calc(50% - 18px)}}
