@@ -2,6 +2,7 @@ name = "vyaj-travel-api"
 main = "worker/index.js"
 compatibility_date = "2026-10-10"
 workers_dev = true
+migrations_dir = "migrations"
 
 [observability]
 enabled = true

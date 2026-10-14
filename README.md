@@ -79,7 +79,7 @@ npx wrangler secret put RESEND_API_KEY
 npx wrangler deploy
 ```
 
-Only configure secrets for providers/features actually being used. Enter secrets at Wrangler's interactive prompt. The Worker also requires the D1 database binding configured in `wrangler.toml` and the relevant database tables to exist.
+Only configure secrets for providers/features actually being used. Enter secrets at Wrangler's interactive prompt. The Worker also requires the D1 database binding configured in `wrangler.toml` and the relevant database tables to exist. The repository includes `migrations/0001_initial_schema.sql`; inspect the target first, then apply pending migrations with `npx wrangler d1 migrations apply vyaj-production --remote`. This repository change does not itself apply the migration to production.
 
 ## API contracts
 
