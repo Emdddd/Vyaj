@@ -844,9 +844,10 @@ export default function Home() {
     <main className={`v2-site v2-lang-${language}`} lang={language} dir="ltr">
       <header ref={headerRef} className={`v2-header${headerScrolled ? " v2-header-scrolled" : ""}${headerHidden && !menuOpen ? " v2-header-hidden" : ""}`}>
         <a href="#top" className="v2-brand" aria-label={t("VYAJ home")}><img src="/D0F8F0DA-F8C9-4B07-8ED2-B6B0F1A5D567.png" alt="VYAJ" /></a>
+        <a href="/rides/" className="v2-rides-link v2-rides-header-link" aria-label="VYAJ Rides"><CarFront size={15} strokeWidth={1.8}/><span>Rides</span></a>
         <button type="button" className="v2-menu-toggle" aria-label={menuOpen ? t("Close navigation") : t("Open navigation")} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20}/> : <Menu size={20}/>}</button>
         <nav className={menuOpen ? "v2-nav v2-nav-open" : "v2-nav"} aria-label={t("Main navigation")}>
-          <a href="/rides/" className="v2-rides-link" onClick={() => setMenuOpen(false)}><CarFront size={15} strokeWidth={1.8}/><span>Rides</span></a>
+          
           <a href="#availability" onClick={() => setMenuOpen(false)}>{t("What’s available")}</a>
           <a href="#early-access" onClick={() => setMenuOpen(false)}>{t("Early access")}</a>
           {accountToken ? <>
