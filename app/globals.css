@@ -2040,3 +2040,47 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
   }
   .v2-nav-open .v2-language-picker select{max-width:125px;min-height:32px}
 }
+
+
+/* Fit the complete Rides composition and moving-car accent in a typical mobile viewport. */
+@media(max-width:600px){
+  .vyaj-rides-page{padding-bottom:12px}
+  .vyaj-rides-header{height:68px;padding-left:22px;padding-right:22px}
+  .vyaj-rides-logo{width:clamp(100px,26vw,126px);max-height:40px}
+  .vyaj-rides-brand{gap:9px}
+  .vyaj-rides-brand-label{font-size:9px;padding-left:9px;letter-spacing:.15em}
+  .vyaj-rides-menu summary{width:38px;height:38px}
+  .vyaj-rides-menu summary svg{width:17px;height:17px}
+  .vyaj-rides-intro{padding:26px 30px 0}
+  .vyaj-rides-heading{font-size:clamp(50px,10.8vw,66px);line-height:.88;letter-spacing:-.085em}
+  .vyaj-rides-kicker{font-size:14px;margin-top:10px;line-height:1.35}
+  .vyaj-rides-visual{aspect-ratio:1.62;margin:12px 16px 0;border-radius:16px}
+  .vyaj-rides-values{margin:-17px 18px 20px}
+  .vyaj-rides-value-icon{width:40px;height:40px;margin-bottom:5px}
+  .vyaj-rides-value-icon svg{width:20px;height:20px}
+  .vyaj-rides-value strong{font-size:12px}
+  .vyaj-rides-value small{font-size:7px;letter-spacing:.14em;margin-top:3px}
+  .vyaj-rides-value+.vyaj-rides-value:before{top:17px;height:46px}
+  .vyaj-rides-launch-card{margin:0 16px;padding:9px 10px;gap:8px;border-radius:17px}
+  .vyaj-rides-caption-icon{width:40px;height:40px;border-radius:11px}
+  .vyaj-rides-caption-icon svg{width:20px;height:20px}
+  .vyaj-rides-below-copy{gap:3px}
+  .vyaj-rides-caption-title{font-size:14px}
+  .vyaj-rides-caption-subtitle{font-size:9px;line-height:1.25}
+  .vyaj-rides-coming-soon{padding:9px 10px;font-size:10px}
+  .vyaj-rides-motion-road{height:38px;margin:10px 20px 0}
+  .vyaj-rides-moving-car{width:25px;height:25px}
+}
+@media(max-width:380px){
+  .vyaj-rides-header{height:64px;padding-left:17px;padding-right:17px}
+  .vyaj-rides-intro{padding-left:24px;padding-right:24px}
+  .vyaj-rides-heading{font-size:49px}
+  .vyaj-rides-kicker{font-size:13px}
+  .vyaj-rides-visual{margin-left:12px;margin-right:12px}
+  .vyaj-rides-values{margin-left:13px;margin-right:13px}
+  .vyaj-rides-launch-card{margin-left:12px;margin-right:12px;gap:6px;padding:8px}
+  .vyaj-rides-caption-title{font-size:13px}
+  .vyaj-rides-caption-subtitle{font-size:8px}
+  .vyaj-rides-coming-soon{padding:8px;font-size:9px}
+  .vyaj-rides-motion-road{margin-left:16px;margin-right:16px;height:34px}
+}
