@@ -72,6 +72,11 @@ export default function RidesPage() {
           </div>
           <span className="vyaj-rides-coming-soon">Coming soon</span>
         </div>
+
+        <div className="vyaj-rides-motion-road" aria-hidden="true">
+          <span className="vyaj-rides-road-glow" />
+          <CarFront className="vyaj-rides-moving-car" size={36} strokeWidth={1.7} />
+        </div>
       </section>
     </main>
   );
