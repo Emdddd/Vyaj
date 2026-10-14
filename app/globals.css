@@ -2147,3 +2147,16 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
   .vyaj-rides-heading{font-size:53px}
   .vyaj-rides-visual{aspect-ratio:1.58;margin-top:12px}
 }
+
+
+/* Final Rides header alignment: move brand left and tighten the RIDES label spacing. */
+@media(max-width:600px){
+  .vyaj-rides-header{padding-left:10px}
+  .vyaj-rides-brand{gap:5px}
+  .vyaj-rides-brand-label{padding-left:6px}
+}
+@media(max-width:380px){
+  .vyaj-rides-header{padding-left:8px}
+  .vyaj-rides-brand{gap:4px}
+  .vyaj-rides-brand-label{padding-left:5px}
+}
