@@ -1813,3 +1813,58 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 .vyaj-rides-home{position:absolute;top:max(24px,env(safe-area-inset-top,0px));left:max(24px,env(safe-area-inset-left,0px));display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #e1e9e8;border-radius:999px;background:rgba(255,255,255,.72);color:#425b67;font-size:12px;font-weight:600;box-shadow:0 3px 14px rgba(7,23,46,.035);transition:background .2s,border-color .2s,transform .2s;z-index:2}
 .vyaj-rides-home:hover{background:#e9f9fa;border-color:#c5edf0;transform:translateY(-1px)}
 @media(max-width:480px){.vyaj-rides-home{top:max(16px,env(safe-area-inset-top,0px));left:16px;padding:9px 12px;gap:6px}}
+
+
+/* Compact mobile menu: place Log in and Sign up side by side. */
+@media(max-width:720px){
+  .v2-nav{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    align-items:center;
+    column-gap:10px;
+    row-gap:5px;
+    padding:9px 14px 13px;
+  }
+  .v2-nav>a:not(.v2-nav-cta){
+    grid-column:1/-1;
+    padding:9px 2px;
+    min-height:36px;
+    font-size:12px;
+  }
+  .v2-nav>button.v2-nav-account,
+  .v2-nav>button.v2-nav-signup{
+    grid-column:auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:0;
+    min-height:40px;
+    margin:3px 0;
+    padding:9px 10px;
+    border:1px solid #dce7eb;
+    border-radius:9px;
+    font-size:12px;
+    line-height:1.2;
+  }
+  .v2-nav>button.v2-nav-account{background:#fff}
+  .v2-nav>button.v2-nav-signup{background:#e9f9fa;color:#087f8c;border-color:#c3edf1}
+  .v2-nav>a.v2-nav-cta{
+    grid-column:1/-1;
+    justify-content:center;
+    min-height:40px;
+    margin:4px 0 2px;
+    padding:10px 12px;
+    border-radius:9px;
+    font-size:12px;
+  }
+  .v2-nav-open .v2-language-picker{
+    grid-column:1/-1;
+    width:100%;
+    justify-content:space-between;
+    padding:8px 2px 2px;
+    margin-top:2px;
+    border-bottom:0;
+  }
+  .v2-nav-open .v2-language-picker select{max-width:130px;min-height:34px}
+  .v2-nav-account[aria-label="Signed in account"]{grid-column:1/-1}
+}
