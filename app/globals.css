@@ -1786,26 +1786,24 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 .vyaj-rides-page{min-height:100svh;position:relative;display:flex;justify-content:center;align-items:center;overflow:hidden;padding:72px 24px 32px;background:var(--v2-paper,#f7f8f5);color:var(--v2-ink,#07172e);isolation:isolate}
 .vyaj-rides-page:before{content:"";position:absolute;z-index:-1;pointer-events:none;width:min(75vw,780px);aspect-ratio:1;top:28%;right:-22%;border-radius:50%;background:radial-gradient(circle,#26c6da16 0%,#26c6da08 43%,transparent 70%)}
 .vyaj-rides-content{width:min(100%,850px);display:flex;flex-direction:column;align-items:stretch;text-align:left;gap:0}
-.vyaj-rides-brand{display:inline-flex;align-self:flex-start;align-items:center;gap:10px;margin-bottom:44px}
+.vyaj-rides-brand{display:inline-flex;align-self:center;align-items:center;justify-content:center;gap:10px;margin-bottom:44px}
 .vyaj-rides-logo{display:block;width:clamp(112px,18vw,154px);height:auto;max-height:52px;object-fit:contain;margin:0}
 .vyaj-rides-brand-label{font-size:10px;font-weight:700;letter-spacing:.16em;color:#087f8c;border-left:1px solid #d7e5e5;padding-left:10px}
 .vyaj-rides-intro{margin-bottom:28px}
-.vyaj-rides-eyebrow{display:flex;align-items:center;gap:9px;margin:0 0 17px;color:#087f8c;font-size:10px;font-weight:700;letter-spacing:.16em}
-.vyaj-rides-eyebrow span{display:inline-block;width:19px;height:2px;border-radius:2px;background:#26c6da}
 .vyaj-rides-heading{margin:0;color:var(--v2-ink,#07172e);font-size:clamp(38px,7.3vw,68px);font-weight:650;letter-spacing:-.065em;line-height:1.02}
 .vyaj-rides-heading span{color:#087f8c}
 .vyaj-rides-kicker{margin:18px 0 0;color:#687d87;font-size:clamp(13px,1.8vw,15px);line-height:1.6;letter-spacing:.005em}
 .vyaj-rides-visual{height:clamp(230px,38vw,390px);position:relative;overflow:hidden;border-radius:22px;background:#dce9e8;isolation:isolate;box-shadow:0 16px 45px rgba(7,23,46,.08)}
 .vyaj-rides-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 57%;z-index:-2}
-.vyaj-rides-photo-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(6,24,31,0) 42%,rgba(6,24,31,.65) 100%),linear-gradient(90deg,rgba(6,24,31,.08),transparent 55%)}
-.vyaj-rides-photo-caption{position:absolute;left:clamp(16px,3vw,28px);right:clamp(16px,3vw,28px);bottom:clamp(16px,3vw,26px);display:flex;align-items:center;gap:12px;color:#fff}
-.vyaj-rides-caption-icon{width:42px;height:42px;display:grid;place-items:center;flex-shrink:0;border:1px solid rgba(255,255,255,.35);border-radius:14px;background:rgba(255,255,255,.15);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.vyaj-rides-photo-caption>div:nth-child(2){display:flex;flex-direction:column;gap:4px}
+.vyaj-rides-photo-shade{display:none}
+.vyaj-rides-below-photo{display:flex;align-items:center;gap:12px;padding:18px 4px 0;color:var(--v2-ink,#07172e)}
+.vyaj-rides-caption-icon{width:42px;height:42px;display:grid;place-items:center;flex-shrink:0;border:1px solid #dce7e7;border-radius:14px;background:#e9f9fa;color:#087f8c}
+.vyaj-rides-below-copy{display:flex;flex-direction:column;gap:4px;min-width:0}
 .vyaj-rides-caption-title{font-size:14px;font-weight:650;letter-spacing:-.02em}
-.vyaj-rides-caption-subtitle{font-size:11px;color:rgba(255,255,255,.78)}
-.vyaj-rides-coming-soon{margin-left:auto;align-self:center;border:1px solid rgba(255,255,255,.42);border-radius:999px;padding:9px 13px;background:rgba(255,255,255,.14);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-size:10px;font-weight:650;letter-spacing:.015em;white-space:nowrap}
+.vyaj-rides-caption-subtitle{font-size:11px;color:#687d87}
+.vyaj-rides-coming-soon{margin-left:auto;align-self:center;border:1px solid #c3edf1;border-radius:999px;padding:9px 13px;background:#e9f9fa;color:#087f8c;font-size:10px;font-weight:650;letter-spacing:.015em;white-space:nowrap}
 .vyaj-rides-footer{margin:20px 0 0;text-align:center;color:#91a2a6;font-size:9px;font-weight:650;letter-spacing:.2em}
-@media(max-width:600px){.vyaj-rides-page{align-items:flex-start;padding:76px 20px 26px}.vyaj-rides-content{width:100%}.vyaj-rides-brand{margin-bottom:38px}.vyaj-rides-intro{margin-bottom:24px}.vyaj-rides-heading{font-size:clamp(39px,10vw,54px)}.vyaj-rides-visual{height:clamp(245px,70vw,340px);border-radius:18px}.vyaj-rides-photo{object-position:54% center}.vyaj-rides-photo-caption{gap:9px}.vyaj-rides-caption-icon{width:38px;height:38px;border-radius:12px}.vyaj-rides-caption-title{font-size:13px}.vyaj-rides-caption-subtitle{font-size:10px}.vyaj-rides-coming-soon{padding:8px 10px;font-size:9px}.vyaj-rides-footer{font-size:8px;letter-spacing:.15em}}
+@media(max-width:600px){.vyaj-rides-page{align-items:flex-start;padding:76px 20px 26px}.vyaj-rides-content{width:100%}.vyaj-rides-brand{margin-bottom:38px}.vyaj-rides-intro{margin-bottom:24px}.vyaj-rides-heading{font-size:clamp(39px,10vw,54px)}.vyaj-rides-visual{height:clamp(245px,70vw,340px);border-radius:18px}.vyaj-rides-photo{object-position:54% center}.vyaj-rides-below-photo{gap:9px;padding-top:14px}.vyaj-rides-caption-icon{width:38px;height:38px;border-radius:12px}.vyaj-rides-caption-title{font-size:13px}.vyaj-rides-caption-subtitle{font-size:10px}.vyaj-rides-coming-soon{padding:8px 10px;font-size:9px}}
 @media(prefers-reduced-motion:reduce){.vyaj-rides-page *{scroll-behavior:auto}}
 
 /* Keep Rides visible in the header, outside the mobile navigation drawer. */
