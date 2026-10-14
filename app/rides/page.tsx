@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function RidesPage() {
   return (
     <main className="vyaj-rides-page">
-      <a className="vyaj-rides-home" href="/" aria-label="Back to VYAJ homepage"><ArrowLeft size={16} strokeWidth={1.8}/><House size={16} strokeWidth={1.8}/><span>Home</span></a>
+      <a className="vyaj-rides-home" href="/" aria-label="Back to VYAJ Travel"><ArrowLeft size={16} strokeWidth={1.8}/><House size={16} strokeWidth={1.8}/><span>Travel</span></a>
       <section className="vyaj-rides-content" aria-labelledby="vyaj-rides-title">
         <a href="/" aria-label="VYAJ home">
           <img
