@@ -38,8 +38,8 @@ export default function RidesPage() {
         <div className="vyaj-rides-visual">
           <img
             className="vyaj-rides-photo"
-            src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1800&q=85"
-            alt="A sleek sports car in a bright, open setting"
+            src="/IMG_7721.jpeg"
+            alt="A silver electric sedan driving along a coastal road"
             loading="eager"
           />
           <div className="vyaj-rides-photo-shade" />
