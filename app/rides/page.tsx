@@ -43,14 +43,15 @@ export default function RidesPage() {
             loading="eager"
           />
           <div className="vyaj-rides-photo-shade" />
-          <div className="vyaj-rides-photo-caption">
-            <div className="vyaj-rides-caption-icon"><CarFront size={20} strokeWidth={1.7} /></div>
-            <div>
-              <span className="vyaj-rides-caption-title">VYAJ Rides</span>
-              <span className="vyaj-rides-caption-subtitle">A better journey starts here.</span>
-            </div>
-            <span className="vyaj-rides-coming-soon">Coming soon</span>
+        </div>
+
+        <div className="vyaj-rides-below-photo">
+          <div className="vyaj-rides-caption-icon"><CarFront size={20} strokeWidth={1.7} /></div>
+          <div className="vyaj-rides-below-copy">
+            <span className="vyaj-rides-caption-title">VYAJ Rides</span>
+            <span className="vyaj-rides-caption-subtitle">A better journey starts here.</span>
           </div>
+          <span className="vyaj-rides-coming-soon">Coming soon</span>
         </div>
 
         
