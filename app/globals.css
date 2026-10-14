@@ -2160,3 +2160,16 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
   .vyaj-rides-brand{gap:4px}
   .vyaj-rides-brand-label{padding-left:5px}
 }
+
+
+/* Micro-adjust Rides brand further left and bring RIDES closer to the logo. */
+@media(max-width:600px){
+  .vyaj-rides-header{padding-left:4px}
+  .vyaj-rides-brand{gap:2px}
+  .vyaj-rides-brand-label{padding-left:3px;letter-spacing:.13em}
+}
+@media(max-width:380px){
+  .vyaj-rides-header{padding-left:3px}
+  .vyaj-rides-brand{gap:1px}
+  .vyaj-rides-brand-label{padding-left:2px;letter-spacing:.12em}
+}
