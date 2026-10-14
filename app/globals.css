@@ -2128,3 +2128,22 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
   .vyaj-rides-coming-soon{padding:9px 10px;font-size:10px}
   .vyaj-rides-motion-road{margin-left:18px;margin-right:18px;height:40px}
 }
+
+
+/* Small final positioning refinements requested for the Rides mobile view. */
+@media(max-width:600px){
+  .vyaj-rides-header{padding-left:18px;padding-right:26px}
+  .vyaj-rides-intro{padding-top:29px}
+  .vyaj-rides-heading{font-size:clamp(54px,11.3vw,69px)}
+  .vyaj-rides-kicker{margin-top:11px}
+  .vyaj-rides-visual{aspect-ratio:1.58;margin-top:13px}
+  .vyaj-rides-values{margin-top:-20px;margin-bottom:22px}
+  .vyaj-rides-launch-card{padding-top:10px;padding-bottom:10px}
+  .vyaj-rides-motion-road{margin-top:10px;height:46px}
+}
+@media(max-width:380px){
+  .vyaj-rides-header{padding-left:15px;padding-right:21px}
+  .vyaj-rides-intro{padding-top:27px}
+  .vyaj-rides-heading{font-size:53px}
+  .vyaj-rides-visual{aspect-ratio:1.58;margin-top:12px}
+}
