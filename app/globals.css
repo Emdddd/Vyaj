@@ -2204,3 +2204,9 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 @media(max-width:380px){
   .vyaj-rides-brand-label{padding-left:0}
 }
+
+
+/* Align the divider closer to the R in RIDES. */
+@media(max-width:600px){
+  .vyaj-rides-brand-label{padding-left:0}
+}
