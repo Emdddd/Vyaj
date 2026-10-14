@@ -1978,3 +1978,65 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
  .vyaj-rides-motion-road{margin-left:18px;margin-right:18px}
 }
 @media(prefers-reduced-motion:reduce){.vyaj-rides-moving-car{animation:none;left:calc(50% - 18px)}}
+
+
+/* Main-site mobile navigation: compact white floating panel, not full-width. */
+@media(max-width:720px){
+  .v2-header{position:relative;z-index:60}
+  .v2-nav{
+    left:auto!important;
+    right:0!important;
+    top:calc(100% + 10px)!important;
+    width:min(292px,calc(100vw - 36px))!important;
+    max-width:calc(100vw - 36px);
+    box-sizing:border-box;
+    padding:14px 16px 15px!important;
+    background:#fff!important;
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+    border:1px solid #e4e9ed!important;
+    border-radius:16px!important;
+    box-shadow:0 16px 38px rgba(7,23,46,.14)!important;
+    gap:0!important;
+    clip-path:inset(0 0 100% 100% round 16px);
+    transform-origin:top right;
+  }
+  .v2-nav-open{
+    clip-path:inset(0 0 0 0 round 16px)!important;
+  }
+  .v2-nav>a:not(.v2-nav-cta){
+    display:flex;
+    align-items:center;
+    min-height:38px;
+    padding:10px 2px!important;
+    color:#263f54!important;
+    border-bottom:1px solid #edf1f4!important;
+    font-size:13px!important;
+    background:transparent;
+  }
+  .v2-nav>button.v2-nav-account,
+  .v2-nav>button.v2-nav-signup{
+    min-height:38px;
+    padding:9px 8px!important;
+    margin:10px 0 2px!important;
+    border-radius:9px!important;
+    font-size:12px!important;
+  }
+  .v2-nav>button.v2-nav-account{background:#fff!important;border:1px solid #dfe7eb!important;color:#263f54!important}
+  .v2-nav>button.v2-nav-signup{background:#e9f9fa!important;border:1px solid #c3edf1!important;color:#087f8c!important}
+  .v2-nav>a.v2-nav-cta{
+    min-height:39px;
+    margin-top:10px!important;
+    padding:10px 12px!important;
+    border-radius:9px!important;
+    font-size:12px!important;
+  }
+  .v2-nav-open .v2-language-picker{
+    padding:11px 2px 0!important;
+    margin-top:7px!important;
+    border-top:1px solid #edf1f4!important;
+    border-bottom:0!important;
+    font-size:12px;
+  }
+  .v2-nav-open .v2-language-picker select{max-width:125px;min-height:32px}
+}
