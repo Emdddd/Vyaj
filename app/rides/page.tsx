@@ -3,7 +3,7 @@ import { ArrowLeft, CarFront, Plane } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "VYAJ Rides — Coming Soon",
-  description: "Your next ride. A new feeling. VYAJ Rides is coming soon.",
+  description: "Move better. VYAJ Rides is coming soon.",
 };
 
 export default function RidesPage() {
@@ -30,8 +30,7 @@ export default function RidesPage() {
         <div className="vyaj-rides-intro">
           <p className="vyaj-rides-eyebrow"><span /> A NEW WAY TO MOVE</p>
           <h1 className="vyaj-rides-heading" id="vyaj-rides-title">
-            Your next ride.<br />
-            <span>A new feeling.</span>
+            Move better.
           </h1>
           <p className="vyaj-rides-kicker">A better way to move is on its way.</p>
         </div>
@@ -54,7 +53,7 @@ export default function RidesPage() {
           </div>
         </div>
 
-        <p className="vyaj-rides-footer">MOVE WITH A DIFFERENT FEELING</p>
+        <p className="vyaj-rides-footer">A BETTER WAY TO MOVE</p>
       </section>
     </main>
   );
