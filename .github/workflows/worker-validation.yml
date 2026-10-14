@@ -1,0 +1,42 @@
+name: Worker validation
+
+on:
+  pull_request:
+    paths:
+      - "worker/**"
+      - ".github/workflows/worker-validation.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "worker/**"
+      - ".github/workflows/worker-validation.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check Worker JavaScript syntax
+        run: node --check worker/index.js
+      - name: Verify selected-flight booking token is preserved
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const source = fs.readFileSync('worker/index.js', 'utf8');
+          const checks = [
+            ['SerpApi booking-token lookup', /booking_token:bookingToken/.test(source)],
+            ['Search result booking token preserved', /typeof item\?\.booking_token==="string"\?item\.booking_token:""/.test(source)],
+            ['No Ignav dependency in booking handler', !/ignav\.com\/api\/fares\/booking-links/.test(source)]
+          ];
+          for (const [name, passed] of checks) {
+            console.log((passed ? 'PASS' : 'FAIL') + ': ' + name);
+          }
+          if (checks.some(([, passed]) => !passed)) process.exit(1);
+          NODE
