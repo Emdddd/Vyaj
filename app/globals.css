@@ -2221,13 +2221,22 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 }
 
 
-/* Trip cost summary and one-click booking placeholder. */
-.v2-trip-total{border-top:1px solid #dce8ee;margin:22px 0 16px;padding-top:18px;display:grid;gap:8px}
-.v2-trip-total .v2-small-label{color:#60788b}
-.v2-trip-total>strong{font-size:29px;line-height:1.15;letter-spacing:-.8px;color:#07182c;font-weight:700}
-.v2-trip-total>p{font-size:10px;line-height:1.7;color:#6b8092;margin:0}
-.v2-book-all-button{width:100%;justify-content:center;gap:10px;margin:0 0 10px;background:#00bcd4;color:#07182c;font-weight:700;border-color:#00bcd4}
-.v2-book-all-button:hover{background:#45d9e8;border-color:#45d9e8}
+/* Premium standalone trip-total card and booking CTA. */
+.v2-trip-total{position:relative;overflow:hidden;background:linear-gradient(145deg,#fff 0%,#f4fbfc 100%);border:1px solid #dbe8ed;border-radius:14px;margin:24px 0 13px;padding:22px 21px 18px;display:grid;gap:9px;box-shadow:0 10px 30px rgba(7,24,44,.055)}
+.v2-trip-total:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:#00bcd4}
+.v2-trip-total-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.v2-trip-total .v2-small-label{color:#60788b;letter-spacing:1.2px}
+.v2-trip-total-mark{display:inline-flex;align-items:center;gap:5px;color:#167c70;background:#e8f8f4;border-radius:999px;padding:5px 8px;font-size:8px;font-weight:700;letter-spacing:.6px}
+.v2-trip-total>strong{font-size:clamp(30px,3vw,38px);line-height:1.1;letter-spacing:-1.2px;color:#07182c;font-weight:750;overflow-wrap:anywhere;margin-top:4px}
+.v2-trip-total-label{font-size:10px;line-height:1;color:#536b7f;font-weight:800;letter-spacing:2px}
+.v2-trip-total>p{font-size:10px;line-height:1.75;color:#6b8092;margin:5px 0 0;padding-top:12px;border-top:1px solid #e2edf1}
+.v2-book-all-button{width:100%;min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 13px;padding:13px 18px!important;background:#07182c;color:#fff;font-weight:700;border:1px solid #07182c;border-radius:10px;box-shadow:0 8px 18px rgba(7,24,44,.14);transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+.v2-book-all-button>span{display:grid;gap:4px;text-align:left;font-size:13px}
+.v2-book-all-button>span>small{font-size:9px;font-weight:400;color:#c4d2dc;letter-spacing:.2px}
+.v2-book-all-button:hover{background:#102a46;border-color:#102a46;box-shadow:0 12px 24px rgba(7,24,44,.2);transform:translateY(-1px)}
+.v2-book-all-button:focus-visible{outline:3px solid #00bcd4;outline-offset:3px}
 @media(max-width:600px){
-  .v2-trip-total>strong{font-size:26px}
+  .v2-trip-total{padding:19px 17px 16px;margin-top:18px}
+  .v2-trip-total>strong{font-size:30px}
+  .v2-book-all-button{min-height:58px}
 }
