@@ -1036,11 +1036,8 @@ export default function Home() {
                     <span>{activity.time || "Flexible"}</span><div><strong>{activity.title}</strong><p>{activity.description}</p>{activity.location && <small>{activity.location}</small>}{activity.estimatedCost && <small> · {activity.estimatedCost}</small>}</div>
                   </div>)}
                 </article>)}</div>
-                <aside className="v2-result-aside"><span className="v2-small-label">{t("ESTIMATED TRIP COST")}</span><h3>{aiItinerary.estimatedBudget?.totalEstimate || aiItinerary.estimatedBudget?.perPerson || t("Not estimated")}</h3><p>{aiItinerary.estimatedBudget?.budgetFit || ""} {aiItinerary.estimatedBudget?.notes || t("Costs are estimates and should be checked before booking.")}</p>
+                <aside className="v2-result-aside">
                   {aiItinerary.estimatedBudget?.breakdown && <div className="v2-budget-breakdown"><span className="v2-small-label">{t("APPROXIMATE COST BREAKDOWN")}</span>{([{key:"flights",label:t("Flights")},{key:"accommodation",label:t("Hotel / accommodation")},{key:"food",label:t("Food & drinks")},{key:"localTransport",label:t("Taxi & local transport")},{key:"activities",label:t("Activities & tickets")},{key:"other",label:t("Other costs")}] as const).map(item => <div className="v2-budget-row" key={item.key}><span>{item.label}</span><strong>{aiItinerary.estimatedBudget?.breakdown?.[item.key] || t("Not estimated")}</strong></div>)}</div>}
-                  {aiItinerary.tips?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">{t("TRAVEL TIPS")}</span><ul>{aiItinerary.tips.map((tip, index) => <li key={index}>{tip}</li>)}</ul></> : null}
-                  {aiItinerary.assumptions?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">{t("ASSUMPTIONS TO CHECK")}</span><ul>{aiItinerary.assumptions.map((assumption, index) => <li key={index}>{assumption}</li>)}</ul></> : null}
-                  <div className="v2-assumption"><Sparkles size={15}/><span>{t("AI-generated starter plan. Prices, opening hours, transport and availability are not live-verified.")}</span></div>
                   <div className="v2-trip-total" aria-live="polite">
                     <div className="v2-trip-total-heading">
                       <span className="v2-small-label">{t("YOUR TRIP PRICE")}</span>
@@ -1048,8 +1045,12 @@ export default function Home() {
                     </div>
                     <strong>{aiItinerary.estimatedBudget?.totalEstimate || t("Not estimated")}</strong>
                     <span className="v2-trip-total-label">{t("TOTAL")}</span>
+                    <p>{aiItinerary.estimatedBudget?.budgetFit || ""} {aiItinerary.estimatedBudget?.notes || t("Costs are estimates and should be checked before booking.")}</p>
                     <p>{t("Includes the estimated flight, accommodation, taxi and local transport, food, activities and other costs listed above.")}</p>
                   </div>
+                  {aiItinerary.tips?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">{t("TRAVEL TIPS")}</span><ul>{aiItinerary.tips.map((tip, index) => <li key={index}>{tip}</li>)}</ul></> : null}
+                  {aiItinerary.assumptions?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">{t("ASSUMPTIONS TO CHECK")}</span><ul>{aiItinerary.assumptions.map((assumption, index) => <li key={index}>{assumption}</li>)}</ul></> : null}
+                  <div className="v2-assumption"><Sparkles size={15}/><span>{t("AI-generated starter plan. Prices, opening hours, transport and availability are not live-verified.")}</span></div>
                   <button className="v2-button v2-button-dark v2-book-all-button" type="button" onClick={() => setBookingSoonOpen(true)}><span>{t("Book all the plan")}<small>{t("Continue to booking")}</small></span><ArrowUpRight size={19}/></button>
                   <button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); setAiItinerary(null); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>{t("Adjust your trip")} <ArrowRight size={16}/></button>
                 </aside>
