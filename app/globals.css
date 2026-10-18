@@ -2219,3 +2219,15 @@ html, body, body * { -ms-touch-action: pan-y !important; touch-action: pan-y !im
 @media(max-width:380px){
   .vyaj-rides-brand-label{padding-left:6px}
 }
+
+
+/* Trip cost summary and one-click booking placeholder. */
+.v2-trip-total{border-top:1px solid #dce8ee;margin:22px 0 16px;padding-top:18px;display:grid;gap:8px}
+.v2-trip-total .v2-small-label{color:#60788b}
+.v2-trip-total>strong{font-size:29px;line-height:1.15;letter-spacing:-.8px;color:#07182c;font-weight:700}
+.v2-trip-total>p{font-size:10px;line-height:1.7;color:#6b8092;margin:0}
+.v2-book-all-button{width:100%;justify-content:center;gap:10px;margin:0 0 10px;background:#00bcd4;color:#07182c;font-weight:700;border-color:#00bcd4}
+.v2-book-all-button:hover{background:#45d9e8;border-color:#45d9e8}
+@media(max-width:600px){
+  .v2-trip-total>strong{font-size:26px}
+}
