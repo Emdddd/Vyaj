@@ -1042,11 +1042,15 @@ export default function Home() {
                   {aiItinerary.assumptions?.length ? <><div className="v2-aside-divider"/><span className="v2-small-label">{t("ASSUMPTIONS TO CHECK")}</span><ul>{aiItinerary.assumptions.map((assumption, index) => <li key={index}>{assumption}</li>)}</ul></> : null}
                   <div className="v2-assumption"><Sparkles size={15}/><span>{t("AI-generated starter plan. Prices, opening hours, transport and availability are not live-verified.")}</span></div>
                   <div className="v2-trip-total" aria-live="polite">
-                    <span className="v2-small-label">{t("TOTAL TRIP PRICE")}</span>
-                    <strong>{aiItinerary.estimatedBudget?.totalEstimate || aiItinerary.estimatedBudget?.perPerson || t("Not estimated")}</strong>
-                    <p>{t("Includes the estimated flight, accommodation, local transport, food, activities and other costs listed above.")}</p>
+                    <div className="v2-trip-total-heading">
+                      <span className="v2-small-label">{t("YOUR TRIP PRICE")}</span>
+                      <span className="v2-trip-total-mark"><Check size={14}/>{t("ESTIMATED")}</span>
+                    </div>
+                    <strong>{aiItinerary.estimatedBudget?.totalEstimate || t("Not estimated")}</strong>
+                    <span className="v2-trip-total-label">{t("TOTAL")}</span>
+                    <p>{t("Includes the estimated flight, accommodation, taxi and local transport, food, activities and other costs listed above.")}</p>
                   </div>
-                  <button className="v2-button v2-button-dark v2-book-all-button" type="button" onClick={() => setBookingSoonOpen(true)}>{t("Book all the plan")} <ArrowUpRight size={17}/></button>
+                  <button className="v2-button v2-button-dark v2-book-all-button" type="button" onClick={() => setBookingSoonOpen(true)}><span>{t("Book all the plan")}<small>{t("Continue to booking")}</small></span><ArrowUpRight size={19}/></button>
                   <button className="v2-button v2-button-outline" type="button" onClick={() => { setResultReady(false); setAiItinerary(null); document.getElementById("trip-builder")?.scrollIntoView({behavior:"smooth",block:"center"}); }}>{t("Adjust your trip")} <ArrowRight size={16}/></button>
                 </aside>
               </div>
